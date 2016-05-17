@@ -25,6 +25,7 @@ CONFIG_PATH = os.environ.get('CSIRTG_SMRT_CONFIG_PATH', os.path.join(os.path.exp
 
 # http://python-3-patterns-idioms-test.readthedocs.org/en/latest/Factory.html
 # https://gist.github.com/pazdera/1099559
+logging.getLogger("requests").setLevel(logging.WARNING)
 
 
 class Smrt(object):
