@@ -5,7 +5,7 @@ from csirtg_smrt.rule import Rule
 from csirtg_smrt.constants import REMOTE_ADDR
 from pprint import pprint
 
-rule = 'rules/default/malc0de.yml'
+rule = 'test/malc0de/malc0de.yml'
 rule = Rule(path=rule)
 rule.fetcher = 'file'
 s = Smrt(REMOTE_ADDR, 1234, client='dummy')

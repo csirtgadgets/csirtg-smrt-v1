@@ -12,7 +12,7 @@ class Client(object):
         return Indicator(**kv)
 
     @abc.abstractmethod
-    def ping(self):
+    def ping(self, write=False):
         raise NotImplementedError
 
     @abc.abstractmethod

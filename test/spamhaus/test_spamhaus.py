@@ -5,7 +5,7 @@ from csirtg_smrt.rule import Rule
 from csirtg_smrt.constants import REMOTE_ADDR
 from pprint import pprint
 
-rule = 'rules/default/spamhaus.yml'
+rule = 'test/spamhaus/spamhaus.yml'
 rule = Rule(path=rule)
 rule.fetcher = 'file'
 s = Smrt(REMOTE_ADDR, 1234, client='dummy')

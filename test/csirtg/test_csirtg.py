@@ -5,7 +5,7 @@ from csirtg_smrt.rule import Rule
 from csirtg_smrt.constants import REMOTE_ADDR
 from pprint import pprint
 
-rule = 'rules/default/csirtg.yml'
+rule = 'test/csirtg/csirtg.yml'
 rule = Rule(path=rule)
 rule.fetcher = 'file'
 

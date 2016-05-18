@@ -6,7 +6,7 @@ from csirtg_smrt.constants import REMOTE_ADDR
 from pprint import pprint
 import json
 
-rule = 'rules/default/openphish.yml'
+rule = 'test/openphish/openphish.yml'
 rule = Rule(path=rule)
 rule.fetcher = 'file'
 s = Smrt(REMOTE_ADDR, 1234, client='dummy')

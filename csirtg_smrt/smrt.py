@@ -38,6 +38,8 @@ class Smrt(object):
     def __init__(self, remote=REMOTE_ADDR, token=TOKEN, client='cif'):
 
         self.logger = logging.getLogger(__name__)
+
+        self.logger.debug(csirtg_smrt.client.__path__[0])
         self.client = load_plugin(csirtg_smrt.client.__path__[0], client)(remote, token)
 
     def ping_router(self):

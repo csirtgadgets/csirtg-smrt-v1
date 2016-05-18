@@ -5,7 +5,7 @@ from csirtg_smrt.rule import Rule
 from csirtg_smrt.constants import REMOTE_ADDR
 from pprint import pprint
 
-rule = 'rules/default/vxvault.yml'
+rule = 'test/vxvault/vxvault.yml'
 rule = Rule(path=rule)
 rule.fetcher = 'file'
 

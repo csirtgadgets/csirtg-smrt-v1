@@ -7,7 +7,7 @@ from pprint import pprint
 from csirtg_smrt.utils.znltk import text_to_list
 import arrow
 
-rule = 'rules/default/sans_edu.yml'
+rule = 'test/sansedu/sans_edu.yml'
 rule = Rule(path=rule)
 rule.fetcher = 'file'
 s = Smrt(REMOTE_ADDR, 1234, client='dummy')
