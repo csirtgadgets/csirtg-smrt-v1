@@ -1,4 +1,5 @@
 from cifsdk.client.http import HTTP as HTTPClient
+from csirtg_smrt.client.plugin import Client
 
 
 class CIF(HTTPClient, Client):

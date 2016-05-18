@@ -11,16 +11,16 @@ from pprint import pprint
 
 import csirtg_smrt.parser
 import csirtg_smrt.client
-from csirtg_smrt.constants import REMOTE_ADDR, SMRT_RULES_PATH, SMRT_CACHE
+from csirtg_smrt.constants import REMOTE_ADDR, SMRT_RULES_PATH, SMRT_CACHE, CONFIG_PATH
 from csirtg_smrt.rule import Rule
 from csirtg_smrt.fetcher import Fetcher
-from csirtg_smrt.utils import setup_logging, get_argument_parser, load_plugin, setup_signals, read_config
+from csirtg_smrt.utils import setup_logging, get_argument_parser, load_plugin, setup_signals, read_config, \
+    setup_runtime_path
 from csirtg_smrt.exceptions import AuthError
 
 PARSER_DEFAULT = "pattern"
 TOKEN = os.environ.get('CSIRTG_TOKEN', None)
 TOKEN = os.environ.get('CSIRTG_SMRT_TOKEN', TOKEN)
-CONFIG_PATH = os.environ.get('CSIRTG_SMRT_CONFIG_PATH', os.path.join(os.path.expanduser('~'), 'csirtg-smrt.yml'))
 
 
 # http://python-3-patterns-idioms-test.readthedocs.org/en/latest/Factory.html
@@ -35,12 +35,12 @@ class Smrt(object):
     def __enter__(self):
         return self
 
-    def __init__(self, remote=REMOTE_ADDR, token=TOKEN, client='cif'):
+    def __init__(self, remote=REMOTE_ADDR, token=TOKEN, client='cif', user=None, feed=None):
 
         self.logger = logging.getLogger(__name__)
 
         self.logger.debug(csirtg_smrt.client.__path__[0])
-        self.client = load_plugin(csirtg_smrt.client.__path__[0], client)(remote, token)
+        self.client = load_plugin(csirtg_smrt.client.__path__[0], client)(remote, token, user=user, feed=feed)
 
     def ping_router(self):
         return self.client.ping(write=True)
@@ -100,6 +100,8 @@ class Smrt(object):
                 except Exception as e:
                     self.logger.error('failed to process feed: {}'.format(feed))
                     self.logger.error(e)
+                    import traceback
+                    traceback.print_exc()
             else:
                 for feed in r.feeds:
                     try:
@@ -149,6 +151,10 @@ def main():
 
     p.add_argument('--config', help='specify csirtg-smrt config path [default %(default)s', default=CONFIG_PATH)
 
+    p.add_argument('--client', default='cif')
+
+    p.add_argument('--user')
+
     args = p.parse_args()
 
     o = read_config(args)
@@ -162,6 +168,10 @@ def main():
     logger.info('loglevel is: {}'.format(logging.getLevelName(logger.getEffectiveLevel())))
 
     setup_signals(__name__)
+
+    setup_runtime_path(args.runtime_path)
+
+
 
     stop = False
 
@@ -177,7 +187,8 @@ def main():
 
         logger.info('starting...')
         try:
-            with Smrt(options.get('remote'), options.get('token')) as s:
+            with Smrt(options.get('remote'), options.get('token'), client=args.client, user=args.user,
+                      feed=args.feed) as s:
                 logger.info('staring up...')
                 logger.info('testing router connection...')
                 s.ping_router()

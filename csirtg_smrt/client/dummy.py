@@ -3,7 +3,7 @@ from csirtg_smrt.client.plugin import Client
 
 class Dummy(Client):
 
-    def __init__(self, remote, token):
+    def __init__(self, remote, token, **kwargs):
         super(Dummy, self).__init__(remote, token)
 
     def indicator_create(self, data):

@@ -20,6 +20,9 @@ def test_abuse_ch_ransomware():
     indicators = set()
     tags = set()
 
+    from pprint import pprint
+    pprint(x)
+
     for xx in x:
         indicators.add(xx.indicator)
         tags.add(xx.tags[0])

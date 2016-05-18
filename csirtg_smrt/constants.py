@@ -23,3 +23,8 @@ LOGLEVEL = os.environ.get('CSIRTG_LOGLEVEL', LOGLEVEL).upper()
 
 REMOTE_ADDR = 'http://localhost:5000'
 REMOTE_ADDR = os.environ.get('CSIRTG_REMOTE_ADDR', REMOTE_ADDR)
+
+CONFIG_PATH = os.environ.get('CSIRTG_SMRT_CONFIG_PATH', os.path.join(os.getcwd(), 'csirtg-smrt.yml'))
+if not os.path.isfile(CONFIG_PATH):
+    CONFIG_PATH = os.path.join(os.path.expanduser('~'), 'csirtg-smrt.yml')
+
