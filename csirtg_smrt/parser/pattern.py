@@ -64,7 +64,7 @@ class Pattern(Parser):
                     self.logger.info('skipping: {}'.format(i['indicator']))
                 else:
                     self.logger.debug(i)
-                    r = self.client.indicator_create(i)
+                    r = self.client.indicators_create(i)
                     rv.append(r)
 
             if self.limit:

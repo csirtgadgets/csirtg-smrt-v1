@@ -36,7 +36,7 @@ class Delim(Parser):
                     self.logger.error(e)
                     self.logger.info('skipping: {}'.format(obs['indicator']))
                 else:
-                    r = self.client.indicator_create(obs)
+                    r = self.client.indicators_create(obs)
                     rv.append(r)
 
             if self.limit:

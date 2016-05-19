@@ -18,7 +18,7 @@ class CSIRTG(CSIRTGClient, Client):
     def ping(self, write=False):
         return True
 
-    def indicator_create(self, data):
+    def indicators_create(self, data):
         d = data.__dict__
         d['user'] = self.user
         d['feed'] = 'test'

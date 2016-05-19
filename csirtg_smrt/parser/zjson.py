@@ -29,7 +29,7 @@ class Json(Parser):
                     self.logger.debug(i)
                     i = normalize_itype(i)
                     i = Indicator(**i)
-                    r = self.client.indicator_create(i)
+                    r = self.client.indicators_create(i)
                     data.append(r)
                 except NotImplementedError as e:
                     self.logger.error(e)

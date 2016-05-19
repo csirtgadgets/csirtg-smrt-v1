@@ -16,5 +16,5 @@ class Client(object):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def indicator_create(self, data, **kwargs):
+    def indicators_create(self, data, **kwargs):
         raise NotImplementedError

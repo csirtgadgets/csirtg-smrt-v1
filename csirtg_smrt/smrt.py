@@ -8,6 +8,7 @@ from argparse import RawDescriptionHelpFormatter
 from random import randint
 from time import sleep
 from pprint import pprint
+import traceback
 
 import csirtg_smrt.parser
 import csirtg_smrt.client
@@ -83,6 +84,7 @@ class Smrt(object):
                         except Exception as e:
                             self.logger.error('failed to process: {}'.format(feed))
                             self.logger.error(e)
+                            traceback.print_exc()
 
         else:
             self.logger.debug("processing {0}".format(rule))
@@ -100,7 +102,6 @@ class Smrt(object):
                 except Exception as e:
                     self.logger.error('failed to process feed: {}'.format(feed))
                     self.logger.error(e)
-                    import traceback
                     traceback.print_exc()
             else:
                 for feed in r.feeds:
@@ -109,6 +110,7 @@ class Smrt(object):
                     except Exception as e:
                         self.logger.error('failed to process feed: {}'.format(feed))
                         self.logger.error(e)
+                        traceback.print_exc()
 
         return rv
 
