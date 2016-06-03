@@ -6,7 +6,7 @@ VERSION = get_versions()['version']
 del get_versions
 
 TEMP_DIR = os.path.join(tempfile.gettempdir())
-RUNTIME_PATH = os.environ.get('CSIRTG_RUNTIME_PATH', TEMP_DIR)
+RUNTIME_PATH = os.environ.get('CSIRTG_SMRT_RUNTIME_PATH', TEMP_DIR)
 RUNTIME_PATH = os.path.join(RUNTIME_PATH)
 
 SMRT_CACHE = os.path.join(RUNTIME_PATH, 'smrt')
