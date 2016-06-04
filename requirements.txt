@@ -1,5 +1,5 @@
--e git+https://github.com/csirtgadgets/csirtg-indicator-py.git@d581798a97a12ef0ae7942b0e8c300315769c38e#egg=csirtg_indicator
--e git+https://github.com/csirtgadgets/py-csirtgsdk.git@7715a761d7f1c80821bc8ce49c2c851cb5041ab9#egg=csirtgsdk
+https://github.com/csirtgadgets/csirtg-indicator-py/archive/v0.0.1.tar.gz
+git+https://github.com/csirtgadgets/py-csirtgsdk.git@7715a761d7f1c80821bc8ce49c2c851cb5041ab9#egg=csirtgsdk
 pytest-cov>=2.2.1
 ipaddress>=1.0.16
 feedparser>=5.2.1
