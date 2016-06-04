@@ -6,9 +6,6 @@ import versioneer
 if os.environ.get('USER') == 'vagrant' or os.path.isdir('/vagrant'):
     del os.link
 
-with open('requirements.txt') as f:
-    reqs = f.read().splitlines()
-
 setup(
     name="csirtg_smrt",
     version=versioneer.get_version(),
@@ -28,7 +25,18 @@ setup(
     author="Wes Young",
     author_email="wes@csirtgadgets.org",
     packages=find_packages(),
-    install_requires=reqs,
+    install_requires=[
+        'pytest-cov>=2.2.1',
+        'ipaddress>=1.0.16',
+        'feedparser>=5.2.1',
+        'nltk==3.2',
+        'ipaddr>=2.1.11',
+        'requests>=2.6.0',
+        'pytest>=2.8.0',
+        'arrow>=0.6.0',
+        'python-magic>=0.4.6',
+        'pyaml>=15.8.2',
+    ],
     scripts=[],
     entry_points={
         'console_scripts': [
