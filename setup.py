@@ -28,7 +28,7 @@ setup(
     author="Wes Young",
     author_email="wes@csirtgadgets.org",
     packages=find_packages(),
-    install_requires=[],
+    install_requires=reqs,
     scripts=[],
     entry_points={
         'console_scripts': [
