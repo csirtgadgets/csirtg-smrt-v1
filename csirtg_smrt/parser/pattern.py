@@ -3,6 +3,7 @@ import re
 
 from csirtg_smrt.parser import Parser
 from csirtg_indicator import Indicator
+import logging
 
 
 class Pattern(Parser):
