@@ -1,0 +1,38 @@
+#############################################################
+## Master Feed of known, active and non-sinkholed C&Cs IP
+## addresses
+##
+## Feed generated at: 2016-06-05 12:18
+##
+## Feed Provided By: John Bambenek of Bambenek Consulting
+## jcb@bambenekconsulting.com // http://bambenekconsulting.com
+## Use of this feed is governed by the license here:
+## http://osint.bambenekconsulting.com/license.txt
+##
+## For more information on this feed go to:
+## http://osint.bambenekconsulting.com/manual/c2-ipmasterlist.txt
+##
+## All times are in UTC
+#############################################################
+52.4.209.250,IP used by shiotob/urlzone/bebloh C&C,2016-06-05 12:03,http://osint.bambenekconsulting.com/manual/bebloh.txt
+162.255.119.250,IP used by bedep C&C,2016-06-05 12:10,http://osint.bambenekconsulting.com/manual/bedep.txt
+31.170.178.179,IP used by beebone C&C,2016-06-05 12:10,http://osint.bambenekconsulting.com/manual/beebone.txt
+141.8.225.68,IP used by beebone C&C,2016-06-05 12:10,http://osint.bambenekconsulting.com/manual/beebone.txt
+185.28.193.192,IP used by beebone C&C,2016-06-05 12:10,http://osint.bambenekconsulting.com/manual/beebone.txt
+204.11.56.48,IP used by beebone C&C,2016-06-05 12:10,http://osint.bambenekconsulting.com/manual/beebone.txt
+208.91.197.66,IP used by beebone C&C,2016-06-05 12:10,http://osint.bambenekconsulting.com/manual/beebone.txt
+217.160.165.207,IP used by corebot C&C,2016-06-05 12:10,http://osint.bambenekconsulting.com/manual/corebot.txt
+173.11.85.180,IP used by dircrypt C&C,2016-06-05 12:10,http://osint.bambenekconsulting.com/manual/dircrypt.txt
+51.254.172.105,IP used by fobber C&C,2016-06-05 12:10,http://osint.bambenekconsulting.com/manual/fobber.txt
+91.209.77.109,IP used by fobber C&C,2016-06-05 12:10,http://osint.bambenekconsulting.com/manual/fobber.txt
+173.11.85.180,IP used by fobber C&C,2016-06-05 12:10,http://osint.bambenekconsulting.com/manual/fobber.txt
+45.32.9.186,IP used by kraken C&C,2016-06-05 12:12,http://osint.bambenekconsulting.com/manual/kraken.txt
+54.72.9.51,IP used by kraken C&C,2016-06-05 12:12,http://osint.bambenekconsulting.com/manual/kraken.txt
+64.21.149.167,IP used by kraken C&C,2016-06-05 12:12,http://osint.bambenekconsulting.com/manual/kraken.txt
+66.29.58.119,IP used by kraken C&C,2016-06-05 12:12,http://osint.bambenekconsulting.com/manual/kraken.txt
+67.59.157.51,IP used by kraken C&C,2016-06-05 12:12,http://osint.bambenekconsulting.com/manual/kraken.txt
+69.41.162.77,IP used by kraken C&C,2016-06-05 12:12,http://osint.bambenekconsulting.com/manual/kraken.txt
+75.5.255.185,IP used by kraken C&C,2016-06-05 12:12,http://osint.bambenekconsulting.com/manual/kraken.txt
+141.8.225.68,IP used by kraken C&C,2016-06-05 12:12,http://osint.bambenekconsulting.com/manual/kraken.txt
+143.215.15.199,IP used by kraken C&C,2016-06-05 12:12,http://osint.bambenekconsulting.com/manual/kraken.txt
+173.11.85.180,IP used by kraken C&C,2016-06-05 12:12,http://osint.bambenekconsulting.com/manual/kraken.txt
