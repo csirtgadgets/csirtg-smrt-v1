@@ -29,6 +29,7 @@ class Pattern(Parser):
             cols = cols.split(',')
 
         rv = []
+        res = []
         for l in self.fetcher.process():
             #self.logger.debug(l)
             #pprint(l)

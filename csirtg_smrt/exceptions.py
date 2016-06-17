@@ -1,5 +1,5 @@
 
-class CIFException(Exception):
+class CsirtgException(Exception):
     def __init__(self, msg):
         self.msg = "{}".format(msg)
 
@@ -7,9 +7,9 @@ class CIFException(Exception):
         return self.msg
 
 
-class CIFConnectionError(CIFException):
+class AuthError(CsirtgException):
     pass
 
 
-class AuthError(CIFException):
+class TimeoutError(CsirtgException):
     pass

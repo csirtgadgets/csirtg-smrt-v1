@@ -17,7 +17,7 @@ from csirtg_smrt.rule import Rule
 from csirtg_smrt.fetcher import Fetcher
 from csirtg_smrt.utils import setup_logging, get_argument_parser, load_plugin, setup_signals, read_config, \
     setup_runtime_path
-from csirtg_smrt.exceptions import AuthError
+from csirtg_smrt.exceptions import AuthError, TimeoutError
 
 PARSER_DEFAULT = "pattern"
 TOKEN = os.environ.get('CSIRTG_TOKEN', None)
@@ -210,6 +210,9 @@ def main():
                 stop = True
             else:
                 logging.exception('Got exception on main handler')
+        except TimeoutError as e:
+            logger.error(e)
+            stop = True
         except KeyboardInterrupt:
             logger.info('shutting down')
             stop = True
