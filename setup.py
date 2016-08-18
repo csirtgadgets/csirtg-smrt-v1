@@ -30,7 +30,6 @@ setup(
         'ipaddress>=1.0.16',
         'feedparser>=5.2.1',
         'nltk==3.2',
-        'ipaddr>=2.1.11',
         'requests>=2.6.0',
         'pytest>=2.8.0',
         'arrow>=0.6.0',

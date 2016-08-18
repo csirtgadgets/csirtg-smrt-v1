@@ -3,10 +3,13 @@ dist: trusty
 language: python
 python:
     - 2.7
-#    - 3.4
+    - 3.4
+    - 3.5
+
+before_install:
+    - sudo pip install pytest-cov
 
 script:
-    - sudo pip install pytest-cov
     - py.test --cov=csirtg_smrt --cov-fail-under=45
 
 

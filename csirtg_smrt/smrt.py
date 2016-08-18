@@ -128,7 +128,7 @@ def main():
             $ csirtg-smrt --rule default/csirtg.yml --feed port-scanners --remote http://localhost:5000
         '''),
         formatter_class=RawDescriptionHelpFormatter,
-        prog='cif-smrt',
+        prog='csirtg-smrt',
         parents=[p],
     )
 
@@ -154,8 +154,9 @@ def main():
     p.add_argument('--config', help='specify csirtg-smrt config path [default %(default)s', default=CONFIG_PATH)
 
     p.add_argument('--client', default='cif')
-
     p.add_argument('--user')
+
+    p.add_argument('--delay', help='specify initial delay', default=randint(5, 55))
 
     args = p.parse_args()
 
@@ -173,13 +174,11 @@ def main():
 
     setup_runtime_path(args.runtime_path)
 
-
-
     stop = False
 
     r = False
     if not args.test:
-        r = randint(5, 55)
+        r = args.delay
         logger.info("random delay is {}, then running every 60min after that".format(r))
         sleep((r * 60))
 

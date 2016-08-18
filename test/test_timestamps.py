@@ -16,5 +16,5 @@ def test_timestamps():
 
     for t in ts:
         x = parse_timestamp(t)
-        print t, x
+        print(t, x)
         assert x == ts[t]

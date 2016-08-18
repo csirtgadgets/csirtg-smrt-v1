@@ -1,5 +1,6 @@
 import os.path
 import tempfile
+import sys
 
 from ._version import get_versions
 VERSION = get_versions()['version']
@@ -28,3 +29,6 @@ CONFIG_PATH = os.environ.get('CSIRTG_SMRT_CONFIG_PATH', os.path.join(os.getcwd()
 if not os.path.isfile(CONFIG_PATH):
     CONFIG_PATH = os.path.join(os.path.expanduser('~'), 'csirtg-smrt.yml')
 
+PYVERSION = 2
+if sys.version_info > (3,):
+    PYVERSION = 3
