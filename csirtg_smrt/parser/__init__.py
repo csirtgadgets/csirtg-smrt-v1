@@ -1,6 +1,7 @@
 import logging
 import re
 import math
+from csirtg_smrt.constants import PYVERSION
 
 RE_COMMENTS = '^([#|;]+)'
 
@@ -56,7 +57,14 @@ class Parser(object):
         elif isinstance(value, list):
             for i in range(len(value)):
                 value[i] = self.eval_obs(obs, value[i])
-        elif isinstance(value, (str, unicode)):
+        elif PYVERSION > 2 and isinstance(value, (str, bytes)):
+            try:
+                m = re.match('^eval\((.*)\)$', value.strip(), re.MULTILINE | re.DOTALL)
+                if m:
+                    value = eval(m.group(1),{"__builtins__":None, 'math': math, 'max': max, 'min': min, 'int': int, 'float': float, 'str': str, 'unicode': bytes},{'obs': obs})
+            except Exception as e:
+                self.logger.warn('Could not evaluate expression "{}", exception: {}'.format(value, e))
+        elif PYVERSION == 2 and isinstance(value, (str, unicode)):
             try:
                 m = re.match('^eval\((.*)\)$', value.strip(), re.MULTILINE | re.DOTALL)
                 if m:
