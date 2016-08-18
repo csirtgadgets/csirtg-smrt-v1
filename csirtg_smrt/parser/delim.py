@@ -28,6 +28,7 @@ class Delim(Parser):
                     if col is not None:
                         obs[col] = m[idx]
                 obs.pop("values", None)
+                self.eval_obs(obs)
 
                 try:
                     obs = Indicator(**obs)

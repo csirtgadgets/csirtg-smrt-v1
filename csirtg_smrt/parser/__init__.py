@@ -1,5 +1,6 @@
 import logging
 import re
+import math
 
 RE_COMMENTS = '^([#|;]+)'
 
@@ -44,6 +45,26 @@ class Parser(object):
                 defaults[d] = self.rule.feeds[self.feed]['defaults'][d]
 
         return defaults
+
+    def eval_obs(self, obs, value=None):
+        if value is None:
+            value = obs
+        
+        if isinstance(value, dict):
+            for k in list(value.keys()):
+                value[k] = self.eval_obs(obs, value[k])
+        elif isinstance(value, list):
+            for i in range(len(value)):
+                value[i] = self.eval_obs(obs, value[i])
+        elif isinstance(value, (str, unicode)):
+            try:
+                m = re.match('^eval\((.*)\)$', value.strip(), re.MULTILINE | re.DOTALL)
+                if m:
+                    value = eval(m.group(1),{"__builtins__":None, 'math': math, 'max': max, 'min': min, 'int': int, 'float': float, 'str': str, 'unicode': unicode},{'obs': obs})
+            except Exception as e:
+                self.logger.warn('Could not evaluate expression "{}", exception: {}'.format(value, e))
+            
+        return value
 
     def process(self):
         raise NotImplementedError
