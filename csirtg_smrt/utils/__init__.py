@@ -10,8 +10,8 @@ import os
 def read_config(args):
     options = {}
     if os.path.isfile(args.config):
-        f = file(args.config)
-        config = yaml.load(f)
+        with open(args.config) as f:
+            config = yaml.load(f)
         if config.get('client'):
             config = config['client']
         f.close()
