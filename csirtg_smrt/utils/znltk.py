@@ -6,6 +6,7 @@ from nltk.tokenize import wordpunct_tokenize
 
 from csirtg_indicator.utils import resolve_itype
 from csirtg_indicator import Indicator
+from csirtg_indicator.exceptions import InvalidIndicator
 
 KNOWN_SEPERATORS = set([',', '|', "\t", ';'])
 IGNORE_SEPARATORS = set(['.', '/'])
@@ -60,7 +61,7 @@ def text_to_list(text, known_only=True):
                     if i:
                         indicator.indicator = e
                         indicator.itype = i
-                except NotImplementedError:
+                except InvalidIndicator:
                     pass
 
                 try:

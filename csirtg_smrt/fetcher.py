@@ -7,6 +7,12 @@ from csirtg_smrt.constants import VERSION, SMRT_CACHE
 
 import magic
 import re
+import sys
+
+PYVERSION = 2
+if sys.version_info > (3,):
+    PYVERSION = 3
+
 RE_SUPPORTED_DECODE = re.compile("zip|lzf|lzma|xz|lzop")
 
 
@@ -66,7 +72,10 @@ class Fetcher(object):
             else:
                 raise NotImplementedError
 
-        ftype = magic.from_file(self.cache, mime=True).decode('utf-8')
+        ftype = magic.from_file(self.cache, mime=True)
+        if PYVERSION < 3:
+            ftype = ftype.decode('utf-8')
+
         self.logger.debug(ftype)
 
         if ftype.startswith('application/x-gzip') or ftype.startswith('application/gzip'):
@@ -74,24 +83,43 @@ class Fetcher(object):
             with gzip.open(self.cache, 'rb') as f:
                 for l in f:
                     if rstrip:
-                        yield l.rstrip()
-                    else:
-                        yield l
+                        l = l.rstrip()
+
+                    if PYVERSION > 2:
+                        l = l.decode('utf-8')
+
+                    yield l
 
         elif ftype.startswith('text') or ftype.startswith('application/xml'):
             with open(self.cache) as f:
                 for l in f:
                     if rstrip:
-                        yield l.rstrip()
-                    else:
-                        yield l
+                        l = l.rstrip()
+
+                    if PYVERSION > 2 and isinstance(l, bytes):
+                        l = l.decode('utf-8')
+
+                    yield l
 
         elif ftype == "application/zip":
             from zipfile import ZipFile
             with ZipFile(self.cache) as f:
                 for m in f.infolist():
-                    for l in f.read(m.filename).split(split):
-                        if rstrip:
-                            yield l.rstrip()
-                        else:
+                    if PYVERSION == 2:
+                        for l in f.read(m.filename).split(split):
+                            if rstrip:
+                                l = l.rstrip()
+
                             yield l
+                    else:
+                        with f.open(m.filename) as zip:
+                            for l in zip.readlines():
+                                if rstrip:
+                                    l = l.rstrip()
+
+                                try:
+                                    l = l.decode()
+                                except UnicodeDecodeError as e:
+                                    l = l.decode('latin-1')
+
+                                yield l

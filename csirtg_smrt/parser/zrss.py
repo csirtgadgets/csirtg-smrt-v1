@@ -2,10 +2,12 @@ import copy
 import re
 
 import feedparser
-
+from pprint import pprint
 from csirtg_smrt.parser import Parser
 from csirtg_indicator.utils import normalize_itype
 from csirtg_indicator import Indicator
+from csirtg_indicator.exceptions import InvalidIndicator
+from csirtg_smrt.constants import PYVERSION
 
 
 class Rss(Parser):
@@ -58,11 +60,12 @@ class Rss(Parser):
 
             try:
                 i = normalize_itype(i)
+                pprint(i)
                 i = Indicator(**i)
                 self.logger.debug(i)
                 r = self.client.indicators_create(i)
                 rv.append(r)
-            except NotImplementedError as e:
+            except InvalidIndicator as e:
                 self.logger.error(e)
                 self.logger.info('skipping: {}'.format(i['indicator']))
         return rv
