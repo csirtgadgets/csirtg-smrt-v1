@@ -5,7 +5,7 @@ from csirtg_smrt.constants import PYVERSION
 
 RE_COMMENTS = '^([#|;]+)'
 
-from pprint import pprint
+
 class Parser(object):
 
     def __init__(self, client, fetcher, rule, feed, limit=None):
