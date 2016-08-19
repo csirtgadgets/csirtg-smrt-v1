@@ -2,24 +2,14 @@ import logging
 import os
 
 import arrow
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, create_engine, DateTime, UnicodeText, \
-    Text, Boolean, desc
+from sqlalchemy import Column, Integer, create_engine, DateTime, UnicodeText, Text
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, relationship, backref, class_mapper, scoped_session
-
-from cifsdk.constants import RUNTIME_PATH
-from cif.store.plugin import Store
-import json
-from cifsdk.exceptions import AuthError
-from cifsdk.constants import PYVERSION
-from pprint import pprint
-
-DB_FILE = os.path.join(RUNTIME_PATH, 'cif.sqlite')
-Base = declarative_base()
-
-from sqlalchemy.engine import Engine
-from sqlalchemy import event
+from sqlalchemy.orm import sessionmaker, scoped_session
+from csirtg_smrt.constants import PYVERSION, RUNTIME_PATH
 from sqlalchemy.sql.expression import func
+
+DB_FILE = os.path.join(RUNTIME_PATH, 'smrt.db')
+Base = declarative_base()
 
 if PYVERSION > 2:
     basestring = (str, bytes)
