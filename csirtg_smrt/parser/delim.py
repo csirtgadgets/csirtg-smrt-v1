@@ -1,5 +1,6 @@
 from csirtg_smrt.parser import Parser
 from csirtg_indicator import Indicator
+from csirtg_indicator.exceptions import InvalidIndicator
 
 
 class Delim(Parser):
@@ -31,14 +32,19 @@ class Delim(Parser):
                 self.eval_obs(obs)
 
                 try:
-                    obs = Indicator(**obs)
-                except NotImplementedError as e:
+                    i = Indicator(**obs)
+                except InvalidIndicator as e:
                     self.logger.error(e)
                     self.logger.info('skipping: {}'.format(obs['indicator']))
                 else:
                     self.logger.debug(obs)
-                    r = self.client.indicators_create(obs)
-                    rv.append(r)
+                    self.logger.debug(i)
+                    if self.is_archived(i.indicator, i.provider, i.group, i.tags, i.firsttime, i.lasttime):
+                        self.logger.info('skipping: {}/{}'.format(i.provider, i.indicator))
+                    else:
+                        r = self.client.indicators_create(i)
+                        self.archive(i.indicator, i.provider, i.group, i.tags, i.firsttime, i.lasttime)
+                        rv.append(r)
 
             if self.limit:
                 self.limit -= 1

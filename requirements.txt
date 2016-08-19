@@ -1,4 +1,4 @@
-https://github.com/csirtgadgets/csirtg-indicator-py/archive/0.0.0a4.tar.gz
+https://github.com/csirtgadgets/csirtg-indicator-py/archive/0.0.0a5.tar.gz
 git+https://github.com/csirtgadgets/py-csirtgsdk.git@7715a761d7f1c80821bc8ce49c2c851cb5041ab9#egg=csirtgsdk
 pytest-cov>=2.2.1
 ipaddress>=1.0.16
@@ -10,3 +10,4 @@ pytest>=2.8.0
 arrow>=0.6.0
 python-magic>=0.4.6
 pyaml>=15.8.2
+SQLAlchemy==1.0.14
