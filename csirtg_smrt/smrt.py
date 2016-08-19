@@ -150,7 +150,7 @@ def main():
 
     p.add_argument("--token", dest="token", help="specify token [default: %(default)s]", default=TOKEN)
 
-    p.add_argument('--test', action='store_true')
+    p.add_argument('--service', action='store_true', help="start in service mode")
     p.add_argument('--sleep', default=60)
     p.add_argument('--ignore-unknown', action='store_true')
 
@@ -182,13 +182,13 @@ def main():
     stop = False
 
     r = False
-    if not args.test:
+    if args.service:
         r = args.delay
         logger.info("random delay is {}, then running every 60min after that".format(r))
         sleep((r * 60))
 
     while not stop:
-        if args.test:
+        if not args.service:
             stop = True
 
         logger.info('starting...')
@@ -202,9 +202,10 @@ def main():
                 x = s.process(args.rule, feed=args.feed, limit=args.limit)
                 logger.info('complete')
 
-                if not args.test:
+                if args.service:
                     logger.info('sleeping for 1 hour')
                     sleep((60 * 60))
+
         except AuthError as e:
             logger.error(e)
             stop = True
