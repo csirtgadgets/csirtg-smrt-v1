@@ -11,7 +11,7 @@ from pprint import pprint
 import traceback
 
 import csirtg_smrt.parser
-from csirtg_smrt.logger import Logger
+from csirtg_smrt.archiver import Archiver
 import csirtg_smrt.client
 from csirtg_smrt.constants import REMOTE_ADDR, SMRT_RULES_PATH, SMRT_CACHE, CONFIG_PATH, RUNTIME_PATH
 from csirtg_smrt.rule import Rule
@@ -23,8 +23,8 @@ from csirtg_smrt.exceptions import AuthError, TimeoutError
 PARSER_DEFAULT = "pattern"
 TOKEN = os.environ.get('CSIRTG_TOKEN', None)
 TOKEN = os.environ.get('CSIRTG_SMRT_TOKEN', TOKEN)
-LOGGER_PATH = os.environ.get('CSIRTG_SMRT_LOGGER_PATH', RUNTIME_PATH)
-LOGGER_PATH = os.path.join(LOGGER_PATH, 'smrt.db')
+ARCHIVE_PATH = os.environ.get('CSIRTG_SMRT_ARCHIVE_PATH', RUNTIME_PATH)
+ARCHIVE_PATH = os.path.join(ARCHIVE_PATH, 'smrt.db')
 
 
 # http://python-3-patterns-idioms-test.readthedocs.org/en/latest/Factory.html
@@ -39,12 +39,13 @@ class Smrt(object):
     def __enter__(self):
         return self
 
-    def __init__(self, remote=REMOTE_ADDR, token=TOKEN, client='cif', user=None, feed=None):
+    def __init__(self, remote=REMOTE_ADDR, token=TOKEN, client='cif', user=None, feed=None, archiver=None):
 
         self.logger = logging.getLogger(__name__)
 
         self.logger.debug(csirtg_smrt.client.__path__[0])
         self.client = load_plugin(csirtg_smrt.client.__path__[0], client)(remote, token, user=user, feed=feed)
+        self.archiver = archiver
 
     def ping_router(self):
         return self.client.ping(write=True)
@@ -64,7 +65,7 @@ class Smrt(object):
 
         self.logger.debug("loading parser: {}".format(parser))
 
-        parser = parser(self.client, fetch, rule, feed, limit=limit)
+        parser = parser(self.client, fetch, rule, feed, limit=limit, archiver=self.archiver)
 
         rv = parser.process()
 
@@ -161,7 +162,7 @@ def main():
 
     p.add_argument('--delay', help='specify initial delay', default=randint(5, 55))
 
-    p.add_argument('--logger-path', help='specify logger path [default: %(default)s', default=LOGGER_PATH)
+    p.add_argument('--archive-path', help='specify logger path [default: %(default)s', default=ARCHIVE_PATH)
 
     args = p.parse_args()
 
@@ -179,6 +180,8 @@ def main():
 
     setup_runtime_path(args.runtime_path)
 
+    archiver = Archiver(dbfile=args.archive_path)
+
     stop = False
 
     r = False
@@ -194,7 +197,7 @@ def main():
         logger.info('starting...')
         try:
             with Smrt(options.get('remote'), options.get('token'), client=args.client, user=args.user,
-                      feed=args.feed) as s:
+                      feed=args.feed, archiver=archiver) as s:
                 logger.info('staring up...')
                 logger.info('testing router connection...')
                 s.ping_router()
@@ -221,6 +224,9 @@ def main():
         except KeyboardInterrupt:
             logger.info('shutting down')
             stop = True
+
+        rv = archiver.cleanup()
+        logger.info('cleaning up archive: %i' % rv)
 
         logger.info('completed')
 

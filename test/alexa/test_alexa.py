@@ -10,6 +10,7 @@ rule.fetcher = 'file'
 
 s = Smrt(REMOTE_ADDR, 1234, client='dummy')
 
+
 def test_alexa_top1m():
     rule.defaults['remote'] = 'test/alexa/alexa_top-1m.csv.zip'
     x = s.process(rule, feed="top1m")
@@ -30,7 +31,6 @@ def test_alexa_top1m():
     
     tags = set()
     for xx in x:
-        assert xx.lasttime
         assert xx.indicator
         assert xx.description
         assert xx.tags
@@ -45,4 +45,3 @@ def test_alexa_top1m():
         tags.add(*xx.tags)
         
     assert 'whitelist' in tags
-    

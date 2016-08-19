@@ -66,8 +66,12 @@ class Pattern(Parser):
                     self.logger.info('skipping: {}'.format(i['indicator']))
                 else:
                     self.logger.debug(i)
-                    r = self.client.indicators_create(i)
-                    rv.append(r)
+                    if self.is_archived(i.indicator, i.provider, i.group, i.tags, i.firsttime, i.lasttime):
+                        self.logger.info('skipping: {}/{}'.format(i.provider, i.indicator))
+                    else:
+                        r = self.client.indicators_create(i)
+                        self.archive(i.indicator, i.provider, i.group, i.tags, i.firsttime, i.lasttime)
+                        rv.append(r)
 
             if self.limit:
                 self.limit -= 1

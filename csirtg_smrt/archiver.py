@@ -19,6 +19,7 @@ Base = declarative_base()
 
 from sqlalchemy.engine import Engine
 from sqlalchemy import event
+from sqlalchemy.sql.expression import func
 
 if PYVERSION > 2:
     basestring = (str, bytes)
@@ -36,6 +37,7 @@ class Indicator(Base):
     firsttime = Column(DateTime)
     lasttime = Column(DateTime)
     tags = Column(Text)
+    created_at = Column(DateTime, default=func.now())
 
     def __init__(self, indicator=None, group='everyone', provider=None, firsttime=None, lasttime=None, tags=None):
 
@@ -44,8 +46,11 @@ class Indicator(Base):
         self.provider = provider
         self.firsttime = firsttime
         self.lasttime = lasttime
-        self.tags = tags.sort()
-        self.tags = ','.join(self.tags)
+        self.tags = tags
+
+        if isinstance(self.tags, list):
+            self.tags.sort()
+            self.tags = ','.join(self.tags)
 
         if self.lasttime and isinstance(self.lasttime, basestring):
             self.lasttime = arrow.get(self.lasttime).datetime
@@ -55,7 +60,7 @@ class Indicator(Base):
 
 
 # http://www.pythoncentral.io/sqlalchemy-orm-examples/
-class Logger(object):
+class Archiver(object):
     def __init__(self, dbfile=DB_FILE, autocommit=False, dictrows=True, **kwargs):
 
         self.dbfile = dbfile
@@ -63,9 +68,10 @@ class Logger(object):
         self.dictrows = dictrows
         self.path = "sqlite:///{0}".format(self.dbfile)
 
-        #echo = False
-        # if self.logger.getEffectiveLevel() == logging.DEBUG:
-        #    echo = True
+        echo = False
+
+        #if logger.getEffectiveLevel() == logging.DEBUG:
+        #   echo = True
 
         # http://docs.sqlalchemy.org/en/latest/orm/contextual.html
         self.engine = create_engine(self.path, echo=echo)
@@ -74,14 +80,15 @@ class Logger(object):
 
         Base.metadata.create_all(self.engine)
 
-        self.logger.debug('database path: {}'.format(self.path))
+        logger.debug('database path: {}'.format(self.path))
 
-    def search(self, indicator, provider, group, firsttime, lasttime, tags):
+    def search(self, indicator, provider, group, tags, firsttime=None, lasttime=None):
         if isinstance(tags, list):
-            tags = tags.sort()
+            tags.sort()
             tags = ','.join(tags)
 
         rv = self.handle().query(Indicator).filter_by(indicator=indicator, provider=provider, group=group, tags=tags)
+
         if firsttime:
             rv = rv.filter_by(firsttime=firsttime)
 
@@ -90,14 +97,33 @@ class Logger(object):
 
         return rv.count()
 
-    def create(self, indicator, provider, group, lasttime, tags, firsttime=None):
+    def create(self, indicator, provider, group, tags, firsttime=None, lasttime=None):
         if isinstance(tags, list):
-            tags = tags.sort()
+            tags.sort()
             tags = ','.join(tags)
 
         i = Indicator(indicator=indicator, provider=provider, group=group, lasttime=lasttime, tags=tags,
                       firsttime=firsttime)
+
         s = self.handle()
+        s.add(i)
         s.commit()
 
+        logger.debug(i)
+
         return i.id
+
+    def cleanup(self, days=180):
+        date = arrow.utcnow()
+        date = date.replace(days=-days)
+
+        s = self.handle()
+
+        count = 0
+        rv = s.query(Indicator).filter(Indicator.created_at < date.datetime)
+        if rv.count():
+            count = rv.count()
+            rv.delete()
+            s.commit()
+
+        return count
