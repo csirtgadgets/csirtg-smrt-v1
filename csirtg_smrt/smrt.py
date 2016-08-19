@@ -11,8 +11,9 @@ from pprint import pprint
 import traceback
 
 import csirtg_smrt.parser
+from csirtg_smrt.logger import Logger
 import csirtg_smrt.client
-from csirtg_smrt.constants import REMOTE_ADDR, SMRT_RULES_PATH, SMRT_CACHE, CONFIG_PATH
+from csirtg_smrt.constants import REMOTE_ADDR, SMRT_RULES_PATH, SMRT_CACHE, CONFIG_PATH, RUNTIME_PATH
 from csirtg_smrt.rule import Rule
 from csirtg_smrt.fetcher import Fetcher
 from csirtg_smrt.utils import setup_logging, get_argument_parser, load_plugin, setup_signals, read_config, \
@@ -22,6 +23,8 @@ from csirtg_smrt.exceptions import AuthError, TimeoutError
 PARSER_DEFAULT = "pattern"
 TOKEN = os.environ.get('CSIRTG_TOKEN', None)
 TOKEN = os.environ.get('CSIRTG_SMRT_TOKEN', TOKEN)
+LOGGER_PATH = os.environ.get('CSIRTG_SMRT_LOGGER_PATH', RUNTIME_PATH)
+LOGGER_PATH = os.path.join(LOGGER_PATH, 'smrt.db')
 
 
 # http://python-3-patterns-idioms-test.readthedocs.org/en/latest/Factory.html
@@ -157,6 +160,8 @@ def main():
     p.add_argument('--user')
 
     p.add_argument('--delay', help='specify initial delay', default=randint(5, 55))
+
+    p.add_argument('--logger-path', help='specify logger path [default: %(default)s', default=LOGGER_PATH)
 
     args = p.parse_args()
 

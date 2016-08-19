@@ -3,15 +3,11 @@ import subprocess
 import os
 from pprint import pprint
 
-from csirtg_smrt.constants import VERSION, SMRT_CACHE
+from csirtg_smrt.constants import VERSION, SMRT_CACHE, PYVERSION
 
 import magic
 import re
 import sys
-
-PYVERSION = 2
-if sys.version_info > (3,):
-    PYVERSION = 3
 
 RE_SUPPORTED_DECODE = re.compile("zip|lzf|lzma|xz|lzop")
 
