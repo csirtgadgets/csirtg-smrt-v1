@@ -1,0 +1,15 @@
+parser: rss
+remote: http://garwarner.blogspot.com/feeds/posts/default
+defaults:
+  confidence: 6
+  tlp: green
+  altid_tlp: white
+  provider: garwarner.blogspot.com
+  tags: suspicious
+
+feeds:
+  urls:
+    nltk: url
+
+  ipv4:
+    nltk: ipv4
