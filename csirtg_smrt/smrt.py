@@ -71,7 +71,7 @@ class Smrt(object):
 
         return rv
 
-    def process(self, rule, feed=None, limit=None):
+    def process(self, rule, data=None, feed=None, limit=None):
         rv = []
         if isinstance(rule, str) and os.path.isdir(rule):
             for f in os.listdir(rule):
@@ -96,25 +96,33 @@ class Smrt(object):
             if isinstance(rule, str):
                 r = Rule(path=rule)
 
-            if not r.feeds:
-                self.logger.error("rules file contains no feeds")
-                raise RuntimeError
-
-            if feed:
+            if data:
                 try:
-                    rv = self._process(r, feed=feed, limit=limit)
+                    rv = self._process(r, data=data)
                 except Exception as e:
                     self.logger.error('failed to process feed: {}'.format(feed))
                     self.logger.error(e)
                     traceback.print_exc()
             else:
-                for feed in r.feeds:
+                if not r.feeds:
+                    self.logger.error("rules file contains no feeds")
+                    raise RuntimeError
+
+                if feed:
                     try:
-                        rv = self._process(Rule(path=rule), feed=feed, limit=limit)
+                        rv = self._process(r, feed=feed, limit=limit)
                     except Exception as e:
                         self.logger.error('failed to process feed: {}'.format(feed))
                         self.logger.error(e)
                         traceback.print_exc()
+                else:
+                    for feed in r.feeds:
+                        try:
+                            rv = self._process(Rule(path=rule), feed=feed, limit=limit)
+                        except Exception as e:
+                            self.logger.error('failed to process feed: {}'.format(feed))
+                            self.logger.error(e)
+                            traceback.print_exc()
 
         return rv
 

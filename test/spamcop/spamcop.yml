@@ -1,0 +1,7 @@
+defaults:
+  tlp: green
+  reference_tlp: white
+  provider: 'spamcop.net'
+  values: indicator
+  tags: spam
+  group: 'everyone'
