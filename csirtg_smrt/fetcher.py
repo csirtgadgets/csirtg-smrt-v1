@@ -38,12 +38,14 @@ class Fetcher(object):
                 self.logger.critical('failed to create {0}'.format(self.dir))
                 raise
 
-        self.cache = os.path.join(self.dir, self.feed)
+        if self.rule.feeds[feed].get('cache'):
+            self.cache = os.path.join(self.dir, self.rule.feeds[feed]['cache'])
+        else:
+            self.cache = os.path.join(self.dir, self.feed)
 
         self.logger.debug(self.cache)
 
-        # http://www-archive.mozilla.org/build/revised-user-agent-strings.html
-        self.ua = "User-Agent: cif-smrt/{0} (csirtgadgets.org)".format(VERSION)
+        self.ua = "User-Agent: csirtg-smrt/{0} (csirtgadgets.org)".format(VERSION)
 
         if not self.fetcher:
             if self.remote.startswith('http'):
@@ -55,9 +57,14 @@ class Fetcher(object):
         if self.fetcher == 'http':
             try:
                 # using wget until we can find a better way to mirror files in python
-                subprocess.check_call([
-                    'wget', '--header', self.ua,  '-q', self.remote, '-N', '-O', self.cache
-                ])
+                if self.logger.getEffectiveLevel() == logging.DEBUG:
+                    subprocess.check_call([
+                        'wget', '--header', self.ua, self.remote, '-N', '-P', SMRT_CACHE
+                    ])
+                else:
+                    subprocess.check_call([
+                        'wget', '--header', self.ua, '-q', self.remote, '-N', '-O', self.cache
+                    ])
             except subprocess.CalledProcessError as e:
                 self.logger.error('failure pulling feed: {} to {}'.format(self.remote, self.cache))
                 self.logger.error(e)
