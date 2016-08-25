@@ -2,26 +2,49 @@ from cgmail import parse_email_from_string
 from csirtg_smrt.parser import Parser
 from csirtg_indicator import Indicator
 from csirtg_indicator.exceptions import InvalidIndicator
+from pprint import pprint
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class Email(Parser):
 
-    def __init__(self, data=None, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super(Email, self).__init__(*args, **kwargs)
+
+        self.start_after = None
+
+        if self.rule.feeds[self.feed].get('start_after'):
+            self.start_after = self.rule.feeds[self.feed]['start_after']
+
+        self.keep_msg = None
+        if self.rule.feeds[self.feed].get('keep_msg'):
+            self.keep_msg = self.rule.feeds[self.feed]['keep_msg']
+
+        self.headers = None
+        if self.rule.feeds[self.feed].get('headers'):
+            self.headers = self.rule.feeds[self.feed]['headers']
 
     def process(self, data=None):
         defaults = self._defaults()
 
         rv = []
 
-        for d in data:
-            d = parse_email_from_string(d)
+        for d in self.fetcher.process():
+
+            body = parse_email_from_string(d)
 
             obs = {}
             for k, v in defaults.items():
                 obs[k] = v
 
-            obs['indicator'] = d[0]['headers']['X-SpamCop-sourceip']
+            if self.headers:
+                for h in self.headers:
+                    if body[0]['headers'].get(h):
+                        obs[self.headers[h]] = body[0]['headers'][h][0]
+
+            obs['msg'] = d
 
             try:
                 i = Indicator(**obs)
@@ -29,8 +52,6 @@ class Email(Parser):
                 self.logger.error(e)
                 self.logger.info('skipping: {}'.format(obs['indicator']))
             else:
-                self.logger.debug(obs)
-                self.logger.debug(i)
                 if self.is_archived(i.indicator, i.provider, i.group, i.tags, i.firsttime, i.lasttime):
                     self.logger.info('skipping: {}/{}'.format(i.provider, i.indicator))
                 else:

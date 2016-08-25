@@ -1,7 +1,18 @@
+parser: email
 defaults:
   tlp: green
   reference_tlp: white
   provider: 'spamcop.net'
-  values: indicator
-  tags: spam
+  tags:
+    - spam
+    - abuse
+  description: 'abuse report'
   group: 'everyone'
+  confidence: 9
+
+feeds:
+  abuse:
+    remote: stdin
+    headers:
+      x-spamcop-sourceip: indicator
+      date: lasttime
