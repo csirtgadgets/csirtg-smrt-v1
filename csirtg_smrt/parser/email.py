@@ -31,7 +31,7 @@ class Email(Parser):
 
         rv = []
 
-        for d in self.fetcher.process():
+        for d in self.fetcher.process(split=False):
 
             body = parse_email_from_string(d)
 

@@ -56,7 +56,14 @@ class Fetcher(object):
     def process(self, split="\n", limit=0, rstrip=True):
         if self.data:
             if isinstance(self.data, str):
-                yield self.data
+                if split:
+                    for l in self.data.split(split):
+                        if rstrip:
+                            l = l.rstrip()
+
+                        yield l
+                else:
+                    yield self.data
             else:
                 for d in self.data:
                     yield d
