@@ -12,9 +12,9 @@ class Rule(dict):
                 try:
                     ## TODO - http://pyyaml.org/wiki/PyYAMLDocumentation#LoadingYAML
                     d = yaml.load(f)
-                except:
+                except Exception as e:
                     self.logger.error('unable to parse {0}'.format(path))
-                    raise RuntimeError
+                    raise RuntimeError(e)
 
             self.defaults = d.get('defaults')
             self.feeds = d.get('feeds')

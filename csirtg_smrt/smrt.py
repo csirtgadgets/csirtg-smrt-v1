@@ -9,6 +9,8 @@ from random import randint
 from time import sleep
 from pprint import pprint
 import traceback
+import sys
+import select
 
 import csirtg_smrt.parser
 from csirtg_smrt.archiver import Archiver
@@ -50,9 +52,8 @@ class Smrt(object):
     def ping_router(self):
         return self.client.ping(write=True)
 
-    def _process(self, rule, feed, limit=None):
-
-        fetch = Fetcher(rule, feed)
+    def _process(self, rule, feed, limit=None, data=None):
+        fetch = Fetcher(rule, feed, data=data)
 
         parser_name = rule.parser or PARSER_DEFAULT
         parser = load_plugin(csirtg_smrt.parser.__path__[0], parser_name)
@@ -71,7 +72,7 @@ class Smrt(object):
 
         return rv
 
-    def process(self, rule, feed=None, limit=None):
+    def process(self, rule, data=None, feed=None, limit=None):
         rv = []
         if isinstance(rule, str) and os.path.isdir(rule):
             for f in os.listdir(rule):
@@ -102,7 +103,7 @@ class Smrt(object):
 
             if feed:
                 try:
-                    rv = self._process(r, feed=feed, limit=limit)
+                    rv = self._process(r, feed, limit=limit, data=data)
                 except Exception as e:
                     self.logger.error('failed to process feed: {}'.format(feed))
                     self.logger.error(e)
@@ -163,6 +164,7 @@ def main():
     p.add_argument('--delay', help='specify initial delay', default=randint(5, 55))
 
     p.add_argument('--archive-path', help='specify logger path [default: %(default)s', default=ARCHIVE_PATH)
+    p.add_argument('--no-archiver', action='store_true')
 
     args = p.parse_args()
 
@@ -180,7 +182,9 @@ def main():
 
     setup_runtime_path(args.runtime_path)
 
-    archiver = Archiver(dbfile=args.archive_path)
+    archiver = None
+    if not args.no_archiver:
+        archiver = Archiver(dbfile=args.archive_path)
 
     stop = False
 
@@ -194,6 +198,10 @@ def main():
         if not args.service:
             stop = True
 
+        data = False
+        if select.select([sys.stdin, ], [], [], 0.0)[0]:
+            data = sys.stdin.read()
+
         logger.info('starting...')
         try:
             with Smrt(options.get('remote'), options.get('token'), client=args.client, user=args.user,
@@ -202,7 +210,7 @@ def main():
                 logger.info('testing router connection...')
                 s.ping_router()
 
-                x = s.process(args.rule, feed=args.feed, limit=args.limit)
+                x = s.process(args.rule, feed=args.feed, limit=args.limit, data=data)
                 logger.info('complete')
 
                 if args.service:
@@ -225,8 +233,9 @@ def main():
             logger.info('shutting down')
             stop = True
 
-        rv = archiver.cleanup()
-        logger.info('cleaning up archive: %i' % rv)
+        if archiver:
+            rv = archiver.cleanup()
+            logger.info('cleaning up archive: %i' % rv)
 
         logger.info('completed')
 

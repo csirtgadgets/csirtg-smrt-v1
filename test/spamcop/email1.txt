@@ -1,0 +1,368 @@
+From: xxx@reports.spamcop.net
+To: xxxx@example.com
+Subject: [SpamCop (204.93.2.6) id:xxxx]Job Offer
+Precedence: list
+Message-ID: <rid_xxxx@msgid.spamcop.net>
+Date: Tue, 23 Aug 2016 10:45:35 -0500
+X-SpamCop-sourceip: 204.93.2.6
+X-Mailer: https://www.spamcop.net/ v4.8.4
+
+[ SpamCop V4.8.4 ]
+This message is brief for your comfort.  Please use links below for details.
+
+Email from 204.93.2.6 / Tue, 23 Aug 2016 10:45:35 -0500
+https://www.spamcop.net/w3m?i=123412341234
+
+[ Offending message ]
+Return-Path: <career@target.com>
+Received: from murder ([unix socket])
+	 by maizecoop.cropsci.uiuc.edu (Cyrus v2.3.8-OS X Server 10.5:	9G7013y) with LMTPA;
+	 Tue, 23 Aug 2016 10:45:38 -0500
+X-Sieve: CMU Sieve 2.3
+Received: from localhost (localhost [127.0.0.1])
+	by maizecoop.cropsci.uiuc.edu (Postfix) with ESMTP id A80E3D285677
+	for <x>; Tue, 23 Aug 2016 10:45:38 -0500 (CDT)
+Received: from maizecoop.cropsci.uiuc.edu ([127.0.0.1])
+	by localhost (maizecoop.cropsci.uiuc.edu [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id BBBP8k-BjbVP for <x>;
+	Tue, 23 Aug 2016 10:45:35 -0500 (CDT)
+Received: from relays-agent04.techservices.illinois.edu (relays-agent04.techservices.illinois.edu [204.93.2.6])
+	by maizecoop.cropsci.uiuc.edu (Postfix) with ESMTP id 83C02D28566B
+	for <x>; Tue, 23 Aug 2016 10:45:35 -0500 (CDT)
+Received: from int.hot-sos.net ([63.128.22.42])
+	by relays-agent04.techservices.illinois.edu (8.15.0.59/8.15.0.59) with ESMTP id u7NFjYRP017469
+	for <x>; Tue, 23 Aug 2016 10:45:34 -0500
+Received: from sonia1.sm2.example.com [91.200.14.83] by int.hot-sos.net with ESMTP
+  (SMTPD-12.5.3.93) id 5c0c000008a10b3d; Tue, 23 Aug 2016 11:43:57 -0400
+Message-ID: <E4E1________________________610A@sonia1.sm2.example.com>
+Reply-To: "Target.com" <career@target.com>
+From: "Target.com" <career@target.com>
+Subject: Job Offer
+Date: Tue, 23 Aug 2016 08:45:27 -0700
+MIME-Version: 1.0
+Content-Type: text/plain
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Windows Live Mail 15.4.3538.513
+X-MimeOLE: Produced By Microsoft MimeOLE V15.4.3538.513
+X-Spam-Details: rule=cautious_notspam policy=cautious score=1 spamscore=1 suspectscore=27
+ malwarescore=0 phishscore=0 adultscore=0 bulkscore=100 classifier=spam
+ adjust=0 reason=mlx scancount=1 engine=8.0.1-1604210000
+ definitions=main-1608230156
+X-Spam-OrigSender: career@target.com
+X-Spam-Bar: *
+To: undisclosed-recipients:;
+
+<x-html><!x-stuff-for-pete base="" src="" id="0" charset="windows-1251"><!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD><TITLE>*|MC:SUBJECT|*</TITLE>
+<META content="text/html; charset=windows-1251" http-equiv=Content-Type>
+
+http://career@target.com
+http://46.183.217.162/
+
+<STYLE type=text/css>P {
+	PADDING-BOTTOM: 0px; PADDING-TOP: 0px; PADDING-LEFT: 0px; MARGIN: 10px 0px; PADDING-RIGHT: 0px
+}
+TABLE {
+	BORDER-COLLAPSE: collapse
+}
+H1 {
+	PADDING-BOTTOM: 0px; PADDING-TOP: 0px; PADDING-LEFT: 0px; MARGIN: 0px; DISPLAY: block; PADDING-RIGHT: 0px
+}
+H2 {
+	PADDING-BOTTOM: 0px; PADDING-TOP: 0px; PADDING-LEFT: 0px; MARGIN: 0px; DISPLAY: block; PADDING-RIGHT: 0px
+}
+H3 {
+	PADDING-BOTTOM: 0px; PADDING-TOP: 0px; PADDING-LEFT: 0px; MARGIN: 0px; DISPLAY: block; PADDING-RIGHT: 0px
+}
+H4 {
+	PADDING-BOTTOM: 0px; PADDING-TOP: 0px; PADDING-LEFT: 0px; MARGIN: 0px; DISPLAY: block; PADDING-RIGHT: 0px
+}
+H5 {
+	PADDING-BOTTOM: 0px; PADDING-TOP: 0px; PADDING-LEFT: 0px; MARGIN: 0px; DISPLAY: block; PADDING-RIGHT: 0px
+}
+H6 {
+	PADDING-BOTTOM: 0px; PADDING-TOP: 0px; PADDING-LEFT: 0px; MARGIN: 0px; DISPLAY: block; PADDING-RIGHT: 0px
+}
+IMG {
+	BORDER-LEFT-WIDTH: 0px; TEXT-DECORATION: none; HEIGHT: auto; BORDER-RIGHT-WIDTH: 0px; BORDER-BOTTOM-WIDTH: 0px; OUTLINE-STYLE: none; BORDER-TOP-WIDTH: 0px
+}
+A IMG {
+	BORDER-LEFT-WIDTH: 0px; TEXT-DECORATION: none; HEIGHT: auto; BORDER-RIGHT-WIDTH: 0px; BORDER-BOTTOM-WIDTH: 0px; OUTLINE-STYLE: none; BORDER-TOP-WIDTH: 0px
+}
+BODY {
+	HEIGHT: 100%; WIDTH: 100%; PADDING-BOTTOM: 0px; PADDING-TOP: 0px; PADDING-LEFT: 0px; MARGIN: 0px; PADDING-RIGHT: 0px
+}
+*#bodyTable {
+	HEIGHT: 100%; WIDTH: 100%; PADDING-BOTTOM: 0px; PADDING-TOP: 0px; PADDING-LEFT: 0px; MARGIN: 0px; PADDING-RIGHT: 0px
+}
+*#bodyCell {
+	HEIGHT: 100%; WIDTH: 100%; PADDING-BOTTOM: 0px; PADDING-TOP: 0px; PADDING-LEFT: 0px; MARGIN: 0px; PADDING-RIGHT: 0px
+}
+*#outlook A {
+	PADDING-BOTTOM: 0px; PADDING-TOP: 0px; PADDING-LEFT: 0px; PADDING-RIGHT: 0px
+}
+IMG {
+
+}
+TABLE {
+
+}
+*.ReadMsgBody {
+	WIDTH: 100%
+}
+*.ExternalClass {
+	WIDTH: 100%
+}
+P {
+
+}
+A {
+
+}
+LI {
+
+}
+TD {
+
+}
+BLOCKQUOTE {
+
+}
+</STYLE>
+
+<META name=GENERATOR content="-[OUTLOOK_VER]-"></HEAD>
+<BODY
+style="FONT-SIZE: 12px; HEIGHT: 100%; FONT-FAMILY: Verdana; WIDTH: 100%; PADDING-BOTTOM: 0px; PADDING-TOP: 0px; PADDING-LEFT: 0px; MARGIN: 0px; PADDING-RIGHT: 0px; BACKGROUND-COLOR: rgb(250,250,250)">
+<CENTER>
+<TABLE id=bodyTable
+style="HEIGHT: 100%; WIDTH: 100%; BORDER-COLLAPSE: collapse; PADDING-BOTTOM: 0px; PADDING-TOP: 0px; PADDING-LEFT: 0px; MARGIN: 0px; PADDING-RIGHT: 0px; BACKGROUND-COLOR: rgb(250,250,250)"
+height="100%" cellSpacing=0 cellPadding=0 width="100%" align=center border=0>
+  <TBODY>
+  <TR>
+    <TD id=bodyCell
+    style="HEIGHT: 100%; WIDTH: 100%; PADDING-BOTTOM: 0px; PADDING-TOP: 0px; PADDING-LEFT: 0px; MARGIN: 0px; PADDING-RIGHT: 0px; BORDER-TOP-WIDTH: 0px"
+    vAlign=top align=center>
+      <TABLE style="BORDER-COLLAPSE: collapse" cellSpacing=0 cellPadding=0
+      width="100%" border=0>
+        <TBODY>
+        <TR>
+          <TD id=templatePreheader
+          style="BORDER-BOTTOM-WIDTH: 0px; PADDING-BOTTOM: 9px; PADDING-TOP: 9px; BORDER-TOP-WIDTH: 0px; BACKGROUND-COLOR: rgb(250,250,250)"
+          vAlign=top align=center>
+            <TABLE class=templateContainer
+            style="MAX-WIDTH: 600px; BORDER-COLLAPSE: collapse" cellSpacing=0
+            cellPadding=0 width="100%" align=center border=0>
+              <TBODY>
+              <TR>
+                <TD class=preheaderContainer vAlign=top>
+                  <TABLE class=mcnTextBlock
+                  style="BORDER-COLLAPSE: collapse; MIN-WIDTH: 100%"
+                  cellSpacing=0 cellPadding=0 width="100%" border=0>
+                    <TBODY class=mcnTextBlockOuter>
+                    <TR>
+                      <TD class=mcnTextBlockInner style="PADDING-TOP: 9px"
+                      vAlign=top>
+                        <TABLE class=mcnTextContentContainer
+                        style="MAX-WIDTH: 390px; BORDER-COLLAPSE: collapse"
+                        cellSpacing=0 cellPadding=0 width="100%" align=left
+                        border=0>
+                          <TBODY>
+                          <TR>
+                            <TD class=mcnTextContent
+                            style="FONT-SIZE: 12px; FONT-FAMILY: Helvetica; COLOR: rgb(101,101,101); PADDING-BOTTOM: 9px; TEXT-ALIGN: left; PADDING-TOP: 0px; PADDING-LEFT: 18px; LINE-HEIGHT: 150%; PADDING-RIGHT: 18px"
+                            vAlign=top><SPAN style="FONT-SIZE: 20px">Become A
+                              Target Shopper</SPAN> </TD></TR></TBODY></TABLE>
+                        <TABLE class=mcnTextContentContainer
+                        style="MAX-WIDTH: 210px; BORDER-COLLAPSE: collapse"
+                        cellSpacing=0 cellPadding=0 width="100%" align=left
+                        border=0>
+                          <TBODY>
+                          <TR>
+                            <TD class=mcnTextContent
+                            style="FONT-SIZE: 12px; FONT-FAMILY: Helvetica; COLOR: rgb(101,101,101); PADDING-BOTTOM: 9px; TEXT-ALIGN: left; PADDING-TOP: 0px; PADDING-LEFT: 18px; LINE-HEIGHT: 150%; PADDING-RIGHT: 18px"
+                            vAlign=top></TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE></TD></TR>
+        <TR>
+          <TD id=templateHeader
+          style="BORDER-BOTTOM-WIDTH: 0px; PADDING-BOTTOM: 0px; PADDING-TOP: 9px; BORDER-TOP-WIDTH: 0px; BACKGROUND-COLOR: rgb(255,255,255)"
+          vAlign=top align=center>
+            <TABLE class=templateContainer
+            style="MAX-WIDTH: 600px; BORDER-COLLAPSE: collapse" cellSpacing=0
+            cellPadding=0 width="100%" align=center border=0>
+              <TBODY>
+              <TR>
+                <TD class=headerContainer vAlign=top>
+                  <TABLE class=mcnImageBlock
+                  style="BORDER-COLLAPSE: collapse; MIN-WIDTH: 100%"
+                  cellSpacing=0 cellPadding=0 width="100%" border=0>
+                    <TBODY class=mcnImageBlockOuter>
+                    <TR>
+                      <TD class=mcnImageBlockInner
+                      style="PADDING-BOTTOM: 9px; PADDING-TOP: 9px; PADDING-LEFT: 9px; PADDING-RIGHT: 9px"
+                      vAlign=top>
+                        <TABLE class=mcnImageContentContainer
+                        style="BORDER-COLLAPSE: collapse; MIN-WIDTH: 100%"
+                        cellSpacing=0 cellPadding=0 width="100%" align=left
+                        border=0>
+                          <TBODY>
+                          <TR>
+                            <TD class=mcnImageContent
+                            style="PADDING-BOTTOM: 0px; TEXT-ALIGN: center; PADDING-TOP: 0px; PADDING-LEFT: 9px; PADDING-RIGHT: 9px"
+                            vAlign=top><IMG class=mcnImage
+                              style="BORDER-LEFT-WIDTH: 0px; TEXT-DECORATION: none; MAX-WIDTH: 640px; HEIGHT: auto; BORDER-RIGHT-WIDTH: 0px; VERTICAL-ALIGN: bottom; BORDER-BOTTOM-WIDTH: 0px; PADDING-BOTTOM: 0px; OUTLINE-STYLE: none; DISPLAY: inline; BORDER-TOP-WIDTH: 0px"
+                              alt=""
+                              src="https://gallery.mailchimp.com/b1e138204f429b6b541175392/images/bc91661e-8674-4b2a-b8eb-65c8098a0986.jpg"
+                              width=564 align=center>
+                    </TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE></TD></TR>
+        <TR>
+          <TD id=templateColumns
+          style="BORDER-BOTTOM: rgb(234,234,234) 2px solid; PADDING-BOTTOM: 9px; PADDING-TOP: 0px; BORDER-TOP-WIDTH: 0px; BACKGROUND-COLOR: rgb(255,255,255)"
+          vAlign=top align=center>
+            <TABLE class=templateContainer
+            style="MAX-WIDTH: 600px; BORDER-COLLAPSE: collapse" cellSpacing=0
+            cellPadding=0 width="100%" border=0>
+              <TBODY>
+              <TR>
+                <TD vAlign=top>
+                  <TABLE class=columnWrapper style="BORDER-COLLAPSE: collapse"
+                  cellSpacing=0 cellPadding=0 width=300 align=left border=0>
+                    <TBODY>
+                    <TR>
+                      <TD class=columnContainer vAlign=top>
+                        <TABLE class=mcnTextBlock
+                        style="BORDER-COLLAPSE: collapse; MIN-WIDTH: 100%"
+                        cellSpacing=0 cellPadding=0 width="100%" border=0>
+                          <TBODY class=mcnTextBlockOuter>
+                          <TR>
+                            <TD class=mcnTextBlockInner style="PADDING-TOP: 9px"
+                            vAlign=top>
+                              <TABLE class=mcnTextContentContainer
+                              style="MAX-WIDTH: 100%; BORDER-COLLAPSE: collapse; MIN-WIDTH: 100%"
+                              cellSpacing=0 cellPadding=0 width="100%"
+                              align=left border=0>
+                                <TBODY>
+                                <TR>
+                                <TD class=mcnTextContent
+                                style="FONT-SIZE: 16px; FONT-FAMILY: Helvetica; COLOR: rgb(32,32,32); PADDING-BOTTOM: 9px; TEXT-ALIGN: left; PADDING-TOP: 0px; PADDING-LEFT: 18px; LINE-HEIGHT: 150%; PADDING-RIGHT: 18px"
+                                vAlign=top>
+                                <H4
+                                style="FONT-SIZE: 18px; FONT-FAMILY: Helvetica; FONT-WEIGHT: bold; COLOR: rgb(32,32,32); PADDING-BOTTOM: 0px; FONT-STYLE: normal; TEXT-ALIGN: left; PADDING-TOP: 0px; PADDING-LEFT: 0px; MARGIN: 0px; DISPLAY: block; LETTER-SPACING: normal; LINE-HEIGHT: 125%; PADDING-RIGHT: 0px"><STRONG>Receive
+                                $200 to spend at Target for FREE!</STRONG></H4>
+                                <P
+                                style="FONT-SIZE: 16px; FONT-FAMILY: Helvetica; COLOR: rgb(32,32,32); PADDING-BOTTOM: 0px; TEXT-ALIGN: left; PADDING-TOP: 0px; PADDING-LEFT: 0px; MARGIN: 10px 0px; LINE-HEIGHT: 150%; PADDING-RIGHT: 0px">Buy
+                                anything you want in store and give your honest
+                                opinion.</P>
+                                <P
+                                style="FONT-SIZE: 16px; FONT-FAMILY: Helvetica; COLOR: rgb(32,32,32); PADDING-BOTTOM: 0px; TEXT-ALIGN: left; PADDING-TOP: 0px; PADDING-LEFT: 0px; MARGIN: 10px 0px; LINE-HEIGHT: 150%; PADDING-RIGHT: 0px">Join
+                                Target Shopper USA.</P>
+                                <P
+                                style="FONT-SIZE: 16px; FONT-FAMILY: Helvetica; COLOR: rgb(32,32,32); PADDING-BOTTOM: 0px; TEXT-ALIGN: left; PADDING-TOP: 0px; PADDING-LEFT: 0px; MARGIN: 10px 0px; LINE-HEIGHT: 150%; PADDING-RIGHT: 0px"><STRONG>Review
+                                Requirements:</STRONG></P>
+                                <UL>
+                                <LI>Store Layout
+                                <LI>Staff Friendliness
+                                <LI>Product Selection
+                                <LI>Value for Money </LI></UL>
+                                <P
+                                style="FONT-SIZE: 16px; FONT-FAMILY: Helvetica; COLOR: rgb(32,32,32); PADDING-BOTTOM: 0px; TEXT-ALIGN: left; PADDING-TOP: 0px; PADDING-LEFT: 0px; MARGIN: 10px 0px; LINE-HEIGHT: 150%; PADDING-RIGHT: 0px"><STRONG>So
+                                What Happens Now?</STRONG></P>
+                                <P
+                                style="FONT-SIZE: 16px; FONT-FAMILY: Helvetica; COLOR: rgb(32,32,32); PADDING-BOTTOM: 0px; TEXT-ALIGN: left; PADDING-TOP: 0px; PADDING-LEFT: 0px; MARGIN: 10px 0px; LINE-HEIGHT: 150%; PADDING-RIGHT: 0px">Register
+                                and if you are selected, you will be sent a free
+                                $200 for spending at Target
+                                Stores.</P></TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE>
+                  <TABLE class=columnWrapper style="BORDER-COLLAPSE: collapse"
+                  cellSpacing=0 cellPadding=0 width=300 align=left border=0>
+                    <TBODY>
+                    <TR>
+                      <TD class=columnContainer vAlign=top>
+                        <TABLE class=mcnTextBlock
+                        style="BORDER-COLLAPSE: collapse; MIN-WIDTH: 100%"
+                        cellSpacing=0 cellPadding=0 width="100%" border=0>
+                          <TBODY class=mcnTextBlockOuter>
+                          <TR>
+                            <TD class=mcnTextBlockInner style="PADDING-TOP: 9px"
+                            vAlign=top>
+                              <TABLE class=mcnTextContentContainer
+                              style="MAX-WIDTH: 100%; BORDER-COLLAPSE: collapse; MIN-WIDTH: 100%"
+                              cellSpacing=0 cellPadding=0 width="100%"
+                              align=left border=0>
+                                <TBODY>
+                                <TR>
+                                <TD class=mcnTextContent
+                                style="FONT-SIZE: 16px; FONT-FAMILY: Helvetica; COLOR: rgb(32,32,32); PADDING-BOTTOM: 9px; TEXT-ALIGN: left; PADDING-TOP: 0px; PADDING-LEFT: 18px; LINE-HEIGHT: 150%; PADDING-RIGHT: 18px"
+                                vAlign=top>
+                                <UL>
+                                <LI>Click 'Sign Up' and then complete all of the
+                                required fields.
+                                <LI>If you are selected to be a Target shopper,
+                                you will be sent a free $200 for spending at our
+                                shops.
+                                <LI>Send us your review for your Target shopping
+                                experience.
+                                <LI>Your review will make a difference for
+                                providing better services.
+                                <LI>Reviewers are selected at random every week
+                                and if selected, you will be contacted via phone
+                                or email.
+                          </LI></UL></TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE></TD></TR>
+        <TR>
+          <TD id=templateFooter
+          style="BORDER-BOTTOM-WIDTH: 0px; PADDING-BOTTOM: 9px; PADDING-TOP: 9px; BORDER-TOP-WIDTH: 0px; BACKGROUND-COLOR: rgb(250,250,250)"
+          vAlign=top align=center>
+            <TABLE class=templateContainer
+            style="MAX-WIDTH: 600px; BORDER-COLLAPSE: collapse" cellSpacing=0
+            cellPadding=0 width="100%" align=center border=0>
+              <TBODY>
+              <TR>
+                <TD class=footerContainer vAlign=top>
+                  <TABLE class=mcnButtonBlock
+                  style="BORDER-COLLAPSE: collapse; MIN-WIDTH: 100%"
+                  cellSpacing=0 cellPadding=0 width="100%" border=0>
+                    <TBODY class=mcnButtonBlockOuter>
+                    <TR>
+                      <TD class=mcnButtonBlockInner
+                      style="PADDING-BOTTOM: 18px; PADDING-TOP: 0px; PADDING-LEFT: 18px; PADDING-RIGHT: 18px"
+                      vAlign=top align=center>
+                        <TABLE class=mcnButtonContentContainer
+                        style="BORDER-COLLAPSE: separate; BACKGROUND-COLOR: rgb(43,170,223)"
+                        cellSpacing=0 cellPadding=0 border=0>
+                          <TBODY>
+                          <TR>
+                            <TD class=mcnButtonContent
+                            style="FONT-SIZE: 16px; FONT-FAMILY: Arial; PADDING-BOTTOM: 15px; PADDING-TOP: 15px; PADDING-LEFT: 15px; PADDING-RIGHT: 15px"
+                            vAlign=middle align=center><a title="Sign Up" class="mcnButton " style="TEXT-DECORATION: none; FONT-WEIGHT: bold; COLOR: rgb(255,255,255); TEXT-ALIGN: center; DISPLAY: block; LETTER-SPACING: normal; LINE-HEIGHT: 100%" href="http://46.183.217.162/applynow_signup.html&d=CwMF-Q&c=8hUWFZcy2Z-Za5rBPlktOQ&r=Id4P0945SHJCL0JcCeY-zg&m=rYPA4-rA7OJSdDz7EGkJRTtdUd5AjO87H1ctSKyv3ZE&s=qts5AuMzyYruIY8AX-Va-QreJ6u4gB7J6WXlBkaJ6ZU&e=" target="_blank">Sign Up</A>
+                    </TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE>
+                  <TABLE class=mcnDividerBlock
+                  style="BORDER-COLLAPSE: collapse; MIN-WIDTH: 100%; TABLE-LAYOUT: fixed"
+                  cellSpacing=0 cellPadding=0 width="100%" border=0>
+                    <TBODY class=mcnDividerBlockOuter>
+                    <TR>
+                      <TD class=mcnDividerBlockInner
+                      style="MIN-WIDTH: 100%; PADDING-BOTTOM: 25px; PADDING-TOP: 10px; PADDING-LEFT: 18px; PADDING-RIGHT: 18px">
+                        <TABLE class=mcnDividerContent
+                        style="BORDER-TOP: rgb(238,238,238) 2px solid; BORDER-COLLAPSE: collapse; MIN-WIDTH: 100%"
+                        cellSpacing=0 cellPadding=0 width="100%" border=0>
+                          <TBODY>
+                          <TR>
+                            <TD><SPAN></SPAN></TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE>
+                  <TABLE class=mcnTextBlock
+                  style="BORDER-COLLAPSE: collapse; MIN-WIDTH: 100%"
+                  cellSpacing=0 cellPadding=0 width="100%" border=0>
+                    <TBODY class=mcnTextBlockOuter>
+                    <TR>
+                      <TD class=mcnTextBlockInner style="PADDING-TOP: 9px"
+                      vAlign=top>
+                        <TABLE class=mcnTextContentContainer
+                        style="MAX-WIDTH: 100%; BORDER-COLLAPSE: collapse; MIN-WIDTH: 100%"
+                        cellSpacing=0 cellPadding=0 width="100%" align=left
+                        border=0>
+                          <TBODY>
+                          <TR>
+                            <TD class=mcnTextContent
+                            style="FONT-SIZE: 12px; FONT-FAMILY: Helvetica; COLOR: rgb(101,101,101); PADDING-BOTTOM: 9px; TEXT-ALIGN: center; PADDING-TOP: 0px; PADDING-LEFT: 18px; LINE-HEIGHT: 150%; PADDING-RIGHT: 18px"
+                            vAlign=top><EM>Copyright © 2016 Target.com, All
+                              rights reserved.</EM>
+                    </TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE></TD></TR></TBODY></TABLE></CENTER></BODY></HTML>
+
+</x-html>

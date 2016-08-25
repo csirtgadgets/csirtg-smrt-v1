@@ -31,8 +31,6 @@ class Pattern(Parser):
         rv = []
         res = []
         for l in self.fetcher.process():
-            #self.logger.debug(l)
-            #pprint(l)
 
             if self.ignore(l):  # comment or skip
                 continue
