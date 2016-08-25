@@ -1,0 +1,16 @@
+defaults:
+  provider: pastebin.com
+  confidence: 7
+  tlp: green
+  altid_tlp: white
+  tags:
+    - compromise
+    - credential
+
+feeds:
+  creds:
+    remote: stdin
+    pattern: '^(.+):(.+)$'
+    values:
+      - indicator
+      - additional_data

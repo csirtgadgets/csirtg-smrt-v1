@@ -17,6 +17,7 @@ class Pattern(Parser):
             self.pattern = self.rule.feeds[self.feed].get('pattern')
 
         self.pattern = re.compile(self.pattern)
+        self.split = "\n"
 
     def process(self):
         if self.rule.feeds[self.feed].get('values'):
@@ -30,19 +31,21 @@ class Pattern(Parser):
 
         rv = []
         res = []
-        for l in self.fetcher.process():
+        for l in self.fetcher.process(split=self.split):
 
             if self.ignore(l):  # comment or skip
                 continue
 
             try:
                 m = self.pattern.search(l).groups()
-                #self.logger.debug(m)
+                self.logger.debug(m)
                 if isinstance(m, str):
                     m = [m]
-            except ValueError:
+            except ValueError as e:
+                #self.logger.error(e)  # ignore non matched lines
                 continue
-            except AttributeError:
+            except AttributeError as e:
+                #self.logger.error(e)
                 continue
 
             if len(cols):
