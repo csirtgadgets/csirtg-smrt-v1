@@ -41,7 +41,7 @@ def get_argument_parser():
 def load_plugin(path, plugin):
     p = None
     for loader, modname, is_pkg in pkgutil.iter_modules([path]):
-        if modname == plugin:
+        if modname == plugin or modname == 'z{}'.format(plugin):
             p = loader.find_module(modname).load_module(modname)
             p = p.Plugin
 
