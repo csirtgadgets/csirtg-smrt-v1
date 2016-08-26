@@ -13,3 +13,5 @@ python-magic>=0.4.6
 pyaml>=15.8.2
 SQLAlchemy==1.0.14
 chardet==2.3.0
+elasticsearch<3.0.0,>=2.0.0
+elasticsearch_dsl<3.0.0,>=2.0.0
