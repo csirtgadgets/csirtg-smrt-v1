@@ -2,7 +2,6 @@ import pytest
 import os
 from csirtg_smrt import Smrt
 from csirtgsdk.client import Client as CSIRTGClient
-from csirtgsdk.indicator import Indicator
 from csirtgsdk.feed import Feed
 from pprint import pprint
 

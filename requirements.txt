@@ -1,5 +1,6 @@
 https://github.com/csirtgadgets/csirtg-indicator-py/archive/0.0.0a7.tar.gz
 https://github.com/csirtgadgets/csirtgsdk-py/archive/0.0.a2.tar.gz
+git+https://github.com/zeromq/pyre.git@b4f3497d14ee443871ae67fe9e643a1ef9f31ef1
 git+https://github.com/csirtgadgets/py-cgmail.git@3ef0572e758ff9fcbe14905db95679fdf73f09eb
 pytest-cov>=2.2.1
 ipaddress>=1.0.16

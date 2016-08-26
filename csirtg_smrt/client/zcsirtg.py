@@ -31,6 +31,7 @@ class _Csirtg(Client):
         )
 
         rv = i.submit()
-        print(rv)
+
+        assert rv
 
 Plugin = _Csirtg

@@ -4,7 +4,7 @@ from csirtg_smrt import Smrt
 from pprint import pprint
 
 
-def test_smrt():
+def test_syslog():
     with Smrt(remote='localhost:514', client='syslog') as s:
         assert type(s) is Smrt
 
