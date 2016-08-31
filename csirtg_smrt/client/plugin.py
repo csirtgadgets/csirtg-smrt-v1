@@ -12,9 +12,8 @@ class Client(object):
     def _kv_to_indicator(self, kv):
         return Indicator(**kv)
 
-    @abc.abstractmethod
     def ping(self, write=False):
-        raise NotImplementedError
+        return True
 
     @abc.abstractmethod
     def indicators_create(self, data, **kwargs):

@@ -48,9 +48,6 @@ class _ElasticSearch(Client):
 
         connections.create_connection(hosts=self.remote)
 
-    def ping(self, write=False):
-        return True
-
     def _create_index(self):
         dt = datetime.utcnow()
         dt = dt.strftime('%Y.%m')

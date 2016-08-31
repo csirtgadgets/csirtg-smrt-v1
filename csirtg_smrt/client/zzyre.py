@@ -15,9 +15,6 @@ class _Zyre(Client):
     def __init__(self, remote=False, *args, **kwargs):
         super(_Zyre, self).__init__(remote)
 
-    def ping(self, write=False):
-        return True
-
     def indicators_create(self, data, **kwargs):
         if isinstance(data, dict):
             data = Indicator(**data)

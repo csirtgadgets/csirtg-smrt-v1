@@ -16,14 +16,12 @@ def read_config(args):
             config = config['client']
         f.close()
         if not config:
-            print("Unable to read {} config file".format(args.config))
-            raise SystemExit
+            return options
         for k in config:
             if not options.get(k):
                 options[k] = config[k]
     else:
-        print("Unable to read {} config file".format(args.config))
-        raise SystemExit
+        return options
 
     return options
 

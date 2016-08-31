@@ -22,9 +22,6 @@ class _Syslog(Client):
         handler = logging.handlers.SysLogHandler(address=(self.remote, self.port))
         self.logger.addHandler(handler)
 
-    def ping(self, write=False):
-        return True
-
     def indicators_create(self, data, **kwargs):
         if isinstance(data, dict):
             data = Indicator(**data)
