@@ -35,6 +35,7 @@ setup(
         'arrow>=0.6.0',
         'python-magic>=0.4.6',
         'pyaml>=15.8.2',
+        'chardet>=2.3.0',
     ],
     scripts=[],
     entry_points={

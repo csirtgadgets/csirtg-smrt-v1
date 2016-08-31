@@ -17,6 +17,7 @@ class Pattern(Parser):
             self.pattern = self.rule.feeds[self.feed].get('pattern')
 
         self.pattern = re.compile(self.pattern)
+        self.split = "\n"
 
     def process(self):
         if self.rule.feeds[self.feed].get('values'):
@@ -30,21 +31,21 @@ class Pattern(Parser):
 
         rv = []
         res = []
-        for l in self.fetcher.process():
-            #self.logger.debug(l)
-            #pprint(l)
+        for l in self.fetcher.process(split=self.split):
 
             if self.ignore(l):  # comment or skip
                 continue
 
             try:
                 m = self.pattern.search(l).groups()
-                #self.logger.debug(m)
+                self.logger.debug(m)
                 if isinstance(m, str):
                     m = [m]
-            except ValueError:
+            except ValueError as e:
+                #self.logger.error(e)  # ignore non matched lines
                 continue
-            except AttributeError:
+            except AttributeError as e:
+                #self.logger.error(e)
                 continue
 
             if len(cols):
@@ -73,12 +74,12 @@ class Pattern(Parser):
                         self.archive(i.indicator, i.provider, i.group, i.tags, i.firsttime, i.lasttime)
                         rv.append(r)
 
-            if self.limit:
-                self.limit -= 1
+                    if self.limit:
+                        self.limit -= 1
 
-                if self.limit == 0:
-                    self.logger.debug('limit reached...')
-                    break
+                        if self.limit == 0:
+                            self.logger.debug('limit reached...')
+                            break
 
         return rv
 

@@ -13,8 +13,7 @@ s = Smrt(REMOTE_ADDR, 1234, client='dummy')
 
 def test_malc0de_urls():
     rule.remote = 'test/malc0de/feed.txt'
-    x = s.process(rule, 'urls')
-    pprint(x)
+    x = s.process(rule, feed='urls')
 
     assert len(x) > 0
     assert len(x[0].indicator) > 4
@@ -28,7 +27,7 @@ def test_malc0de_urls():
 
 def test_malc0de_malware():
     rule.remote = 'test/malc0de/feed.txt'
-    x = s.process(rule, 'malware')
+    x = s.process(rule, feed='malware')
     assert len(x) > 0
     assert len(x[0].indicator) > 4
 
