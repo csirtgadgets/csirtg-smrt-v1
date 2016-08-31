@@ -16,14 +16,12 @@ def read_config(args):
             config = config['client']
         f.close()
         if not config:
-            print("Unable to read {} config file".format(args.config))
-            raise SystemExit
+            return options
         for k in config:
             if not options.get(k):
                 options[k] = config[k]
     else:
-        print("Unable to read {} config file".format(args.config))
-        raise SystemExit
+        return options
 
     return options
 
@@ -41,7 +39,7 @@ def get_argument_parser():
 def load_plugin(path, plugin):
     p = None
     for loader, modname, is_pkg in pkgutil.iter_modules([path]):
-        if modname == plugin:
+        if modname == plugin or modname == 'z{}'.format(plugin):
             p = loader.find_module(modname).load_module(modname)
             p = p.Plugin
 

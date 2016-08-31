@@ -21,12 +21,14 @@ from csirtg_smrt.fetcher import Fetcher
 from csirtg_smrt.utils import setup_logging, get_argument_parser, load_plugin, setup_signals, read_config, \
     setup_runtime_path
 from csirtg_smrt.exceptions import AuthError, TimeoutError
+from csirtg_indicator.format import FORMATS
 
 PARSER_DEFAULT = "pattern"
 TOKEN = os.environ.get('CSIRTG_TOKEN', None)
 TOKEN = os.environ.get('CSIRTG_SMRT_TOKEN', TOKEN)
 ARCHIVE_PATH = os.environ.get('CSIRTG_SMRT_ARCHIVE_PATH', RUNTIME_PATH)
 ARCHIVE_PATH = os.path.join(ARCHIVE_PATH, 'smrt.db')
+FORMAT = os.environ.get('CSIRTG_SMRT_FORMAT', 'table')
 
 
 # http://python-3-patterns-idioms-test.readthedocs.org/en/latest/Factory.html
@@ -41,15 +43,15 @@ class Smrt(object):
     def __enter__(self):
         return self
 
-    def __init__(self, remote=REMOTE_ADDR, token=TOKEN, client='cif', user=None, feed=None, archiver=None):
+    def __init__(self, remote=REMOTE_ADDR, token=TOKEN, client='stdout', username=None, feed=None, archiver=None):
 
         self.logger = logging.getLogger(__name__)
 
         self.logger.debug(csirtg_smrt.client.__path__[0])
-        self.client = load_plugin(csirtg_smrt.client.__path__[0], client)(remote, token, user=user, feed=feed)
+        self.client = load_plugin(csirtg_smrt.client.__path__[0], client)(remote, token, username=username, feed=feed)
         self.archiver = archiver
 
-    def ping_router(self):
+    def ping_remote(self):
         return self.client.ping(write=True)
 
     def _process(self, rule, feed, limit=None, data=None):
@@ -111,7 +113,7 @@ class Smrt(object):
             else:
                 for feed in r.feeds:
                     try:
-                        rv = self._process(Rule(path=rule), feed=feed, limit=limit)
+                        rv = self._process(Rule(path=rule), feed=feed, limit=limit, data=data)
                     except Exception as e:
                         self.logger.error('failed to process feed: {}'.format(feed))
                         self.logger.error(e)
@@ -142,15 +144,16 @@ def main():
 
     p.add_argument("-f", "--feed", help="specify the feed to process")
 
-    p.add_argument("--remote", dest="remote", help="specify the remote api url [default: %(default)s",
-                   default=REMOTE_ADDR)
+    p.add_argument("--remote", help="specify the remote api url")
+    p.add_argument('--remote-type', help="specify remote type [cif, csirtg, elasticsearch, syslog, etc]")
+    p.add_argument('--client', default='stdout')
 
     p.add_argument('--cache', help="specify feed cache [default %(default)s]", default=SMRT_CACHE)
 
-    p.add_argument("--limit", dest="limit", help="limit the number of records processed [default: %(default)s]",
+    p.add_argument("--limit", help="limit the number of records processed [default: %(default)s]",
                    default=None)
 
-    p.add_argument("--token", dest="token", help="specify token [default: %(default)s]", default=TOKEN)
+    p.add_argument("--token", help="specify token [default: %(default)s]", default=TOKEN)
 
     p.add_argument('--service', action='store_true', help="start in service mode")
     p.add_argument('--sleep', default=60)
@@ -158,13 +161,15 @@ def main():
 
     p.add_argument('--config', help='specify csirtg-smrt config path [default %(default)s', default=CONFIG_PATH)
 
-    p.add_argument('--client', default='cif')
     p.add_argument('--user')
 
     p.add_argument('--delay', help='specify initial delay', default=randint(5, 55))
 
     p.add_argument('--archive-path', help='specify logger path [default: %(default)s', default=ARCHIVE_PATH)
     p.add_argument('--no-archiver', action='store_true')
+
+    p.add_argument('--format', help='specify output format [default: %(default)s]"', default=FORMAT,
+                   choices=FORMATS.keys())
 
     args = p.parse_args()
 
@@ -187,15 +192,17 @@ def main():
         archiver = Archiver(dbfile=args.archive_path)
 
     stop = False
+    service = args.service
+    if not args.remote:
+        service = False
 
-    r = False
-    if args.service:
+    if service:
         r = args.delay
         logger.info("random delay is {}, then running every 60min after that".format(r))
         sleep((r * 60))
 
     while not stop:
-        if not args.service:
+        if not service:
             stop = True
 
         data = False
@@ -203,14 +210,18 @@ def main():
             data = sys.stdin.read()
 
         logger.info('starting...')
+
         try:
-            with Smrt(options.get('remote'), options.get('token'), client=args.client, user=args.user,
+            with Smrt(options.get('remote'), options.get('token'), client=args.client, username=args.user,
                       feed=args.feed, archiver=archiver) as s:
-                logger.info('staring up...')
-                logger.info('testing router connection...')
-                s.ping_router()
+
+
+                s.ping_remote()
 
                 x = s.process(args.rule, feed=args.feed, limit=args.limit, data=data)
+
+                if args.client == 'stdout':
+                    print(FORMATS[options.get('format')](data=x))
                 logger.info('complete')
 
                 if args.service:
