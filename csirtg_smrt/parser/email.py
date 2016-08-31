@@ -59,6 +59,13 @@ class Email(Parser):
                     self.archive(i.indicator, i.provider, i.group, i.tags, i.firsttime, i.lasttime)
                     rv.append(r)
 
+                    if self.limit:
+                        self.limit -= 1
+
+                        if self.limit == 0:
+                            self.logger.debug('limit reached...')
+                            break
+
         return rv
 
 Plugin = Email

@@ -10,6 +10,7 @@ import re
 import sys
 
 RE_SUPPORTED_DECODE = re.compile("zip|lzf|lzma|xz|lzop")
+RE_CACHE_TYPES = re.compile('([\w.-]+\.(csv|zip|txt|gz))$')
 
 
 class Fetcher(object):
@@ -22,6 +23,7 @@ class Fetcher(object):
         self.cache = cache
         self.fetcher = rule.fetcher
         self.data = data
+        self.cache_file = False
 
         if self.rule.remote:
             self.remote = self.rule.remote
@@ -32,6 +34,7 @@ class Fetcher(object):
 
         if not data:
             self.dir = os.path.join(self.cache, self.rule.defaults.get('provider'))
+            self.logger.debug(self.dir)
 
             if not os.path.exists(self.dir):
                 try:
@@ -40,11 +43,18 @@ class Fetcher(object):
                     self.logger.critical('failed to create {0}'.format(self.dir))
                     raise
 
-            self.cache = os.path.join(self.dir, self.feed)
+            if self.rule.feeds[feed].get('cache'):
+                self.cache = os.path.join(self.dir, self.rule.feeds[feed]['cache'])
+                self.cache_file = True
+            elif RE_CACHE_TYPES.search(self.remote):
+                self.cache = RE_CACHE_TYPES.search(self.remote).groups()
+                self.cache = os.path.join(self.dir, self.cache[0])
+                self.cache_file = True
+            else:
+                self.cache = os.path.join(self.dir, self.feed)
 
-            self.logger.debug(self.cache)
+            self.logger.debug('CACHE %s' % self.cache)
 
-            # http://www-archive.mozilla.org/build/revised-user-agent-strings.html
             self.ua = "User-Agent: csirtg-smrt/{0} (csirtgadgets.org)".format(VERSION)
 
             if not self.fetcher:
@@ -70,12 +80,22 @@ class Fetcher(object):
         else:
             if self.fetcher == 'http':
                 try:
-                    # using wget until we can find a better way to mirror files in python
-                    subprocess.check_call([
-                        'wget', '--header', self.ua,  '-q', self.remote, '-N', '-O', self.cache
-                    ])
+                    cmd = ['wget', '--header', self.ua, '-q', self.remote, '-N']
+                    if self.logger.getEffectiveLevel() == logging.DEBUG:
+                        cmd = ['wget', '--header', self.ua, self.remote, '-N']
+
+                    if self.cache_file:
+                        cmd.append('-P')
+                        cmd.append(self.dir)
+                    else:
+                        cmd.append('-O')
+                        cmd.append(self.cache)
+
+                    self.logger.debug(cmd)
+
+                    subprocess.check_call(cmd)
                 except subprocess.CalledProcessError as e:
-                    self.logger.error('failure pulling feed: {} to {}'.format(self.remote, self.cache))
+                    self.logger.error('failure pulling feed: {} to {}'.format(self.remote, self.dir))
                     self.logger.error(e)
                     raise e
             else:
