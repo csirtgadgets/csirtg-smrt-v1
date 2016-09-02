@@ -194,10 +194,10 @@ def main():
     if not args.no_archiver:
         archiver = Archiver(dbfile=args.archive_path)
 
-        stop = False
-        service = args.service
-        if not args.remote:
-            service = False
+    stop = False
+    service = args.service
+    if not args.remote:
+        service = False
 
     if service:
         r = args.delay
