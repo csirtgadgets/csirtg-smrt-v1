@@ -22,6 +22,7 @@ from csirtg_smrt.utils import setup_logging, get_argument_parser, load_plugin, s
     setup_runtime_path
 from csirtg_smrt.exceptions import AuthError, TimeoutError
 from csirtg_indicator.format import FORMATS
+import tailer
 
 PARSER_DEFAULT = "pattern"
 TOKEN = os.environ.get('CSIRTG_TOKEN', None)
@@ -171,6 +172,8 @@ def main():
     p.add_argument('--format', help='specify output format [default: %(default)s]"', default=FORMAT,
                    choices=FORMATS.keys())
 
+    p.add_argument('--tail', help='enter into tail mode')
+
     args = p.parse_args()
 
     o = read_config(args)
@@ -191,10 +194,10 @@ def main():
     if not args.no_archiver:
         archiver = Archiver(dbfile=args.archive_path)
 
-    stop = False
-    service = args.service
-    if not args.remote:
-        service = False
+        stop = False
+        service = args.service
+        if not args.remote:
+            service = False
 
     if service:
         r = args.delay
@@ -212,21 +215,32 @@ def main():
         logger.info('starting...')
 
         try:
-            with Smrt(options.get('remote'), options.get('token'), client=args.client, username=args.user,
-                      feed=args.feed, archiver=archiver) as s:
+            if args.tail:
+                with Smrt(options.get('remote'), options.get('token'), client=args.client, username=args.user,
+                          feed=args.feed, archiver=archiver) as s:
 
+                    for line in tailer.follow(open(args.tail)):
+                        logger.debug(line)
+                        x = s.process(args.rule, feed=args.feed, data=line)
 
-                s.ping_remote()
+                        if args.client == 'stdout':
+                            print(FORMATS[options.get('format')](data=x))
 
-                x = s.process(args.rule, feed=args.feed, limit=args.limit, data=data)
+            else:
+                with Smrt(options.get('remote'), options.get('token'), client=args.client, username=args.user,
+                          feed=args.feed, archiver=archiver) as s:
 
-                if args.client == 'stdout':
-                    print(FORMATS[options.get('format')](data=x))
-                logger.info('complete')
+                    s.ping_remote()
 
-                if args.service:
-                    logger.info('sleeping for 1 hour')
-                    sleep((60 * 60))
+                    x = s.process(args.rule, feed=args.feed, limit=args.limit, data=data)
+
+                    if args.client == 'stdout':
+                        print(FORMATS[options.get('format')](data=x))
+                    logger.info('complete')
+
+                    if args.service:
+                        logger.info('sleeping for 1 hour')
+                        sleep((60 * 60))
 
         except AuthError as e:
             logger.error(e)

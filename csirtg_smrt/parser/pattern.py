@@ -16,7 +16,9 @@ class Pattern(Parser):
         if self.rule.feeds[self.feed].get('pattern'):
             self.pattern = self.rule.feeds[self.feed].get('pattern')
 
-        self.pattern = re.compile(self.pattern)
+        if self.pattern:
+            self.pattern = re.compile(self.pattern)
+
         self.split = "\n"
 
     def process(self):
@@ -32,6 +34,7 @@ class Pattern(Parser):
         rv = []
         res = []
         for l in self.fetcher.process(split=self.split):
+            self.logger.debug(l)
 
             if self.ignore(l):  # comment or skip
                 continue
@@ -74,12 +77,12 @@ class Pattern(Parser):
                         self.archive(i.indicator, i.provider, i.group, i.tags, i.firsttime, i.lasttime)
                         rv.append(r)
 
-                    if self.limit:
-                        self.limit -= 1
+            if self.limit:
+                self.limit -= 1
 
-                        if self.limit == 0:
-                            self.logger.debug('limit reached...')
-                            break
+                if self.limit == 0:
+                    self.logger.debug('limit reached...')
+                    break
 
         return rv
 
