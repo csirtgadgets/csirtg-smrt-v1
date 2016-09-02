@@ -55,7 +55,7 @@ class Smrt(object):
     def ping_remote(self):
         return self.client.ping(write=True)
 
-    def _process(self, rule, feed, limit=None, data=None):
+    def _process(self, rule, feed, limit=None, data=None, filters=None):
         fetch = Fetcher(rule, feed, data=data)
 
         parser_name = rule.parser or PARSER_DEFAULT
@@ -69,13 +69,13 @@ class Smrt(object):
 
         self.logger.debug("loading parser: {}".format(parser))
 
-        parser = parser(self.client, fetch, rule, feed, limit=limit, archiver=self.archiver)
+        parser = parser(self.client, fetch, rule, feed, limit=limit, archiver=self.archiver, filters=filters)
 
         rv = parser.process()
 
         return rv
 
-    def process(self, rule, data=None, feed=None, limit=None):
+    def process(self, rule, data=None, feed=None, limit=None, filters=None):
         rv = []
         if isinstance(rule, str) and os.path.isdir(rule):
             for f in os.listdir(rule):
@@ -88,7 +88,7 @@ class Smrt(object):
 
                     for feed in r.feeds:
                         try:
-                            rv = self._process(r, feed, limit=limit)
+                            rv = self._process(r, feed, limit=limit, filters=filters)
                         except Exception as e:
                             self.logger.error('failed to process: {}'.format(feed))
                             self.logger.error(e)
@@ -106,7 +106,7 @@ class Smrt(object):
 
             if feed:
                 try:
-                    rv = self._process(r, feed, limit=limit, data=data)
+                    rv = self._process(r, feed, limit=limit, data=data, filters=filters)
                 except Exception as e:
                     self.logger.error('failed to process feed: {}'.format(feed))
                     self.logger.error(e)
@@ -114,7 +114,7 @@ class Smrt(object):
             else:
                 for feed in r.feeds:
                     try:
-                        rv = self._process(Rule(path=rule), feed=feed, limit=limit, data=data)
+                        rv = self._process(Rule(path=rule), feed=feed, limit=limit, data=data, filters=filters)
                     except Exception as e:
                         self.logger.error('failed to process feed: {}'.format(feed))
                         self.logger.error(e)
@@ -174,6 +174,8 @@ def main():
 
     p.add_argument('--tail', help='enter into tail mode')
 
+    p.add_argument('--filter-indicator', help='filter for specific indicator, useful in testing')
+
     args = p.parse_args()
 
     o = read_config(args)
@@ -231,8 +233,12 @@ def main():
                           feed=args.feed, archiver=archiver) as s:
 
                     s.ping_remote()
+                    filters = {}
+                    if args.filter_indicator:
+                        filters['indicator'] = args.filter_indicator
 
-                    x = s.process(args.rule, feed=args.feed, limit=args.limit, data=data)
+                    x = s.process(args.rule, feed=args.feed, limit=args.limit, data=data,
+                                  filters=filters)
 
                     if args.client == 'stdout':
                         print(FORMATS[options.get('format')](data=x))
