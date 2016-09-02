@@ -31,6 +31,18 @@ class Delim(Parser):
                 obs.pop("values", None)
                 self.eval_obs(obs)
 
+                skip = True
+                if self.filters and self.filters.keys():
+                    for f in self.filters:
+                        if obs.get(f) and obs[f] == self.filters[f]:
+                            skip = False
+                else:
+                    skip = False
+
+                if skip:
+                    self.logger.info('skipping %s' % obs['indicator'])
+                    continue
+
                 try:
                     i = Indicator(**obs)
                 except InvalidIndicator as e:
