@@ -30,12 +30,25 @@ class _Syslog(Client):
             data = [data]
 
         for i in data:
-            line = "provider={} indicator={} tlp={} firsttime={} lasttime={}".format(
+            firsttime = i.firsttime
+            if firsttime:
+                firsttime = firsttime.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+
+            lasttime = i.lasttime
+            if lasttime:
+                lasttime = lasttime.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+
+            reporttime = i.reporttime
+            if reporttime:
+                reporttime = reporttime.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+
+            line = "provider={} indicator={} tlp={} firsttime={} lasttime={} reporttime={}".format(
                 i.provider,
                 i.indicator,
                 i.tlp,
-                i.firsttime,
-                i.lasttime,
+                firsttime,
+                lasttime,
+                reporttime,
             )
             self.logger.info(line)
 
