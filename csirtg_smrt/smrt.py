@@ -236,7 +236,7 @@ def main():
                     filters = {}
                     if args.filter_indicator:
                         filters['indicator'] = args.filter_indicator
-
+                    
                     x = s.process(args.rule, feed=args.feed, limit=args.limit, data=data,
                                   filters=filters)
 
