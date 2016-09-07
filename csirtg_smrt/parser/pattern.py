@@ -3,6 +3,7 @@ import re
 
 from csirtg_smrt.parser import Parser
 from csirtg_indicator import Indicator
+from csirtg_indicator.exceptions import InvalidIndicator
 import logging
 
 
@@ -65,7 +66,7 @@ class Pattern(Parser):
 
                 try:
                     i = Indicator(**i)
-                except NotImplementedError as e:
+                except InvalidIndicator as e:
                     self.logger.error(e)
                     self.logger.info('skipping: {}'.format(i['indicator']))
                 else:
