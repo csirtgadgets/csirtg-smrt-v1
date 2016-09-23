@@ -1,6 +1,7 @@
 from csirtg_smrt.parser import Parser
 from csirtg_indicator import Indicator
 from csirtg_indicator.exceptions import InvalidIndicator
+from pprint import pprint
 
 
 class Delim(Parser):
@@ -13,6 +14,7 @@ class Delim(Parser):
         cols = defaults['values']
 
         rv = []
+        batch = []
         for l in self.fetcher.process():
             if l == '' or self.is_comment(l):
                 continue
@@ -54,9 +56,20 @@ class Delim(Parser):
                     if self.is_archived(i.indicator, i.provider, i.group, i.tags, i.firsttime, i.lasttime):
                         self.logger.info('skipping: {}/{}'.format(i.provider, i.indicator))
                     else:
-                        r = self.client.indicators_create(i)
-                        self.archive(i.indicator, i.provider, i.group, i.tags, i.firsttime, i.lasttime)
-                        rv.append(r)
+                        if self.fireball:
+                            batch.append(i)
+
+                            if len(batch) == self.fireball:
+                                r = self.client.indicators_create(batch)
+                                for i in batch:
+                                    rv.append(i)
+                                    self.archive(i.indicator, i.provider, i.group, i.tags, i.firsttime, i.lasttime)
+                                batch = []
+
+                        else:
+                            r = self.client.indicators_create(i)
+                            rv.append(r)
+                            self.archive(i.indicator, i.provider, i.group, i.tags, i.firsttime, i.lasttime)
 
                     if self.limit:
                         self.limit -= 1
@@ -64,6 +77,13 @@ class Delim(Parser):
                         if self.limit == 0:
                             self.logger.debug('limit reached...')
                             break
+
+        if self.fireball and len(batch):
+            r = self.client.indicators_create(batch)
+            if r:
+                for i in batch:
+                    rv.append(i)
+                    self.archive(i.indicator, i.provider, i.group, i.tags, i.firsttime, i.lasttime)
 
         return rv
 

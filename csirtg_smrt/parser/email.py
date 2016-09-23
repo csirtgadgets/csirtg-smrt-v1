@@ -44,7 +44,7 @@ class Email(Parser):
                     if body[0]['headers'].get(h):
                         obs[self.headers[h]] = body[0]['headers'][h][0]
 
-            obs['msg'] = d
+            obs['message'] = d
 
             try:
                 i = Indicator(**obs)

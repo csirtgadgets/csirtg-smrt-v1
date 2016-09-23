@@ -44,19 +44,23 @@ class Smrt(object):
     def __enter__(self):
         return self
 
-    def __init__(self, remote=REMOTE_ADDR, token=TOKEN, client='stdout', username=None, feed=None, archiver=None):
+    def __init__(self, token=TOKEN, remote=REMOTE_ADDR, client='stdout', username=None, feed=None, archiver=None,
+                 fireball=False, no_fetch=False):
 
         self.logger = logging.getLogger(__name__)
 
         self.logger.debug(csirtg_smrt.client.__path__[0])
-        self.client = load_plugin(csirtg_smrt.client.__path__[0], client)(remote, token, username=username, feed=feed)
+        self.client = load_plugin(csirtg_smrt.client.__path__[0], client)(remote=remote, token=token, username=username,
+                                                                          feed=feed, fireball=fireball)
         self.archiver = archiver
+        self.fireball = fireball
+        self.no_fetch = no_fetch
 
     def ping_remote(self):
         return self.client.ping(write=True)
 
     def _process(self, rule, feed, limit=None, data=None, filters=None):
-        fetch = Fetcher(rule, feed, data=data)
+        fetch = Fetcher(rule, feed, data=data, no_fetch=self.no_fetch)
 
         parser_name = rule.parser or PARSER_DEFAULT
         parser = load_plugin(csirtg_smrt.parser.__path__[0], parser_name)
@@ -69,7 +73,8 @@ class Smrt(object):
 
         self.logger.debug("loading parser: {}".format(parser))
 
-        parser = parser(self.client, fetch, rule, feed, limit=limit, archiver=self.archiver, filters=filters)
+        parser = parser(self.client, fetch, rule, feed, limit=limit, archiver=self.archiver, filters=filters,
+                        fireball=self.fireball)
 
         rv = parser.process()
 
@@ -176,6 +181,9 @@ def main():
 
     p.add_argument('--filter-indicator', help='filter for specific indicator, useful in testing')
 
+    p.add_argument('--fireball', help='run in fireball mode, bulk+async magic', action='store_true')
+    p.add_argument('--no-fetch', help='do not re-fetch if the cache exists', action='store_true')
+
     args = p.parse_args()
 
     o = read_config(args)
@@ -229,8 +237,8 @@ def main():
                             print(FORMATS[options.get('format')](data=x))
 
             else:
-                with Smrt(options.get('remote'), options.get('token'), client=args.client, username=args.user,
-                          feed=args.feed, archiver=archiver) as s:
+                with Smrt(options.get('token'), options.get('remote'), client=args.client, username=args.user,
+                          feed=args.feed, archiver=archiver, fireball=args.fireball, no_fetch=args.no_fetch) as s:
 
                     s.ping_remote()
                     filters = {}
