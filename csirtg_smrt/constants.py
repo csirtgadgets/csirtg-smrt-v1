@@ -32,3 +32,10 @@ if not os.path.isfile(CONFIG_PATH):
 PYVERSION = 2
 if sys.version_info > (3,):
     PYVERSION = 3
+
+
+FIREBALL_SIZE = os.environ.get('CSIRTG_SMRT_FIREBALL_SIZE', 250)
+
+ROUTER_ADDR = "ipc://{}".format(os.path.join(RUNTIME_PATH, 'router.ipc'))
+ROUTER_ADDR = os.environ.get('CIF_ROUTER_ADDR', ROUTER_ADDR)
+

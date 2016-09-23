@@ -4,10 +4,15 @@ import abc
 
 class Client(object):
 
-    def __init__(self, remote, username=None, token=None):
-        self.remote = remote
-        self.token = token
-        self.username = username
+    def __init__(self, remote=None, token=None, username=None):
+        if remote:
+            self.remote = remote
+
+        if token:
+            self.token = token
+
+        if username:
+            self.username = username
 
     def _kv_to_indicator(self, kv):
         return Indicator(**kv)

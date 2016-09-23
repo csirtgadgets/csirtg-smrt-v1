@@ -15,7 +15,7 @@ RE_CACHE_TYPES = re.compile('([\w.-]+\.(csv|zip|txt|gz))$')
 
 class Fetcher(object):
 
-    def __init__(self, rule, feed, cache=SMRT_CACHE, data=None):
+    def __init__(self, rule, feed, cache=SMRT_CACHE, data=None, no_fetch=False):
 
         self.logger = logging.getLogger(__name__)
         self.feed = feed
@@ -24,6 +24,7 @@ class Fetcher(object):
         self.fetcher = rule.fetcher
         self.data = data
         self.cache_file = False
+        self.no_fetch = no_fetch
 
         if self.rule.remote:
             self.remote = self.rule.remote
@@ -92,8 +93,10 @@ class Fetcher(object):
                         cmd.append(self.cache)
 
                     self.logger.debug(cmd)
-
-                    subprocess.check_call(cmd)
+                    if self.no_fetch and os.path.isfile(self.cache):
+                        self.logger.info('skipping fetch: {}'.format(self.cache))
+                    else:
+                        subprocess.check_call(cmd)
                 except subprocess.CalledProcessError as e:
                     self.logger.error('failure pulling feed: {} to {}'.format(self.remote, self.dir))
                     self.logger.error(e)
@@ -155,3 +158,14 @@ class Fetcher(object):
                                         l = l.decode('latin-1')
 
                                     yield l
+
+            elif self.cache.endswith('.txt') and ftype == 'application/octet-stream':
+                with open(self.cache) as f:
+                    for l in f:
+                        if rstrip:
+                            l = l.rstrip()
+
+                        if PYVERSION > 2 and isinstance(l, bytes):
+                            l = l.decode('utf-8')
+
+                        yield l

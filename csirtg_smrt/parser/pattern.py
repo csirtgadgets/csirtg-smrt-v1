@@ -6,6 +6,8 @@ from csirtg_indicator import Indicator
 from csirtg_indicator.exceptions import InvalidIndicator
 import logging
 
+BATCH_SIZE = 500
+
 
 class Pattern(Parser):
 
@@ -34,6 +36,7 @@ class Pattern(Parser):
 
         rv = []
         res = []
+        batch = []
         for l in self.fetcher.process(split=self.split):
             self.logger.debug(l)
 
@@ -70,13 +73,27 @@ class Pattern(Parser):
                     self.logger.error(e)
                     self.logger.info('skipping: {}'.format(i['indicator']))
                 else:
-                    self.logger.debug(i)
                     if self.is_archived(i.indicator, i.provider, i.group, i.tags, i.firsttime, i.lasttime):
                         self.logger.info('skipping: {}/{}'.format(i.provider, i.indicator))
                     else:
-                        r = self.client.indicators_create(i)
-                        self.archive(i.indicator, i.provider, i.group, i.tags, i.firsttime, i.lasttime)
-                        rv.append(r)
+                        self.logger.debug(i)
+                        if self.fireball:
+                            batch.append(i)
+
+                            if len(batch) == self.fireball:
+                                r = self.client.indicators_create(batch)
+                                for i in batch:
+                                    rv.append(i)
+                                    self.archive(i.indicator, i.provider, i.group, i.tags, i.firsttime, i.lasttime)
+                                batch = []
+
+                        else:
+                            if self.is_archived(i.indicator, i.provider, i.group, i.tags, i.firsttime, i.lasttime):
+                                self.logger.info('skipping: {}/{}'.format(i.provider, i.indicator))
+                            else:
+                                r = self.client.indicators_create(i)
+                                self.archive(i.indicator, i.provider, i.group, i.tags, i.firsttime, i.lasttime)
+                                rv.append(r)
 
             if self.limit:
                 self.limit -= 1
@@ -84,6 +101,13 @@ class Pattern(Parser):
                 if self.limit == 0:
                     self.logger.debug('limit reached...')
                     break
+
+        if self.fireball and len(batch):
+            r = self.client.indicators_create(batch)
+            if r:
+                for i in batch:
+                    rv.append(i)
+                    self.archive(i.indicator, i.provider, i.group, i.tags, i.firsttime, i.lasttime)
 
         return rv
 

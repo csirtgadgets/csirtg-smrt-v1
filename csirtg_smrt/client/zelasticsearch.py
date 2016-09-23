@@ -33,7 +33,7 @@ class Indicator(DocType):
     additional_data = String(multi=True)
     tags = String(multi=True)
     rdata = String(index="not_analyzed")
-    msg = String()
+    message = String(multi=True)
 
 
 class _ElasticSearch(Client):

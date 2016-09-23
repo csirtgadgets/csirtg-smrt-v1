@@ -1,14 +1,14 @@
 import logging
 import re
 import math
-from csirtg_smrt.constants import PYVERSION
+from csirtg_smrt.constants import PYVERSION, FIREBALL_SIZE
 
 RE_COMMENTS = '^([#|;]+)'
 
 
 class Parser(object):
 
-    def __init__(self, client, fetcher, rule, feed, limit=None, archiver=None, filters=None):
+    def __init__(self, client, fetcher, rule, feed, limit=None, archiver=None, filters=None, fireball=False):
 
         self.logger = logging.getLogger(__name__)
         self.client = client
@@ -19,6 +19,11 @@ class Parser(object):
         self.skip = None
         self.archiver = archiver
         self.filters = filters
+
+        if fireball:
+            self.fireball = int(FIREBALL_SIZE)
+        else:
+            self.fireball = False
 
         if self.limit is not None:
             self.limit = int(limit)

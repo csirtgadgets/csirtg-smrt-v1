@@ -1,4 +1,4 @@
-https://github.com/csirtgadgets/csirtg-indicator-py/archive/0.0.0a8.tar.gz
+https://github.com/csirtgadgets/csirtg-indicator-py/archive/0.0.0a11.tar.gz
 https://github.com/csirtgadgets/csirtgsdk-py/archive/0.0.a2.tar.gz
 git+https://github.com/zeromq/pyre.git@b4f3497d14ee443871ae67fe9e643a1ef9f31ef1
 git+https://github.com/csirtgadgets/py-cgmail.git@3ef0572e758ff9fcbe14905db95679fdf73f09eb
@@ -16,3 +16,5 @@ SQLAlchemy==1.0.14
 chardet==2.3.0
 elasticsearch<3.0.0,>=2.0.0
 elasticsearch_dsl<3.0.0,>=2.0.0
+# bug affecting bs4, py2 and cgmail
+html5lib==1.0b8

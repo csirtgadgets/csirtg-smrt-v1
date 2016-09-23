@@ -99,8 +99,6 @@ class Archiver(object):
         s.add(i)
         s.commit()
 
-        logger.debug(i)
-
         return i.id
 
     def cleanup(self, days=180):

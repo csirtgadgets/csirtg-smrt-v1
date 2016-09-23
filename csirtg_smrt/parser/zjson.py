@@ -3,7 +3,7 @@ import json
 from csirtg_smrt.parser import Parser
 from csirtg_indicator.utils import normalize_itype
 from csirtg_indicator import Indicator
-
+BATCH_SIZE = 500
 
 class Json(Parser):
 
@@ -16,6 +16,7 @@ class Json(Parser):
         values = self.rule.feeds[self.feed]['values']
 
         rv = []
+        batch = []
         for l in self.fetcher.process():
             i = copy.deepcopy(defaults)
 
@@ -36,9 +37,17 @@ class Json(Parser):
                     if self.is_archived(i.indicator, i.provider, i.group, i.tags, i.firsttime, i.lasttime):
                         self.logger.info('skipping: {}/{}'.format(i.provider, i.indicator))
                     else:
-                        r = self.client.indicators_create(i)
-                        self.archive(i.indicator, i.provider, i.group, i.tags, i.firsttime, i.lasttime)
-                        rv.append(r)
+                        if self.fireball:
+                            batch.append(i)
+
+                            if len(batch) == BATCH_SIZE:
+                                r = self.client.indicators_create(batch)
+                                for i in batch:
+                                    rv.append(i)
+                        else:
+                            r = self.client.indicators_create(i)
+                            self.archive(i.indicator, i.provider, i.group, i.tags, i.firsttime, i.lasttime)
+                            rv.append(r)
 
                         if self.limit:
                             self.limit -= 1
@@ -46,6 +55,15 @@ class Json(Parser):
                             if self.limit == 0:
                                 self.logger.debug('limit reached...')
                                 break
+
+        if self.fireball and len(batch):
+            r = self.client.indicators_create(batch)
+            if len(r) == len(batch):
+                for i in batch:
+                    rv.append(i)
+                    self.archive(i.indicator, i.provider, i.group, i.tags, i.firsttime, i.lasttime)
+                else:
+                    raise RuntimeError(r)
 
         return rv
 
