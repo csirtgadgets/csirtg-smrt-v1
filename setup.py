@@ -6,10 +6,16 @@ import versioneer
 if os.environ.get('USER') == 'vagrant' or os.path.isdir('/vagrant'):
     del os.link
 
+package_data = []
+import sys
+if sys.platform == 'nt':
+    package_data.append([os.path.join('tools', 'magic1.dll')])
+
 setup(
     name="csirtg_smrt",
     version=versioneer.get_version(),
     cmdclass=versioneer.get_cmdclass(),
+    package_data=package_data,
     description="s.m.r.t",
     long_description="",
     url="https://github.com/csirtgadgets/csirtg-smrt-py",
