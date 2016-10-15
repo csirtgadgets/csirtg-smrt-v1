@@ -1,2 +1,6 @@
+include 'csirtg_smrt'
 include versioneer.py
-include csirtg_smrt/_version.py
+include README.md COPYING requirements.txt LICENSE
+include Makefile
+include MANIFEST.in
+recursive-include packaging *

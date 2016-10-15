@@ -11,6 +11,9 @@ before_install:
 
 script:
     - py.test --cov=csirtg_smrt --cov-fail-under=45
+    - pip install -r dev_requirements.txt
+    - make bin
+    - ./pyinstaller-build/dist/csirtg-smrt -V
 
 
 notifications:

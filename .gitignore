@@ -1,3 +1,6 @@
+chat.py
+pyinstaller-build/
+_version
 csirtg-smrt.yml
 # Byte-compiled / optimized / DLL files
 .idea
