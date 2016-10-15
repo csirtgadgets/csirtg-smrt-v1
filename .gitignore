@@ -1,3 +1,7 @@
+deb-build/
+.pypirc
+.vagrant
+*.swp
 chat.py
 pyinstaller-build/
 _version

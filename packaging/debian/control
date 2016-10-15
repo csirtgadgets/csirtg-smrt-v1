@@ -1,0 +1,12 @@
+Source: csirtg-smrt
+Section: admin
+Priority: optional
+Standards-Version: 3.9.3
+Maintainer: Wes Young <wes@csirtgadgets.org>
+Build-Depends: cdbs, debhelper (>= 5.0.0)
+Homepage: https://github.com/csirtgadgets/csirtg-smrt-py
+
+Package: csirtg-smrt
+Architecture: all
+Depends: ${misc:Depends}
+Description: The fastest way to consume threat intelligence

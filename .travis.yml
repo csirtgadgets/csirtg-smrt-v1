@@ -14,6 +14,8 @@ script:
     - pip install -r dev_requirements.txt
     - make bin
     - ./pyinstaller-build/dist/csirtg-smrt -V
+    - sudo apt-get install build-essential virtualenvwrapper python-virtualenv devscripts debhelper cdbs
+    - make deb
 
 
 notifications:

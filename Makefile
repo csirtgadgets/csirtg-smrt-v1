@@ -1,5 +1,5 @@
 NAME = csirtg-smrt
-VERSION := $(shell cat VERSION | cut -f1 -d' ')
+VERSION := $(shell git describe | cut -f1 -d' ')
 OS = $(shell uname -s)
 PYTHON = python
 
@@ -89,9 +89,9 @@ endif
 DEBUILD = $(DEBUILD_BIN) $(DEBUILD_OPTS)
 DEB_PPA ?= ppa
 # Choose the desired Ubuntu release: lucid precise saucy trusty
-DEB_DIST ?= unstable
+DEB_DIST ?= stable
 
-debian: pyinstaller-clean pyinstaller
+debian: pyinstaller-clean bin
 	@for DIST in $(DEB_DIST) ; do \
 	    mkdir -p deb-build/$${DIST}/$(NAME)-$(VERSION)/ ; \
 	    cp -a packaging/debian deb-build/$${DIST}/$(NAME)-$(VERSION)/ ; \
@@ -104,7 +104,7 @@ deb: debian
 	    (cd deb-build/$${DIST}/$(NAME)-$(VERSION)/ && $(DEBUILD) -b) ; \
 	done
 	@echo "#############################################"
-	@echo "bearded-avenger DEB artifacts:"
+	@echo "csirtg-smrt DEB artifacts:"
 	@for DIST in $(DEB_DIST) ; do \
 	    echo deb-build/$${DIST}/$(NAME)_$(VERSION)-$(DEB_RELEASE)~$${DIST}_amd64.changes ; \
 	done
@@ -123,7 +123,7 @@ ifneq ($(OFFICIAL),yes)
 endif
 RPMNVR = "$(NAME)-$(VERSION)-$(RPMRELEASE)$(RPMDIST)"
 
-rpmcommon: pyinstaller-clean pyinstaller
+rpmcommon: pyinstaller-clean bin
 	@mkdir -p rpm-build
 	cp -a $(PYINSTALLER_DIST_PATH)/* rpm-build/
 	cp -a packaging/rpm/*.spec rpm-build/

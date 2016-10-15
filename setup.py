@@ -36,6 +36,12 @@ setup(
         'python-magic>=0.4.6',
         'pyaml>=15.8.2',
         'chardet>=2.3.0',
+        'SQLAlchemy==1.0.14',
+        'elasticsearch<3.0.0,>=2.0.0',
+        'elasticsearch_dsl<3.0.0,>=2.0.0',
+        # bug affecting bs4, py2 and cgmail
+        'html5lib==1.0b8'
+
     ],
     scripts=[],
     entry_points={

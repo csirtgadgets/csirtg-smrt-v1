@@ -1,0 +1,5 @@
+csirtg-smrt (%VERSION%-%RELEASE%~%DIST%) %DIST%; urgency=low
+
+  * %VERSION% release
+
+ -- CSIRT Gadgets Foundation. <https://github.com/csirtgadgets/csirtg-smrt-py/issues>  %DATE%
