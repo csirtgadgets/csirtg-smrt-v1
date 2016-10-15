@@ -61,7 +61,7 @@ build_script:
 
 test_script:
   # Run the project tests
-  - ps: cmd /c 'cd dist & python -c 'import csirtg_smrt; print(csirtg_smrt.VERSION)''
+  - ps: cmd /c 'cd dist & python -c "import csirtg_smrt; print(csirtg_smrt.VERSION)"'
 
 after_test:
   # If tests are successful, create binary packages for the project.
