@@ -1,4 +1,4 @@
-from cgmail import parse_email_from_string
+from csirtg_mail import parse_email_from_string
 from csirtg_smrt.parser import Parser
 from csirtg_indicator import Indicator
 from csirtg_indicator.exceptions import InvalidIndicator
