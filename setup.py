@@ -1,15 +1,31 @@
 import os
 from setuptools import setup, find_packages
 import versioneer
+import sys
 
 # vagrant doesn't appreciate hard-linking
 if os.environ.get('USER') == 'vagrant' or os.path.isdir('/vagrant'):
     del os.link
 
-package_data = []
-import sys
+# https://www.pydanny.com/python-dot-py-tricks.html
+if sys.argv[-1] == 'test':
+    test_requirements = [
+        'pytest',
+        'coverage',
+        'pytest_cov',
+    ]
+    try:
+        modules = map(__import__, test_requirements)
+    except ImportError as e:
+        err_msg = e.message.replace("No module named ", "")
+        msg = "%s is not installed. Install your test requirements." % err_msg
+        raise ImportError(msg)
+    os.system('py.test test -v --cov=csirtg_smrt --cov-fail-under=45')
+    sys.exit()
+
+package_data = {}
 if sys.platform == 'nt':
-    package_data.append([os.path.join('tools', 'magic1.dll')])
+    package_data['csirtg_smrt'] = os.path.join('tools', 'magic1.dll')
 
 setup(
     name="csirtg_smrt",
@@ -17,7 +33,7 @@ setup(
     cmdclass=versioneer.get_cmdclass(),
     package_data=package_data,
     description="s.m.r.t",
-    long_description="",
+    long_description="the fastest way to use data",
     url="https://github.com/csirtgadgets/csirtg-smrt-py",
     license='LGPL3',
     classifiers=[
@@ -32,24 +48,17 @@ setup(
     author_email="wes@csirtgadgets.org",
     packages=find_packages(),
     install_requires=[
-        'pytest-cov>=2.2.1',
         'ipaddress>=1.0.16',
         'feedparser>=5.2.1',
-        'nltk==3.2',
+        'nltk>=3.2,<3.3',
         'requests>=2.6.0',
-        'pytest>=2.8.0',
         'arrow>=0.6.0',
         'python-magic>=0.4.6',
         'pyaml>=15.8.2',
         'chardet>=2.3.0',
-        'SQLAlchemy==1.0.14',
-        'elasticsearch<3.0.0,>=2.0.0',
-        'elasticsearch_dsl<3.0.0,>=2.0.0',
-        # bug affecting bs4, py2 and cgmail
-        'html5lib==1.0b8'
-
+        'csirtg_indicator<2.0',
+        'csirtg_mail<1.0'
     ],
-    scripts=[],
     entry_points={
         'console_scripts': [
             'csirtg-smrt=csirtg_smrt.smrt:main',

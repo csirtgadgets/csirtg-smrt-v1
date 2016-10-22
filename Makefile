@@ -89,9 +89,9 @@ endif
 DEBUILD = $(DEBUILD_BIN) $(DEBUILD_OPTS)
 DEB_PPA ?= ppa
 # Choose the desired Ubuntu release: lucid precise saucy trusty
-DEB_DIST ?= stable
+DEB_DIST ?= unstable
 
-debian: pyinstaller-clean bin
+debian:
 	@for DIST in $(DEB_DIST) ; do \
 	    mkdir -p deb-build/$${DIST}/$(NAME)-$(VERSION)/ ; \
 	    cp -a packaging/debian deb-build/$${DIST}/$(NAME)-$(VERSION)/ ; \
