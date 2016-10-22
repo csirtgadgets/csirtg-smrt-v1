@@ -1,6 +1,17 @@
 include 'csirtg_smrt'
 include versioneer.py
-include README.md COPYING requirements.txt LICENSE
+include README README.md COPYING requirements.txt LICENSE
 include Makefile
 include MANIFEST.in
 recursive-include packaging *
+include requirements.txt extras_requirements.txt dev_requirements.txt
+include test
+recursive-include test *.yml
+recursive-include test *.txt
+recursive-include test *.gz
+recursive-include test *.zip
+recursive-exclude * __pycache__
+recursive-exclude * *.pyc
+recursive-exclude * *.pyo
+recursive-exclude * *.orig
+#prune test
