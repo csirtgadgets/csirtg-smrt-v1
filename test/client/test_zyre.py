@@ -7,8 +7,9 @@ ZYRE_TEST = False
 try:
     from pyre import Pyre
     ZYRE_TEST = True
-except:
+except ImportError:
     pass
+
 
 @pytest.mark.skipif(ZYRE_TEST is False, reason='Pyre not installed')
 def test_zyre():

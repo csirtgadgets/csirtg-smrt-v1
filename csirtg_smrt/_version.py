@@ -479,6 +479,17 @@ def get_versions():
     except NotThisMethod:
         pass
 
+    _version_path = os.path.join(os.path.dirname(__file__), '_version')
+    if os.path.exists(_version_path):
+        with open(_version_path) as f:
+            l = f.readline().strip()
+            return {
+                'version': l,
+                'error': None,
+                'dirty': None,
+                'full-revisionid': l
+            }
+
     return {"version": "0+unknown", "full-revisionid": None,
             "dirty": None,
             "error": "unable to compute version"}

@@ -1,2 +1,16 @@
+include 'csirtg_smrt'
 include versioneer.py
-include csirtg_smrt/_version.py
+include README README.md COPYING LICENSE
+include MANIFEST.in
+include requirements.txt extras_requirements.txt
+exclude dev_requirements.txt
+include test
+recursive-include test *.yml
+recursive-include test *.txt
+recursive-include test *.gz
+recursive-include test *.zip
+recursive-exclude * __pycache__
+recursive-exclude * *.pyc
+recursive-exclude * *.pyo
+recursive-exclude * *.orig
+recursive-exclude packaging *

@@ -1,3 +1,8 @@
+try:
+    import elasticsearch
+except ImportError:
+    raise ImportError('Requires elasticsearch')
+
 from csirtg_smrt.client.plugin import Client
 from pprint import pprint
 from elasticsearch_dsl.connections import connections

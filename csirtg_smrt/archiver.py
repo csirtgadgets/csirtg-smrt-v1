@@ -1,6 +1,10 @@
+try:
+    import sqlalchemy
+except ImportError:
+    raise ImportError('Requires sqlalchemy')
+
 import logging
 import os
-
 import arrow
 from sqlalchemy import Column, Integer, create_engine, DateTime, UnicodeText, Text
 from sqlalchemy.ext.declarative import declarative_base
