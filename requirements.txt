@@ -11,3 +11,4 @@ pyaml>=15.8.2
 chardet>=2.3.0,<2.4
 # bug affecting bs4, py2 and cgmail
 html5lib==1.0b8
+SQLAlchemy>=1.0.14,<1.1
