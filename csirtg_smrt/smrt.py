@@ -22,7 +22,6 @@ from csirtg_smrt.utils import setup_logging, get_argument_parser, load_plugin, s
     setup_runtime_path
 from csirtg_smrt.exceptions import AuthError, TimeoutError
 from csirtg_indicator.format import FORMATS
-import tailer
 
 PARSER_DEFAULT = "pattern"
 TOKEN = os.environ.get('CSIRTG_TOKEN', None)
@@ -238,6 +237,11 @@ def main():
 
         try:
             if args.tail:
+                try:
+                    import tailer
+                except ImportError:
+                    raise ImportError('Requires tailer package')
+
                 with Smrt(options.get('remote'), options.get('token'), client=args.client, username=args.user,
                           feed=args.feed, archiver=archiver) as s:
 
