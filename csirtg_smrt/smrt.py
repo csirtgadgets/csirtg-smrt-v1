@@ -15,7 +15,7 @@ import select
 import csirtg_smrt.parser
 from csirtg_smrt.archiver import Archiver
 import csirtg_smrt.client
-from csirtg_smrt.constants import REMOTE_ADDR, SMRT_RULES_PATH, SMRT_CACHE, CONFIG_PATH, RUNTIME_PATH
+from csirtg_smrt.constants import REMOTE_ADDR, SMRT_RULES_PATH, SMRT_CACHE, CONFIG_PATH, RUNTIME_PATH, VERSION
 from csirtg_smrt.rule import Rule
 from csirtg_smrt.fetcher import Fetcher
 from csirtg_smrt.utils import setup_logging, get_argument_parser, load_plugin, setup_signals, read_config, \
@@ -49,9 +49,17 @@ class Smrt(object):
 
         self.logger = logging.getLogger(__name__)
 
-        self.logger.debug(csirtg_smrt.client.__path__[0])
-        self.client = load_plugin(csirtg_smrt.client.__path__[0], client)(remote=remote, token=token, username=username,
-                                                                          feed=feed, fireball=fireball)
+        plugin_path = os.path.join('csirtg_smrt', 'client')
+        if getattr(sys, 'frozen', False):
+            plugin_path = os.path.join(sys._MEIPASS, 'csirtg_smrt', 'client')
+
+        self.client = load_plugin(plugin_path, client)
+
+        if not self.client:
+            raise RuntimeError("Unable to load plugin: {}".format(client))
+
+        self.client = self.client(remote=remote, token=token, username=username, feed=feed, fireball=fireball)
+
         self.archiver = archiver
         self.fireball = fireball
         self.no_fetch = no_fetch
@@ -63,7 +71,11 @@ class Smrt(object):
         fetch = Fetcher(rule, feed, data=data, no_fetch=self.no_fetch)
 
         parser_name = rule.parser or PARSER_DEFAULT
-        parser = load_plugin(csirtg_smrt.parser.__path__[0], parser_name)
+        plugin_path = os.path.join('csirtg_smrt', 'parser')
+        if getattr(sys, 'frozen', False):
+            plugin_path = os.path.join(sys._MEIPASS, plugin_path)
+
+        parser = load_plugin(plugin_path, parser_name)
 
         if parser is None:
             self.logger.info('trying z{}'.format(parser_name))
@@ -171,8 +183,8 @@ def main():
 
     p.add_argument('--delay', help='specify initial delay', default=randint(5, 55))
 
-    p.add_argument('--archive-path', help='specify logger path [default: %(default)s', default=ARCHIVE_PATH)
-    p.add_argument('--no-archiver', action='store_true')
+    p.add_argument('--remember-path', help='specify remember db path [default: %(default)s', default=ARCHIVE_PATH)
+    p.add_argument('--remember', help='remember what has been already processed', action='store_true')
 
     p.add_argument('--format', help='specify output format [default: %(default)s]"', default=FORMAT,
                    choices=FORMATS.keys())
@@ -193,16 +205,16 @@ def main():
             options[v] = o.get(v)
 
     setup_logging(args)
-    logger = logging.getLogger(__name__)
+    logger = logging.getLogger()
     logger.info('loglevel is: {}'.format(logging.getLevelName(logger.getEffectiveLevel())))
 
     setup_signals(__name__)
 
     setup_runtime_path(args.runtime_path)
 
-    archiver = None
-    if not args.no_archiver:
-        archiver = Archiver(dbfile=args.archive_path)
+    archiver = False
+    if args.remember:
+        archiver = Archiver(dbfile=args.remember_path)
 
     stop = False
     service = args.service

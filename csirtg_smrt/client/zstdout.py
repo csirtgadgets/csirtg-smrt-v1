@@ -1,5 +1,6 @@
 from csirtg_smrt.client.plugin import Client
 
+
 class _Stdout(Client):
     __name__ = 'stdout'
 

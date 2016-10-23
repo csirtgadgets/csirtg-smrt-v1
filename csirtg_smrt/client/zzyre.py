@@ -1,6 +1,10 @@
+try:
+    from pyre import Pyre
+except ImportError as e:
+    raise ImportError('Requires pyre')
+
 from csirtg_indicator import Indicator
 from csirtg_smrt.client.plugin import Client
-from pyre import Pyre
 import logging
 from time import sleep
 logger = logging.getLogger(__name__)
