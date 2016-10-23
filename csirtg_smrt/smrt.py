@@ -183,8 +183,8 @@ def main():
 
     p.add_argument('--delay', help='specify initial delay', default=randint(5, 55))
 
-    p.add_argument('--archive-path', help='specify logger path [default: %(default)s', default=ARCHIVE_PATH)
-    p.add_argument('--no-archiver', action='store_true')
+    p.add_argument('--remember-path', help='specify remember db path [default: %(default)s', default=ARCHIVE_PATH)
+    p.add_argument('--remember', help='remember what has been already processed', action='store_true')
 
     p.add_argument('--format', help='specify output format [default: %(default)s]"', default=FORMAT,
                    choices=FORMATS.keys())
@@ -212,9 +212,9 @@ def main():
 
     setup_runtime_path(args.runtime_path)
 
-    archiver = None
-    if not args.no_archiver:
-        archiver = Archiver(dbfile=args.archive_path)
+    archiver = False
+    if args.remember:
+        archiver = Archiver(dbfile=args.remember_path)
 
     stop = False
     service = args.service
