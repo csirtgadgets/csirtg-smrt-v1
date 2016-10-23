@@ -38,7 +38,7 @@ setup(
     description="s.m.r.t",
     long_description="the fastest way to use data",
     url="https://github.com/csirtgadgets/csirtg-smrt-py",
-    license='LGPL3',
+    license='LGPLv3+',
     classifiers=[
                "Topic :: System :: Networking",
                "Environment :: Other Environment",
