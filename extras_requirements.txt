@@ -2,5 +2,4 @@ https://github.com/six8/pytailer/archive/8f78431b9d2e63077d7f7150264869506c89002
 https://github.com/zeromq/pyre/archive/fefc0b15803652c7422654bb53eebd8515ac51e3.tar.gz
 elasticsearch<3.0.0,>=2.0.0
 elasticsearch_dsl<3.0.0,>=2.0.0
-SQLAlchemy>=1.0.14,<1.1
 -r requirements.txt
