@@ -48,7 +48,7 @@ class Smrt(object):
 
         self.logger = logging.getLogger(__name__)
 
-        plugin_path = os.path.join('csirtg_smrt', 'client')
+        plugin_path = os.path.join(os.path.dirname(__file__), 'client')
         if getattr(sys, 'frozen', False):
             plugin_path = os.path.join(sys._MEIPASS, 'csirtg_smrt', 'client')
 
@@ -261,11 +261,11 @@ def main():
                     if args.filter_indicator:
                         filters['indicator'] = args.filter_indicator
                     
-                    x = s.process(args.rule, feed=args.feed, limit=args.limit, data=data,
-                                  filters=filters)
+                    x = s.process(args.rule, feed=args.feed, limit=args.limit, data=data, filters=filters)
 
                     if args.client == 'stdout':
                         print(FORMATS[options.get('format')](data=x))
+
                     logger.info('complete')
 
                     if args.service:
