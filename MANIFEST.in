@@ -5,6 +5,7 @@ include MANIFEST.in
 include requirements.txt extras_requirements.txt
 exclude dev_requirements.txt
 include test
+recursive-include examples *
 recursive-include test *.yml
 recursive-include test *.txt
 recursive-include test *.gz
