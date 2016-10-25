@@ -1,9 +1,21 @@
 # Getting Started
-
-## QuickStart
+## Quickstart
 ```
-$ pip install -r requirements.txt
+$ pip install pip --upgrade
+$ pip install csirtg-smrt
+$ csirtg-smrt -h
+```
+
+## Development
+```
+$ git clone https://github.com/csirtgadgets/csirtg-smrt-py.git
+$ cd csirtg-smrt-py
+$ mkvirtualenv smrt
+$ pip install pip --upgrade
+$ pip install -r dev_requirements.txt
 $ python setup.py develop
+$ csirtg-smrt -h
+$ csirtg-smrt -r examples/csirtgio.yml
 ```
 
 ## Getting Help
