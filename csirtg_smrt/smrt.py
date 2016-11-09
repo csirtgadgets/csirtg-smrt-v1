@@ -218,11 +218,9 @@ def main():
 
     stop = False
     service = args.service
-    if not args.remote:
-        service = False
 
     if service:
-        r = args.delay
+        r = int(args.delay)
         logger.info("random delay is {}, then running every 60min after that".format(r))
         sleep((r * 60))
 
