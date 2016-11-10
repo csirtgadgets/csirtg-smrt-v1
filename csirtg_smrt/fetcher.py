@@ -12,6 +12,8 @@ import sys
 RE_SUPPORTED_DECODE = re.compile("zip|lzf|lzma|xz|lzop")
 RE_CACHE_TYPES = re.compile('([\w.-]+\.(csv|zip|txt|gz))$')
 
+FETCHER_TIMEOUT = os.environ.get('CSIRTG_SMRT_FETCHER_TIMEOUT', 120)
+
 
 class Fetcher(object):
 
@@ -25,6 +27,7 @@ class Fetcher(object):
         self.data = data
         self.cache_file = False
         self.no_fetch = no_fetch
+        self.fetcher_timeout = FETCHER_TIMEOUT
 
         if self.rule.remote:
             self.remote = self.rule.remote
@@ -81,9 +84,11 @@ class Fetcher(object):
         else:
             if self.fetcher == 'http':
                 try:
-                    cmd = ['wget', '--header', self.ua, '-q', self.remote, '-N']
+                    cmd = ['wget', '--header', self.ua, '--timeout={}'.format(self.fetcher_timeout), '-q', self.remote,
+                           '-N']
                     if self.logger.getEffectiveLevel() == logging.DEBUG:
-                        cmd = ['wget', '--header', self.ua, self.remote, '-N']
+                        cmd = ['wget', '--header', self.ua, '--timeout={}'.format(self.fetcher_timeout), self.remote,
+                               '-N']
 
                     if self.cache_file:
                         cmd.append('-P')
