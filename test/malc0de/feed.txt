@@ -8,6 +8,11 @@
 <language>en-us</language>
 <copyright>Copyright (C) 2010 malc0de.com</copyright>
 <item>
+<title>xz.job391.com</title>
+<link>http://malc0de.com/database/index.php?search=xz.job391.com</link>
+<description>URL: xz.job391.com/down/ï¿½ï¿½ï¿½ï¿½à¿ªï¿½ï¿½@89_1_60 (...), IP Address: 220.243.237.153, Country: CN, ASN: 54994, MD5: 5101b4e7c1d6b31e2aae30e040d8fe6d</description>
+</item>
+<item>
 <title>whitewolfltd.com</title>
 <link>http://malc0de.com/database/index.php?search=whitewolfltd.com</link>
 <description>URL: whitewolfltd.com/762trg22e2.exe, IP Address: 184.106.55.83, Country: US, ASN: 19994, MD5: 4f71885d01582e58a9f66bea5a251153</description>
