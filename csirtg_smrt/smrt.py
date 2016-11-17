@@ -44,7 +44,7 @@ class Smrt(object):
         return self
 
     def __init__(self, token=TOKEN, remote=REMOTE_ADDR, client='stdout', username=None, feed=None, archiver=None,
-                 fireball=False, no_fetch=False):
+                 fireball=False, no_fetch=False, verify_ssl=True):
 
         self.logger = logging.getLogger(__name__)
 
@@ -57,7 +57,8 @@ class Smrt(object):
         if not self.client:
             raise RuntimeError("Unable to load plugin: {}".format(client))
 
-        self.client = self.client(remote=remote, token=token, username=username, feed=feed, fireball=fireball)
+        self.client = self.client(remote=remote, token=token, username=username, feed=feed, fireball=fireball,
+                                  verify_ssl=verify_ssl)
 
         self.archiver = archiver
         self.fireball = fireball
@@ -196,6 +197,8 @@ def main():
     p.add_argument('--fireball', help='run in fireball mode, bulk+async magic', action='store_true')
     p.add_argument('--no-fetch', help='do not re-fetch if the cache exists', action='store_true')
 
+    p.add_argument('--no-verify-ssl', help='turn TLS/SSL verification OFF', action='store_true')
+
     args = p.parse_args()
 
     o = read_config(args)
@@ -218,6 +221,10 @@ def main():
 
     stop = False
     service = args.service
+
+    verify_ssl = True
+    if options.get('no_verify_ssl') or o.get('no_verify_ssl'):
+        verify_ssl = False
 
     if service:
         r = int(args.delay)
@@ -253,7 +260,8 @@ def main():
 
             else:
                 with Smrt(options.get('token'), options.get('remote'), client=args.client, username=args.user,
-                          feed=args.feed, archiver=archiver, fireball=args.fireball, no_fetch=args.no_fetch) as s:
+                          feed=args.feed, archiver=archiver, fireball=args.fireball, no_fetch=args.no_fetch,
+                          verify_ssl=verify_ssl) as s:
 
                     s.ping_remote()
                     filters = {}
