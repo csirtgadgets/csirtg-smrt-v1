@@ -10,8 +10,6 @@ class CIF(HTTPClient):
     def __init__(self, remote=None, token=None, **kwargs):
         if not remote:
             remote = REMOTE
-        else:
-            raise RuntimeError('missing remote for cif client')
 
         super(CIF, self).__init__(remote, token, **kwargs)
 
