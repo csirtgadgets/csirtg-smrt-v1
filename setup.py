@@ -66,6 +66,7 @@ setup(
     entry_points={
         'console_scripts': [
             'csirtg-smrt=csirtg_smrt.smrt:main',
+            'csirtg-ufw=csirtg_smrt.ufw:main',
         ]
     },
 )
