@@ -18,12 +18,6 @@ from csirtg_smrt.utils import setup_logging, get_argument_parser
 import requests
 requests.packages.urllib3.disable_warnings()
 
-# whiteface settings
-# whiteface settings
-WHITEFACE_USER = 'csirtgadgets'
-WHITEFACE_TOKEN = '68b928a6b463fdca652ba02051fbb326'
-WHITEFACE_FEED = 'port-scanners'
-
 # check logs every X seconds (300 equals 5 minutes)
 sleep_seconds = 300
 
@@ -255,14 +249,13 @@ def process_events(events):
             if record['ufw_protocol'] == 'TCP':
                 if record['ufw_tcp_flag_syn'] == 1:
                     data = {
-                        "user": WHITEFACE_USER,
-                        "feed": WHITEFACE_FEED,
                         "indicator": record['ufw_src_ip'],
                         "tags": "scanner",
                         "description": "sourced from firewall logs (incomming, TCP, Syn, blocked)",
                         "portlist": record['ufw_dst_port'],
                         "protocol": record['ufw_protocol'],
-                        "lasttime": normalized_timestamp
+                        "lasttime": normalized_timestamp,
+                        "firsttime": normalized_timestamp
                         }
                     ret = Indicator(**data)
                     indicators.append(ret)
@@ -291,7 +284,7 @@ def main():
     p.add_argument('-f', '--file')
     p.add_argument('--client', default='stdout')
     p.add_argument('--user')
-
+    p.add_argument('--feed')
 
     args = p.parse_args()
 
@@ -306,16 +299,16 @@ def main():
 
     f = open(args.file)
     from csirtg_smrt import Smrt
-    s = Smrt(client=args.client, username=args.user, verify_ssl=verify_ssl)
+    s = Smrt(client=args.client, username=args.user, feed=args.feed, verify_ssl=verify_ssl)
     #c = s.client
 
     for line in tailer.follow(f):
         logger.debug(line)
         i = process_events([line])
-        # s.client.indicators_create(i)
-        #print(indicators)
-        #print(FORMATS[options.get('format')](data=x))
-        print(i)
+        rv = s.client.indicators_create(i)
+        logger.debug(i)
+        logger.info('indicator created: {}'.format(rv[0]['indicator']['location']))
+
 
 
 if __name__ == '__main__':
