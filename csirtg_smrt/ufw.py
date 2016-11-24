@@ -18,9 +18,6 @@ from csirtg_smrt.utils import setup_logging, get_argument_parser
 import requests
 requests.packages.urllib3.disable_warnings()
 
-# check logs every X seconds (300 equals 5 minutes)
-sleep_seconds = 300
-
 # usually /var/log/ufw.log
 filename = '/var/log/ufw.log'
 
@@ -308,8 +305,6 @@ def main():
         rv = s.client.indicators_create(i)
         logger.debug(i)
         logger.info('indicator created: {}'.format(rv[0]['indicator']['location']))
-
-
 
 if __name__ == '__main__':
     main()
