@@ -26,7 +26,11 @@ class _Csirtg(Client):
 
         indicators = []
         for x in data:
-            d = x.__dict__()
+            if isinstance(x, Indicator):
+                d = x.__dict__()
+            else:
+                d = x
+            
             d['feed'] = self.feed
             d['user'] = self.user
 

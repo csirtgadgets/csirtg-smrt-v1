@@ -1,7 +1,4 @@
-import py.test
-
 from csirtg_smrt.ufw import process_events
-from pprint import pprint
 
 
 def test_ufw():

@@ -8,8 +8,10 @@ from csirtg_smrt.client.plugin import Client
 import logging
 from time import sleep
 logger = logging.getLogger(__name__)
+import os
+import names
 
-CHAN = 'CSIRTG'
+GROUP = os.environ.get('ZYRE_GROUP', 'CSIRTG')
 
 
 class _Zyre(Client):
@@ -19,6 +21,22 @@ class _Zyre(Client):
     def __init__(self, remote=False, *args, **kwargs):
         super(_Zyre, self).__init__(remote)
 
+        self.group = kwargs.get('group', GROUP)
+        self.zyre = Pyre(names.get_full_name())
+        self.zyre.start()
+
+        sleep(1)
+
+        self.zyre.join(self.group)
+
+        sleep(1)
+
+    def __exit__(self):
+        self.zyre.stop()
+
+    def __del__(self):
+        self.zyre.stop()
+
     def indicators_create(self, data, **kwargs):
         if isinstance(data, dict):
             data = Indicator(**data)
@@ -26,15 +44,7 @@ class _Zyre(Client):
         if isinstance(data, Indicator):
             data = [data]
 
-        n = Pyre()
-
-        n.join(CHAN)
-        n.start()
-        sleep(1)
-
         for i in data:
-            n.shouts(CHAN, str(i))
-
-        n.stop()
+            self.zyre.shouts(self.group, str(i))
 
 Plugin = _Zyre

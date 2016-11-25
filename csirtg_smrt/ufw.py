@@ -11,6 +11,8 @@ from argparse import ArgumentParser
 from argparse import RawDescriptionHelpFormatter
 import textwrap
 from csirtg_smrt.utils import setup_logging, get_argument_parser
+from csirtg_indicator.format import FORMATS
+
 
 # this is a crappy work around for using python 2.7.6 that
 # ships with Ubuntu 14.04. This is discuraged, see:
@@ -266,14 +268,14 @@ def main():
         description=textwrap.dedent('''\
             Env Variables:
                 CSIRTG_RUNTIME_PATH
-                CSIRTG_TOKEN
 
             example usage:
-                $ csirtg-smrt --rule rules/default
-                $ csirtg-smrt --rule default/csirtg.yml --feed port-scanners --remote http://localhost:5000
+                $ csirtg-ufw -f /var/log/ufw.log
+                $ ZYRE_GROUP=honeynet csirtg-ufw -d -f /var/log/ufw.log
+                $ csirtg-ufw -f /var/log/ufw.log --client csirtg --user wes --feed scanners -d
             '''),
         formatter_class=RawDescriptionHelpFormatter,
-        prog='csirtg-smrt',
+        prog='csirtg-ufw',
         parents=[p],
     )
 
@@ -282,6 +284,7 @@ def main():
     p.add_argument('--client', default='stdout')
     p.add_argument('--user')
     p.add_argument('--feed')
+    p.add_argument('--format', default='csv')
 
     args = p.parse_args()
 
@@ -297,14 +300,24 @@ def main():
     f = open(args.file)
     from csirtg_smrt import Smrt
     s = Smrt(client=args.client, username=args.user, feed=args.feed, verify_ssl=verify_ssl)
-    #c = s.client
 
-    for line in tailer.follow(f):
-        logger.debug(line)
-        i = process_events([line])
-        rv = s.client.indicators_create(i)
-        logger.debug(i)
-        logger.info('indicator created: {}'.format(rv[0]['indicator']['location']))
+    try:
+        for line in tailer.follow(f):
+            logger.debug(line)
+            i = process_events([line])
+            i = i[0].__dict__()
+
+            if args.client == 'stdout':
+
+                print(FORMATS[args.format](data=[i]))
+            else:
+                rv = s.client.indicators_create(i)
+                logger.info('indicator created: {}'.format(i['indicator']))
+    except KeyboardInterrupt:
+        try:
+            s.client.stop()
+        except Exception as e:
+            pass
 
 if __name__ == '__main__':
     main()
