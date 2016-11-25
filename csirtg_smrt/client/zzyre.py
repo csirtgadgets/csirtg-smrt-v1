@@ -38,8 +38,10 @@ class _Zyre(object):
         actor_args = [
             'group=%s' % self.group,
             'beacon=1',
-            'verbose=1',
         ]
+
+        if logger.getEffectiveLevel() == logging.DEBUG:
+            actor_args.append('verbose=1')
 
         actor_args = ','.join(actor_args)
         self.actor_args = create_string_buffer(actor_args)
