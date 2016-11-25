@@ -1,41 +1,73 @@
-try:
-    from pyre import Pyre
-except ImportError as e:
-    raise ImportError('Requires pyre')
-
-from csirtg_indicator import Indicator
-from csirtg_smrt.client.plugin import Client
 import logging
 from time import sleep
 logger = logging.getLogger(__name__)
 import os
 import names
 
-GROUP = os.environ.get('ZYRE_GROUP', 'CSIRTG')
+import logging
+import os.path
+
+from csirtg_indicator import Indicator
+from czmq import Zactor, zactor_fn, create_string_buffer
+from time import sleep
+from pyzyre.chat import task
+import zmq
+from pprint import pprint
+
+GROUP = os.environ.get('ZYRE_GROUP', 'ZYRE')
+INTERFACE = os.environ.get('ZSYS_INTERFACE', 'eth0')
+EVASIVE_TIMEOUT = os.environ.get('ZYRE_EVASIVE_TIMEOUT', 5000)  # zyre defaults
+EXPIRED_TIMEOUT = os.environ.get('ZYRE_EXPIRED_TIMEOUT', 30000)
+
+logger = logging.getLogger()
 
 
-class _Zyre(Client):
+class _Zyre(object):
 
     __name__ = 'zyre'
 
-    def __init__(self, remote=False, *args, **kwargs):
-        super(_Zyre, self).__init__(remote)
+    def __init__(self, remote=False, interface=INTERFACE, group=GROUP, **kwargs):
+        self.group = group
+        self.interface = interface
 
-        self.group = kwargs.get('group', GROUP)
-        self.zyre = Pyre(names.get_full_name())
-        self.zyre.start()
+        self.actor = None
+        self._actor = None
 
-        sleep(1)
+        self.task = zactor_fn(task)
 
-        self.zyre.join(self.group)
+        actor_args = [
+            'group=%s' % self.group,
+            'beacon=1',
+            'verbose=1',
+        ]
 
-        sleep(1)
+        actor_args = ','.join(actor_args)
+        self.actor_args = create_string_buffer(actor_args)
 
-    def __exit__(self):
-        self.zyre.stop()
+        logger.info('staring zyre...')
 
-    def __del__(self):
-        self.zyre.stop()
+        # disable CZMQ from capturing SIGINT
+        os.environ['ZSYS_SIGHANDLER'] = 'false'
+
+        # signal zbeacon in czmq
+        if not os.environ.get('ZSYS_INTERFACE'):
+            os.environ["ZSYS_INTERFACE"] = self.interface
+
+        self.start()
+
+    def start(self):
+        self._actor = Zactor(self.task, self.actor_args)
+        self.actor = zmq.Socket(shadow=self._actor.resolve(self._actor).value)
+        sleep(0.1)
+        logger.debug('zyre started')
+
+    def stop(self):
+        logger.debug('stopping zyre')
+        self.actor.send_multipart(['$$STOP', ''.encode('utf-8')])
+        sleep(0.01)  # cleanup
+        logger.debug('stopping zyre')
+        self.actor.close()
+        del self._actor
 
     def indicators_create(self, data, **kwargs):
         if isinstance(data, dict):
@@ -45,6 +77,6 @@ class _Zyre(Client):
             data = [data]
 
         for i in data:
-            self.zyre.shouts(self.group, str(i))
+            self.actor.send_multipart(['SHOUT', self.group.encode('utf-8'), str(i).encode('utf-8')])
 
 Plugin = _Zyre

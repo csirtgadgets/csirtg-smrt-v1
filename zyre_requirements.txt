@@ -1,3 +1,2 @@
 https://github.com/zeromq/pyzmq/archive/f37052960e1dc510ea2c1d2e69a32d727afa9d69.tar.gz#egg=pyzmq>16.0.1
-pyzyre>0.0.0a2,<1.0
--r requirements.txt
+pyzyre>=0.0.0a4,<1.0
