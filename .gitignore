@@ -61,6 +61,8 @@ coverage.xml
 
 # Django stuff:
 *.log
+!test/ufw/ufw.log
+
 
 # Sphinx documentation
 docs/_build/

@@ -2,11 +2,14 @@ from csirtgsdk.client import Client as CSIRTGClient
 from csirtgsdk.indicator import Indicator
 from csirtg_smrt.client.plugin import Client
 from pprint import pprint
+import os
+
+TOKEN = os.environ.get('CSIRTG_TOKEN')
 
 
 class _Csirtg(Client):
 
-    def __init__(self, remote='https://csirtg.io/api', token=None, username=None, feed=None, **kwargs):
+    def __init__(self, remote='https://csirtg.io/api', token=TOKEN, username=None, feed=None, **kwargs):
         super(_Csirtg, self).__init__(remote, token=token)
 
         assert username
@@ -18,17 +21,28 @@ class _Csirtg(Client):
 
     def indicators_create(self, data):
 
-        d = data.__dict__()
-        d['feed'] = self.feed
-        d['user'] = self.user
+        if not isinstance(data, list):
+            data = [data]
 
-        i = Indicator(
-            self.handle,
-            d
-        )
+        indicators = []
+        for x in data:
+            if isinstance(x, Indicator):
+                d = x.__dict__()
+            else:
+                d = x
+            
+            d['feed'] = self.feed
+            d['user'] = self.user
 
-        rv = i.submit()
+            i = Indicator(
+                self.handle,
+                d
+            )
 
-        assert rv
+            rv = i.submit()
+            indicators.append(rv)
+
+        assert len(indicators) > 0
+        return indicators
 
 Plugin = _Csirtg
