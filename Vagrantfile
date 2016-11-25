@@ -8,8 +8,6 @@ VAGRANTFILE_LOCAL = 'Vagrantfile.local'
 $script = <<SCRIPT
 echo 'yes' | sudo add-apt-repository 'ppa:fkrull/deadsnakes-python2.7'
 sudo apt-get update && sudo apt-get install -y python2.7 python-pip python3-dev python-dev git libffi-dev libssl-dev sqlite3 build-essential virtualenvwrapper python-virtualenv devscripts debhelper cdbs
-sudo pip install versioneer
-sudo pip install -r /vagrant/dev_requirements.txt
 SCRIPT
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
