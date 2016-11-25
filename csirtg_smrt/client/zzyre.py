@@ -77,6 +77,6 @@ class _Zyre(object):
             data = [data]
 
         for i in data:
-            self.actor.send_multipart(['SHOUT', self.group.encode('utf-8'), str(i).encode('utf-8')])
+            self.actor.send_multipart(['SHOUT', str(i).encode('utf-8')])
 
 Plugin = _Zyre
