@@ -25,7 +25,7 @@ class Indicator(Base):
     __tablename__ = "indicators"
 
     id = Column(Integer, primary_key=True)
-    indicator = Column(UnicodeText)
+    indicator = Column(UnicodeText, index=True)
     group = Column(Text)
     provider = Column(Text)
     firsttime = Column(DateTime)
