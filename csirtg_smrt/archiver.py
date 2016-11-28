@@ -110,12 +110,7 @@ class Archiver(object):
         date = date.replace(days=-days)
 
         s = self.handle()
-
-        count = 0
-        rv = s.query(Indicator).filter(Indicator.created_at < date.datetime)
-        if rv.count():
-            count = rv.count()
-            rv.delete()
-            s.commit()
+        count = s.query(Indicator).filter(Indicator.created_at < date.datetime).delete()
+        s.commit()
 
         return count
