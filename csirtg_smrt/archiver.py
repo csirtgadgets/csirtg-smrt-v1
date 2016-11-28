@@ -71,10 +71,23 @@ class Archiver(object):
         self.engine = create_engine(self.path, echo=echo)
         self.handle = sessionmaker(bind=self.engine)
         self.handle = scoped_session(self.handle)
+        self._session = None
 
         Base.metadata.create_all(self.engine)
 
         logger.debug('database path: {}'.format(self.path))
+
+    def begin(self):
+        if self._session:
+            self._session.begin(subtransactions=True)
+            return self._session
+
+        self._session = self.handle()
+        return self._session
+
+    def commit(self):
+        self._session.commit()
+        self.session = None
 
     def search(self, indicator, provider, group, tags, firsttime=None, lasttime=None):
         if isinstance(tags, list):
@@ -99,7 +112,7 @@ class Archiver(object):
         i = Indicator(indicator=indicator, provider=provider, group=group, lasttime=lasttime, tags=tags,
                       firsttime=firsttime)
 
-        s = self.handle()
+        s = self.begin()
         s.add(i)
         s.commit()
 
