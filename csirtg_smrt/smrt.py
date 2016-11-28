@@ -229,7 +229,12 @@ def main():
     if service:
         r = int(args.delay)
         logger.info("random delay is {}, then running every 60min after that".format(r))
-        sleep((r * 60))
+        try:
+            sleep((r * 60))
+        except KeyboardInterrupt:
+            logger.info('shutting down')
+            stop = True
+
 
     while not stop:
         if not service:
