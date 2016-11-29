@@ -99,7 +99,7 @@ class Archiver(object):
     def cache_provider(self, provider):
         self.memcached_provider = provider
         for i in self.handle().query(Indicator).filter_by(provider=provider):
-            self.memcache[i.indicator] = [i.group, i.tags, i.firsttime, i.lasttime]
+            self.memcache[i.indicator] = (i.group, i.tags, i.firsttime, i.lasttime)
         logger.info("Cached provider {} in memory, {} objects".format(provider, len(self.memcache)))
 
     def search(self, indicator, provider, group, tags, firsttime=None, lasttime=None):
@@ -137,6 +137,8 @@ class Archiver(object):
         s = self.begin()
         s.add(i)
         s.commit()
+        if self.memcache:
+            self.memcache[indicator] = (group, tags, firsttime, lasttime)
 
         return i.id
 
