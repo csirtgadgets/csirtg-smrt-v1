@@ -25,7 +25,7 @@ class Indicator(Base):
     __tablename__ = "indicators"
 
     id = Column(Integer, primary_key=True)
-    indicator = Column(UnicodeText)
+    indicator = Column(UnicodeText, index=True)
     group = Column(Text)
     provider = Column(Text)
     firsttime = Column(DateTime)
@@ -71,25 +71,60 @@ class Archiver(object):
         self.engine = create_engine(self.path, echo=echo)
         self.handle = sessionmaker(bind=self.engine)
         self.handle = scoped_session(self.handle)
+        self._session = None
 
         Base.metadata.create_all(self.engine)
 
         logger.debug('database path: {}'.format(self.path))
+
+        self.clear_memcache()
+
+    def begin(self):
+        if self._session:
+            self._session.begin(subtransactions=True)
+            return self._session
+
+        self._session = self.handle()
+        return self._session
+
+    def commit(self):
+        self._session.commit()
+        self.session = None
+        self.clear_memcache()
+
+    def clear_memcache(self):
+        self.memcache = {}
+        self.memcached_provider=None
+
+    def cache_provider(self, provider):
+        self.memcached_provider = provider
+        for i in self.handle().query(Indicator).filter_by(provider=provider):
+            self.memcache[i.indicator] = (i.group, i.tags, i.firsttime, i.lasttime)
+        logger.info("Cached provider {} in memory, {} objects".format(provider, len(self.memcache)))
 
     def search(self, indicator, provider, group, tags, firsttime=None, lasttime=None):
         if isinstance(tags, list):
             tags.sort()
             tags = ','.join(tags)
 
-        rv = self.handle().query(Indicator).filter_by(indicator=indicator, provider=provider, group=group, tags=tags)
+        if self.memcached_provider != provider:
+            self.cache_provider(provider)
 
+        if indicator not in self.memcache:
+            return False
+        existing = self.memcache[indicator]
+        existing_compare = [existing[0], existing[1]] # group and tags
+        
+        new_compare = [group, tags]
         if firsttime:
-            rv = rv.filter_by(firsttime=firsttime)
+            existing_compare.append(existing[2])
+            new_compare.append(firsttime)
 
         if lasttime:
-            rv = rv.filter_by(lasttime=lasttime)
+            existing_compare.append(existing[3])
+            new_compare.append(firsttime)
 
-        return rv.count()
+        return existing_compare == new_compare
 
     def create(self, indicator, provider, group, tags, firsttime=None, lasttime=None):
         if isinstance(tags, list):
@@ -99,9 +134,11 @@ class Archiver(object):
         i = Indicator(indicator=indicator, provider=provider, group=group, lasttime=lasttime, tags=tags,
                       firsttime=firsttime)
 
-        s = self.handle()
+        s = self.begin()
         s.add(i)
         s.commit()
+        if self.memcache:
+            self.memcache[indicator] = (group, tags, firsttime, lasttime)
 
         return i.id
 
@@ -110,12 +147,7 @@ class Archiver(object):
         date = date.replace(days=-days)
 
         s = self.handle()
-
-        count = 0
-        rv = s.query(Indicator).filter(Indicator.created_at < date.datetime)
-        if rv.count():
-            count = rv.count()
-            rv.delete()
-            s.commit()
+        count = s.query(Indicator).filter(Indicator.created_at < date.datetime).delete()
+        s.commit()
 
         return count

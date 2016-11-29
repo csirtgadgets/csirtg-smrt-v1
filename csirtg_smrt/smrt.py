@@ -89,7 +89,9 @@ class Smrt(object):
         parser = parser(self.client, fetch, rule, feed, limit=limit, archiver=self.archiver, filters=filters,
                         fireball=self.fireball)
 
+        self.archiver and self.archiver.begin()
         rv = parser.process()
+        self.archiver and self.archiver.commit()
 
         return rv
 
