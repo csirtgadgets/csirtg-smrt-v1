@@ -77,6 +77,8 @@ class Archiver(object):
 
         logger.debug('database path: {}'.format(self.path))
 
+        self.clear_memcache()
+
     def begin(self):
         if self._session:
             self._session.begin(subtransactions=True)
@@ -88,21 +90,41 @@ class Archiver(object):
     def commit(self):
         self._session.commit()
         self.session = None
+        self.clear_memcache()
+
+    def clear_memcache(self):
+        self.memcache = {}
+        self.memcached_provider=None
+
+    def cache_provider(self, provider):
+        self.memcached_provider = provider
+        for i in self.handle().query(Indicator).filter_by(provider=provider):
+            self.memcache[i.indicator] = [i.group, i.tags, i.firsttime, i.lasttime]
+        logger.info("Cached provider {} in memory, {} objects".format(provider, len(self.memcache)))
 
     def search(self, indicator, provider, group, tags, firsttime=None, lasttime=None):
         if isinstance(tags, list):
             tags.sort()
             tags = ','.join(tags)
 
-        rv = self.handle().query(Indicator).filter_by(indicator=indicator, provider=provider, group=group, tags=tags)
+        if self.memcached_provider != provider:
+            self.cache_provider(provider)
 
+        if indicator not in self.memcache:
+            return False
+        existing = self.memcache[indicator]
+        existing_compare = [existing[0], existing[1]] # group and tags
+        
+        new_compare = [group, tags]
         if firsttime:
-            rv = rv.filter_by(firsttime=firsttime)
+            existing_compare.append(existing[2])
+            new_compare.append(firsttime)
 
         if lasttime:
-            rv = rv.filter_by(lasttime=lasttime)
+            existing_compare.append(existing[3])
+            new_compare.append(firsttime)
 
-        return rv.count()
+        return existing_compare == new_compare
 
     def create(self, indicator, provider, group, tags, firsttime=None, lasttime=None):
         if isinstance(tags, list):
