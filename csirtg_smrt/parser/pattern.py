@@ -24,24 +24,23 @@ class Pattern(Parser):
 
         self.split = "\n"
 
-    def process(self):
         if self.rule.feeds[self.feed].get('values'):
-            cols = self.rule.feeds[self.feed].get('values')
+            self.cols = self.rule.feeds[self.feed].get('values')
         else:
-            cols = self.rule.defaults['values']
-        defaults = self._defaults()
+            self.cols = self.rule.defaults['values']
 
-        if isinstance(cols, str):
-            cols = cols.split(',')
+        self.defaults = self._defaults()
 
-        rv = []
-        res = []
-        batch = []
+        if isinstance(self.cols, str):
+            self.cols = self.cols.split(',')
+
+    def process(self):
         for l in self.fetcher.process(split=self.split):
-            self.logger.debug(l)
 
             if self.ignore(l):  # comment or skip
                 continue
+
+            self.logger.debug(l)
 
             try:
                 m = self.pattern.search(l).groups()
@@ -49,51 +48,27 @@ class Pattern(Parser):
                 if isinstance(m, str):
                     m = [m]
             except ValueError as e:
-                #self.logger.error(e)  # ignore non matched lines
                 continue
             except AttributeError as e:
-                #self.logger.error(e)
                 continue
 
-            if len(cols):
-                i = copy.deepcopy(defaults)
+            i = copy.deepcopy(self.defaults)
 
-                for idx, col in enumerate(cols):
-                    if col:
-                        i[col] = m[idx]
+            for idx, col in enumerate(self.cols):
+                if col:
+                    i[col] = m[idx]
 
-                i.pop("values", None)
-                i.pop("pattern", None)
+            i.pop("values", None)
+            i.pop("pattern", None)
 
-                self.logger.debug(i)
+            self.logger.debug(i)
 
-                try:
-                    i = Indicator(**i)
-                except InvalidIndicator as e:
-                    self.logger.error(e)
-                    self.logger.info('skipping: {}'.format(i['indicator']))
-                else:
-                    if self.is_archived(i.indicator, i.provider, i.group, i.tags, i.firsttime, i.lasttime):
-                        self.logger.info('skipping: {}/{}'.format(i.provider, i.indicator))
-                    else:
-                        self.logger.debug(i)
-                        if self.fireball:
-                            batch.append(i)
-
-                            if len(batch) == self.fireball:
-                                r = self.client.indicators_create(batch)
-                                for i in batch:
-                                    rv.append(i)
-                                    self.archive(i.indicator, i.provider, i.group, i.tags, i.firsttime, i.lasttime)
-                                batch = []
-
-                        else:
-                            if self.is_archived(i.indicator, i.provider, i.group, i.tags, i.firsttime, i.lasttime):
-                                self.logger.info('skipping: {}/{}'.format(i.provider, i.indicator))
-                            else:
-                                r = self.client.indicators_create(i)
-                                self.archive(i.indicator, i.provider, i.group, i.tags, i.firsttime, i.lasttime)
-                                rv.append(r)
+            try:
+                i = Indicator(**i)
+                yield i
+            except InvalidIndicator as e:
+                self.logger.error(e)
+                self.logger.info('skipping: {}'.format(i['indicator']))
 
             if self.limit:
                 self.limit -= 1
@@ -102,13 +77,5 @@ class Pattern(Parser):
                     self.logger.debug('limit reached...')
                     break
 
-        if self.fireball and len(batch):
-            r = self.client.indicators_create(batch)
-            if r:
-                for i in batch:
-                    rv.append(i)
-                    self.archive(i.indicator, i.provider, i.group, i.tags, i.firsttime, i.lasttime)
-
-        return rv
 
 Plugin = Pattern

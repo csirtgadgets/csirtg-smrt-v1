@@ -34,7 +34,6 @@ class Rss(Parser):
             self.logger.error(defaults['remote'])
             raise e
 
-        rv = []
         for e in feed.entries:
             i = copy.deepcopy(defaults)
 
@@ -61,23 +60,9 @@ class Rss(Parser):
             try:
                 i = normalize_itype(i)
                 i = Indicator(**i)
+                yield i
             except InvalidIndicator as e:
                 self.logger.error(e)
                 self.logger.info('skipping: {}'.format(i['indicator']))
-            else:
-                if self.is_archived(i.indicator, i.provider, i.group, i.tags, i.firsttime, i.lasttime):
-                    self.logger.info('skipping: {}/{}'.format(i.provider, i.indicator))
-                else:
-                    r = self.client.indicators_create(i)
-                    self.archive(i.indicator, i.provider, i.group, i.tags, i.firsttime, i.lasttime)
-                    rv.append(r)
-
-                    if self.limit:
-                        self.limit -= 1
-
-                        if self.limit == 0:
-                            self.logger.debug('limit reached...')
-                            break
-        return rv
 
 Plugin = Rss

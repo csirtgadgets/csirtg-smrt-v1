@@ -90,10 +90,9 @@ class Smrt(object):
                         fireball=self.fireball)
 
         self.archiver and self.archiver.begin()
-        rv = parser.process()
+        for i in parser.process():
+            yield i
         self.archiver and self.archiver.commit()
-
-        return rv
 
     def process(self, rule, data=None, feed=None, limit=None, filters=None):
         rv = []
@@ -108,7 +107,8 @@ class Smrt(object):
 
                     for feed in r.feeds:
                         try:
-                            rv = self._process(r, feed, limit=limit, filters=filters)
+                            for i in self._process(r, feed, limit=limit, filters=filters):
+                                rv.append(i)
                         except Exception as e:
                             self.logger.error('failed to process: {}'.format(feed))
                             self.logger.error(e)
@@ -126,7 +126,9 @@ class Smrt(object):
 
             if feed:
                 try:
-                    rv = self._process(r, feed, limit=limit, data=data, filters=filters)
+                    for i in self._process(r, feed, limit=limit, data=data, filters=filters):
+                        rv.append(i)
+
                 except Exception as e:
                     self.logger.error('failed to process feed: {}'.format(feed))
                     self.logger.error(e)
@@ -134,7 +136,8 @@ class Smrt(object):
             else:
                 for feed in r.feeds:
                     try:
-                        rv = self._process(Rule(path=rule), feed=feed, limit=limit, data=data, filters=filters)
+                        for i in self._process(Rule(path=rule), feed=feed, limit=limit, data=data, filters=filters):
+                            rv.append(i)
                     except Exception as e:
                         self.logger.error('failed to process feed: {}'.format(feed))
                         self.logger.error(e)
@@ -192,8 +195,6 @@ def main():
     p.add_argument('--format', help='specify output format [default: %(default)s]"', default=FORMAT,
                    choices=FORMATS.keys())
 
-    p.add_argument('--tail', help='enter into tail mode')
-
     p.add_argument('--filter-indicator', help='filter for specific indicator, useful in testing')
 
     p.add_argument('--fireball', help='run in fireball mode, bulk+async magic', action='store_true')
@@ -237,7 +238,6 @@ def main():
             logger.info('shutting down')
             stop = True
 
-
     while not stop:
         if not service:
             stop = True
@@ -249,42 +249,27 @@ def main():
         logger.info('starting...')
 
         try:
-            if args.tail:
-                try:
-                    import tailer
-                except ImportError:
-                    raise ImportError('Requires tailer package')
+            with Smrt(options.get('token'), options.get('remote'), client=args.client, username=args.user,
+                      feed=args.feed, archiver=archiver, fireball=args.fireball, no_fetch=args.no_fetch,
+                      verify_ssl=verify_ssl) as s:
 
-                with Smrt(options.get('remote'), options.get('token'), client=args.client, username=args.user,
-                          feed=args.feed, archiver=archiver) as s:
+                s.ping_remote()
+                filters = {}
+                if args.filter_indicator:
+                    filters['indicator'] = args.filter_indicator
 
-                    for line in tailer.follow(open(args.tail)):
-                        logger.debug(line)
-                        x = s.process(args.rule, feed=args.feed, data=line)
+                rv = []
+                for i in s.process(args.rule, feed=args.feed, limit=args.limit, data=data, filters=filters):
+                    rv.append(i)
 
-                        if args.client == 'stdout':
-                            print(FORMATS[options.get('format')](data=x))
+                if args.client == 'stdout':
+                    print(FORMATS[options.get('format')](data=rv))
 
-            else:
-                with Smrt(options.get('token'), options.get('remote'), client=args.client, username=args.user,
-                          feed=args.feed, archiver=archiver, fireball=args.fireball, no_fetch=args.no_fetch,
-                          verify_ssl=verify_ssl) as s:
+                logger.info('complete')
 
-                    s.ping_remote()
-                    filters = {}
-                    if args.filter_indicator:
-                        filters['indicator'] = args.filter_indicator
-                    
-                    x = s.process(args.rule, feed=args.feed, limit=args.limit, data=data, filters=filters)
-
-                    if args.client == 'stdout':
-                        print(FORMATS[options.get('format')](data=x))
-
-                    logger.info('complete')
-
-                    if args.service:
-                        logger.info('sleeping for 1 hour')
-                        sleep((60 * 60))
+                if args.service:
+                    logger.info('sleeping for 1 hour')
+                    sleep((60 * 60))
 
         except AuthError as e:
             logger.error(e)

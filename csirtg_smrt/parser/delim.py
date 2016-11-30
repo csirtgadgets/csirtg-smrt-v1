@@ -13,8 +13,6 @@ class Delim(Parser):
         defaults = self._defaults()
         cols = defaults['values']
 
-        rv = []
-        batch = []
         for l in self.fetcher.process():
             if l == '' or self.is_comment(l):
                 continue
@@ -47,44 +45,16 @@ class Delim(Parser):
 
                 try:
                     i = Indicator(**obs)
+                    yield i
                 except InvalidIndicator as e:
                     self.logger.error(e)
                     self.logger.info('skipping: {}'.format(obs['indicator']))
-                else:
-                    self.logger.debug(obs)
-                    self.logger.debug(i)
-                    if self.is_archived(i.indicator, i.provider, i.group, i.tags, i.firsttime, i.lasttime):
-                        self.logger.info('skipping: {}/{}'.format(i.provider, i.indicator))
-                    else:
-                        if self.fireball:
-                            batch.append(i)
 
-                            if len(batch) == self.fireball:
-                                r = self.client.indicators_create(batch)
-                                for i in batch:
-                                    rv.append(i)
-                                    self.archive(i.indicator, i.provider, i.group, i.tags, i.firsttime, i.lasttime)
-                                batch = []
+            if self.limit:
+                self.limit -= 1
 
-                        else:
-                            r = self.client.indicators_create(i)
-                            rv.append(r)
-                            self.archive(i.indicator, i.provider, i.group, i.tags, i.firsttime, i.lasttime)
-
-                    if self.limit:
-                        self.limit -= 1
-
-                        if self.limit == 0:
-                            self.logger.debug('limit reached...')
-                            break
-
-        if self.fireball and len(batch):
-            r = self.client.indicators_create(batch)
-            if r:
-                for i in batch:
-                    rv.append(i)
-                    self.archive(i.indicator, i.provider, i.group, i.tags, i.firsttime, i.lasttime)
-
-        return rv
+            if self.limit == 0:
+                self.logger.debug('limit reached...')
+                break
 
 Plugin = Delim
