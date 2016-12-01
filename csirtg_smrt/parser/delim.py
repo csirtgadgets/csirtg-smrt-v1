@@ -45,7 +45,7 @@ class Delim(Parser):
 
                 try:
                     i = Indicator(**obs)
-                    yield i
+                    yield i.__dict__()
                 except InvalidIndicator as e:
                     self.logger.error(e)
                     self.logger.info('skipping: {}'.format(obs['indicator']))

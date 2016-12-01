@@ -22,6 +22,7 @@ from csirtg_smrt.utils import setup_logging, get_argument_parser, load_plugin, s
     setup_runtime_path
 from csirtg_smrt.exceptions import AuthError, TimeoutError
 from csirtg_indicator.format import FORMATS
+from csirtg_indicator import Indicator
 
 PARSER_DEFAULT = "pattern"
 TOKEN = os.environ.get('CSIRTG_TOKEN', None)
@@ -67,7 +68,38 @@ class Smrt(object):
     def ping_remote(self):
         return self.client.ping(write=True)
 
-    def _process(self, rule, feed, limit=None, data=None, filters=None):
+    def load_feeds(self, rule, feed=None):
+        if isinstance(rule, str) and os.path.isdir(rule):
+            for f in os.listdir(rule):
+                if not f.startswith('.'):
+                    self.logger.debug("processing {0}/{1}".format(rule, f))
+                    r = Rule(path=os.path.join(rule, f))
+
+                    if not r.feeds:
+                        continue
+
+                    for feed in r.feeds:
+                        yield feed
+        else:
+            self.logger.debug("processing {0}".format(rule))
+            r = rule
+            if isinstance(rule, str):
+                r = Rule(path=rule)
+
+            if not r.feeds:
+                self.logger.error("rules file contains no feeds")
+                raise RuntimeError
+
+            if feed:
+                self.logger.debug(feed)
+                yield feed
+            else:
+                for feed in r.feeds:
+                    yield feed
+
+    def load_parser(self, rule, feed, limit=None, data=None, filters=None):
+        rule = Rule(rule)
+
         fetch = Fetcher(rule, feed, data=data, no_fetch=self.no_fetch)
 
         parser_name = rule.parser or PARSER_DEFAULT
@@ -86,64 +118,39 @@ class Smrt(object):
 
         self.logger.debug("loading parser: {}".format(parser))
 
-        parser = parser(self.client, fetch, rule, feed, limit=limit, archiver=self.archiver, filters=filters,
-                        fireball=self.fireball)
+        return parser(self.client, fetch, rule, feed, limit=limit, archiver=self.archiver, filters=filters,
+                      fireball=self.fireball)
+
+    def is_archived(self, indicator):
+        if self.archiver and self.archiver.search(indicator):
+            return True
+
+    def archive(self, indicator):
+        if self.archiver and self.archiver.create(indicator):
+            return True
+
+    def process(self, rule, feed, limit=None, data=None, filters=None):
+        parser = self.load_parser(rule, feed, limit=limit, data=data, filters=filters)
 
         self.archiver and self.archiver.begin()
         for i in parser.process():
-            yield i
-        self.archiver and self.archiver.commit()
+            if isinstance(i, dict):
+                i = Indicator(**i)
 
-    def process(self, rule, data=None, feed=None, limit=None, filters=None):
-        rv = []
-        if isinstance(rule, str) and os.path.isdir(rule):
-            for f in os.listdir(rule):
-                if not f.startswith('.'):
-                    self.logger.debug("processing {0}/{1}".format(rule, f))
-                    r = Rule(path=os.path.join(rule, f))
+            if not i.firsttime:
+                i.firsttime = i.lasttime
 
-                    if not r.feeds:
-                        continue
+            if not i.group:
+                i.group = 'everyone'
 
-                    for feed in r.feeds:
-                        try:
-                            for i in self._process(r, feed, limit=limit, filters=filters):
-                                rv.append(i)
-                        except Exception as e:
-                            self.logger.error('failed to process: {}'.format(feed))
-                            self.logger.error(e)
-                            traceback.print_exc()
-
-        else:
-            self.logger.debug("processing {0}".format(rule))
-            r = rule
-            if isinstance(rule, str):
-                r = Rule(path=rule)
-
-            if not r.feeds:
-                self.logger.error("rules file contains no feeds")
-                raise RuntimeError
-
-            if feed:
-                try:
-                    for i in self._process(r, feed, limit=limit, data=data, filters=filters):
-                        rv.append(i)
-
-                except Exception as e:
-                    self.logger.error('failed to process feed: {}'.format(feed))
-                    self.logger.error(e)
-                    traceback.print_exc()
+            if self.is_archived(i):
+                self.logger.debug('skipping: {}/{}'.format(i.indicator, i.provider))
             else:
-                for feed in r.feeds:
-                    try:
-                        for i in self._process(Rule(path=rule), feed=feed, limit=limit, data=data, filters=filters):
-                            rv.append(i)
-                    except Exception as e:
-                        self.logger.error('failed to process feed: {}'.format(feed))
-                        self.logger.error(e)
-                        traceback.print_exc()
+                self.logger.debug('adding: {}/{}'.format(i.indicator, i.provider))
+                yield i
+                self.archive(i)
 
-        return rv
+        self.archiver and self.archiver.commit()
 
 
 def main():
@@ -259,8 +266,9 @@ def main():
                     filters['indicator'] = args.filter_indicator
 
                 rv = []
-                for i in s.process(args.rule, feed=args.feed, limit=args.limit, data=data, filters=filters):
-                    rv.append(i)
+                for f in s.load_feeds(args.rule, feed=args.feed):
+                    for i in s.process(args.rule, f, limit=args.limit, data=data, filters=filters):
+                        rv.append(i)
 
                 if args.client == 'stdout':
                     print(FORMATS[options.get('format')](data=rv))
@@ -286,6 +294,9 @@ def main():
         except KeyboardInterrupt:
             logger.info('shutting down')
             stop = True
+        except Exception as e:
+            logger.error(e)
+            raise e
 
         if archiver:
             rv = archiver.cleanup()

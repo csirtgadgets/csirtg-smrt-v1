@@ -60,7 +60,7 @@ class Rss(Parser):
             try:
                 i = normalize_itype(i)
                 i = Indicator(**i)
-                yield i
+                yield i.__dict__()
             except InvalidIndicator as e:
                 self.logger.error(e)
                 self.logger.info('skipping: {}'.format(i['indicator']))
