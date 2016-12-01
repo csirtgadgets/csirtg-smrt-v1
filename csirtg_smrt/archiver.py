@@ -11,6 +11,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session
 from csirtg_smrt.constants import PYVERSION, RUNTIME_PATH
 from sqlalchemy.sql.expression import func
+from pprint import pprint
 
 DB_FILE = os.path.join(RUNTIME_PATH, 'smrt.db')
 Base = declarative_base()
@@ -102,43 +103,46 @@ class Archiver(object):
             self.memcache[i.indicator] = (i.group, i.tags, i.firsttime, i.lasttime)
         logger.info("Cached provider {} in memory, {} objects".format(provider, len(self.memcache)))
 
-    def search(self, indicator, provider, group, tags, firsttime=None, lasttime=None):
+    def search(self, indicator):
+        tags = indicator.tags
         if isinstance(tags, list):
             tags.sort()
             tags = ','.join(tags)
 
-        if self.memcached_provider != provider:
-            self.cache_provider(provider)
+        if self.memcached_provider != indicator.provider:
+            self.cache_provider(indicator.provider)
 
-        if indicator not in self.memcache:
+        if indicator.indicator not in self.memcache:
             return False
-        existing = self.memcache[indicator]
-        existing_compare = [existing[0], existing[1]] # group and tags
-        
-        new_compare = [group, tags]
-        if firsttime:
-            existing_compare.append(existing[2])
-            new_compare.append(firsttime)
 
-        if lasttime:
+        existing = self.memcache[indicator.indicator]
+        existing_compare = [existing[0], existing[1]]  # group and tags
+        
+        new_compare = [indicator.group, tags]
+        if indicator.firsttime:
+            existing_compare.append(existing[2])
+            new_compare.append(indicator.firsttime.replace(tzinfo=None))
+
+        if indicator.lasttime:
             existing_compare.append(existing[3])
-            new_compare.append(firsttime)
+            new_compare.append(indicator.firsttime.replace(tzinfo=None))
 
         return existing_compare == new_compare
 
-    def create(self, indicator, provider, group, tags, firsttime=None, lasttime=None):
-        if isinstance(tags, list):
-            tags.sort()
-            tags = ','.join(tags)
+    def create(self, indicator):
+        tags = indicator.tags
+        if isinstance(indicator.tags, list):
+            indicator.tags.sort()
+            tags = ','.join(indicator.tags)
 
-        i = Indicator(indicator=indicator, provider=provider, group=group, lasttime=lasttime, tags=tags,
-                      firsttime=firsttime)
+        i = Indicator(indicator=indicator.indicator, provider=indicator.provider, group=indicator.group,
+                      lasttime=indicator.lasttime, tags=tags, firsttime=indicator.firsttime)
 
         s = self.begin()
         s.add(i)
         s.commit()
         if self.memcache:
-            self.memcache[indicator] = (group, tags, firsttime, lasttime)
+            self.memcache[indicator] = (indicator.group, tags, indicator.firsttime, indicator.lasttime)
 
         return i.id
 
