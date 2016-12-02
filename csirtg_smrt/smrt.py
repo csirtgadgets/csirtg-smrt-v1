@@ -152,8 +152,7 @@ class Smrt(object):
                         queue.append(i)
                         if len(queue) == FIREBALL_SIZE:
                             self.logger.debug('flushing queue...')
-                            n = self.client.indicators_create(queue)
-                            pprint(n)
+                            self.client.indicators_create(queue)
                             queue = []
                     else:
                         self.client.indicators_create(i)
