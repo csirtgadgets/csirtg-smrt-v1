@@ -1,9 +1,8 @@
 import copy
 import json
 from csirtg_smrt.parser import Parser
-from csirtg_indicator.utils import normalize_itype
 from csirtg_indicator import Indicator
-BATCH_SIZE = 500
+from csirtg_indicator.utils import normalize_itype
 
 
 class Json(Parser):
@@ -27,10 +26,8 @@ class Json(Parser):
                     i[values[x]] = e[c]
 
                 try:
-                    self.logger.debug(i)
                     i = normalize_itype(i)
-                    i = Indicator(**i)
-                    yield i
+                    yield Indicator(**i)
                 except NotImplementedError as e:
                     self.logger.error(e)
                     self.logger.info('skipping: {}'.format(i['indicator']))

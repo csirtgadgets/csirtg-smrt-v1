@@ -33,22 +33,21 @@ class Email(Parser):
 
             body = parse_email_from_string(d)
 
-            obs = {}
+            i = {}
             for k, v in defaults.items():
-                obs[k] = v
+                i[k] = v
 
             if self.headers:
                 for h in self.headers:
                     if body[0]['headers'].get(h):
-                        obs[self.headers[h]] = body[0]['headers'][h][0]
+                        i[self.headers[h]] = body[0]['headers'][h][0]
 
-            obs['message'] = d
+            i['message'] = d
 
             try:
-                i = Indicator(**obs)
-                yield i.__dict__()
+                yield Indicator(**i)
             except InvalidIndicator as e:
                 self.logger.error(e)
-                self.logger.info('skipping: {}'.format(obs['indicator']))
+                self.logger.info('skipping: {}'.format(i['indicator']))
 
 Plugin = Email

@@ -4,6 +4,7 @@ import re
 from csirtg_smrt.parser import Parser
 from csirtg_indicator import Indicator
 from csirtg_indicator.exceptions import InvalidIndicator
+from csirtg_indicator.utils import normalize_itype
 import logging
 from pprint import pprint
 
@@ -56,25 +57,17 @@ class Pattern(Parser):
                 if col:
                     i[col] = m[idx]
 
-
             i.pop("values", None)
             i.pop("pattern", None)
 
             self.logger.debug(i)
 
             try:
-                i = Indicator(**i)
-                yield i.__dict__()
+                i = normalize_itype(i)
+                yield Indicator(**i)
             except InvalidIndicator as e:
                 self.logger.error(e)
                 self.logger.info('skipping: {}'.format(i['indicator']))
-
-            if self.limit:
-                self.limit -= 1
-
-                if self.limit == 0:
-                    self.logger.debug('limit reached...')
-                    break
 
 
 Plugin = Pattern

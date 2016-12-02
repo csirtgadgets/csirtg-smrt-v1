@@ -1,6 +1,7 @@
 from csirtg_smrt.parser import Parser
 from csirtg_indicator import Indicator
 from csirtg_indicator.exceptions import InvalidIndicator
+from csirtg_indicator.utils import normalize_itype
 from pprint import pprint
 
 
@@ -21,34 +22,34 @@ class Delim(Parser):
             m = self.pattern.split(l)
 
             if len(cols):
-                obs = {}
+                i = {}
                 for k, v in defaults.items():
-                    obs[k] = v
+                    i[k] = v
 
                 for idx, col in enumerate(cols):
                     if col is not None:
-                        obs[col] = m[idx]
-                obs.pop("values", None)
-                self.eval_obs(obs)
+                        i[col] = m[idx]
+                i.pop("values", None)
+                self.eval_obs(i)
 
                 skip = True
                 if self.filters and self.filters.keys():
                     for f in self.filters:
-                        if obs.get(f) and obs[f] == self.filters[f]:
+                        if i.get(f) and i[f] == self.filters[f]:
                             skip = False
                 else:
                     skip = False
 
                 if skip:
-                    self.logger.info('skipping %s' % obs['indicator'])
+                    self.logger.info('skipping %s' % i['indicator'])
                     continue
 
                 try:
-                    i = Indicator(**obs)
-                    yield i.__dict__()
+                    i = normalize_itype(i)
+                    yield Indicator(**i)
                 except InvalidIndicator as e:
                     self.logger.error(e)
-                    self.logger.info('skipping: {}'.format(obs['indicator']))
+                    self.logger.info('skipping: {}'.format(i['indicator']))
 
             if self.limit:
                 self.limit -= 1

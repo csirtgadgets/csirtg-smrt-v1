@@ -25,9 +25,10 @@ def test_smrt_base():
             assert len(x) > 0
 
         x = []
-        for r, f in s.load_feeds('test/smrt/rules/csirtg.yml', feed='port-scanners2'):
-            try:
-                x = list(s.process(r, f))
-            except KeyError:
-                pass
-            assert len(x) == 0
+        try:
+            r, f = next(s.load_feeds('test/smrt/rules/csirtg.yml', feed='port-scanners2'))
+        except KeyError:
+            pass
+
+        assert len(x) == 0
+

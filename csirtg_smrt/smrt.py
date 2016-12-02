@@ -65,36 +65,38 @@ class Smrt(object):
         self.fireball = fireball
         self.no_fetch = no_fetch
 
-    def ping_remote(self):
-        return self.client.ping(write=True)
+    def is_archived(self, indicator):
+        if self.archiver and self.archiver.search(indicator):
+            return True
+
+    def archive(self, indicator):
+        if self.archiver and self.archiver.create(indicator):
+            return True
 
     def load_feeds(self, rule, feed=None):
         if isinstance(rule, str) and os.path.isdir(rule):
             for f in os.listdir(rule):
-                if not f.startswith('.'):
-                    self.logger.debug("processing {0}/{1}".format(rule, f))
-                    r = Rule(path=os.path.join(rule, f))
+                if f.startswith('.'):
+                    continue
 
-                    if not r.feeds:
-                        continue
+                self.logger.debug("processing {0}/{1}".format(rule, f))
+                r = Rule(path=os.path.join(rule, f))
 
-                    for feed in r.feeds:
-                        yield r, feed
+                for feed in r.feeds:
+                    yield r, feed
+
         else:
             self.logger.debug("processing {0}".format(rule))
             if isinstance(rule, str):
                 rule = Rule(path=rule)
 
-            if not rule.feeds:
-                self.logger.error("rules file contains no feeds")
-                raise RuntimeError
-
             if feed:
-                self.logger.debug(feed)
-                yield rule, feed
-            else:
-                for feed in rule.feeds:
-                    yield rule, feed
+                # replace the feeds dict with the single feed
+                # raises KeyError if it doesn't exist
+                rule.feeds = {feed: rule.feeds[feed]}
+
+            for f in rule.feeds:
+                yield rule, f
 
     def load_parser(self, rule, feed, limit=None, data=None, filters=None):
         if isinstance(rule, str):
@@ -120,14 +122,6 @@ class Smrt(object):
 
         return parser(self.client, fetch, rule, feed, limit=limit, archiver=self.archiver, filters=filters,
                       fireball=self.fireball)
-
-    def is_archived(self, indicator):
-        if self.archiver and self.archiver.search(indicator):
-            return True
-
-    def archive(self, indicator):
-        if self.archiver and self.archiver.create(indicator):
-            return True
 
     def process(self, rule, feed, limit=None, data=None, filters=None):
         parser = self.load_parser(rule, feed, limit=limit, data=data, filters=filters)
@@ -260,14 +254,14 @@ def main():
                       feed=args.feed, archiver=archiver, fireball=args.fireball, no_fetch=args.no_fetch,
                       verify_ssl=verify_ssl) as s:
 
-                s.ping_remote()
+                s.client.ping(write=True)
                 filters = {}
                 if args.filter_indicator:
                     filters['indicator'] = args.filter_indicator
 
                 rv = []
-                for f in s.load_feeds(args.rule, feed=args.feed):
-                    for i in s.process(args.rule, f, limit=args.limit, data=data, filters=filters):
+                for r, f in s.load_feeds(args.rule, feed=args.feed):
+                    for i in s.process(r, f, limit=args.limit, data=data, filters=filters):
                         rv.append(i)
 
                 if args.client == 'stdout':
@@ -295,7 +289,8 @@ def main():
             logger.info('shutting down')
             stop = True
         except Exception as e:
-            logger.error(e)
+            import traceback
+            traceback.print_exc()
             raise e
 
         if archiver:

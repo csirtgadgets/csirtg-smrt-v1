@@ -3,8 +3,7 @@ import py.test
 from csirtg_smrt import Smrt
 from csirtg_smrt.rule import Rule
 from csirtg_smrt.constants import REMOTE_ADDR
-from pprint import pprint
-from base64 import b64decode
+from csirtg_smrt.constants import PYVERSION
 
 rule = 'test/spamcop/spamcop.yml'
 rule = Rule(path=rule)
@@ -26,6 +25,7 @@ def test_spamcop():
 
         assert x[0].indicator == '204.93.2.6'
 
-        # TODO requires csirtg_indicator to be fixed
-        #assert x[0].message.startswith('From: xxx@reports.spamcop.net')
-        #assert x[0].message.startswith('Um5KdmJUb2dlSGg0UUhK')
+        if PYVERSION == 2:
+            assert x[0].message.startswith('From: xxx@reports.spamcop.net\nT')
+        else:
+            assert x[0].message.startswith('From: xxx@reports.spamcop.net\nT')
