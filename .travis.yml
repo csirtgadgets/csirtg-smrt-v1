@@ -1,6 +1,9 @@
 sudo: required
 dist: trusty
 language: python
+cache:
+    - apt
+    - pip
 
 python:
   - 2.7

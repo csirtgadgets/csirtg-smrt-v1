@@ -33,20 +33,6 @@ class Parser(object):
         if self.rule.skip:
             self.skip = re.compile(self.rule.skip)
 
-    def is_archived(self, indicator, provider, group, tags, firsttime=None, lasttime=None):
-        if not self.archiver:
-            return None
-
-        if self.archiver.search(indicator, provider, group, tags, firsttime, lasttime):
-            return True
-
-    def archive(self, indicator, provider, group, tags, firsttime=None, lasttime=None):
-        if not self.archiver:
-            return None
-
-        if self.archiver.create(indicator, provider, group, tags, firsttime, lasttime):
-            return True
-
     def ignore(self, line):
         if self.is_comment(line):
             return True

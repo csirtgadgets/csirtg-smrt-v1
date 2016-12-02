@@ -3,6 +3,7 @@ import py.test
 from csirtg_smrt import Smrt
 from csirtg_smrt.rule import Rule
 from csirtg_smrt.constants import REMOTE_ADDR
+from pprint import pprint
 
 rule = 'test/alexa/alexa.yml'
 rule = Rule(path=rule)
@@ -12,8 +13,12 @@ s = Smrt(REMOTE_ADDR, 1234, client='dummy')
 
 
 def test_alexa_top1m():
-    rule.defaults['remote'] = 'test/alexa/alexa_top-1m.csv.zip'
-    x = s.process(rule, feed="top1m")
+    print(rule)
+    r, feed = next(s.load_feeds(rule, feed='top1m'))
+
+    r.defaults['remote'] = 'test/alexa/alexa_top-1m.csv.zip'
+    x = s.process(r, feed)
+    x = list(x)
     assert len(x) > 0
     
     assert x[0].indicator == "google.com"

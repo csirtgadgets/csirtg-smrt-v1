@@ -8,7 +8,6 @@ def test_syslog():
     with Smrt(remote='localhost:514', client='syslog') as s:
         assert type(s) is Smrt
 
-        pprint(s)
-
-        x = s.process('test/smrt/rules/csirtg.yml', feed='port-scanners')
+        rule, feed = next(s.load_feeds('test/smrt/rules/csirtg.yml', feed='port-scanners'))
+        x = list(s.process(rule, feed))
         assert len(x) > 0

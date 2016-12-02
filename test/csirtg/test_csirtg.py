@@ -15,6 +15,7 @@ s = Smrt(REMOTE_ADDR, 1234, client='dummy')
 def test_csirtg_portscanners():
     rule.feeds['port-scanners']['remote'] = 'test/csirtg/feed.txt'
     x = s.process(rule, feed="port-scanners")
+    x = list(x)
     assert len(x) > 0
 
     ips = set()

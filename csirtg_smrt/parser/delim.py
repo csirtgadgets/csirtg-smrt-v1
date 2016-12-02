@@ -1,6 +1,7 @@
 from csirtg_smrt.parser import Parser
 from csirtg_indicator import Indicator
 from csirtg_indicator.exceptions import InvalidIndicator
+from csirtg_indicator.utils import normalize_itype
 from pprint import pprint
 
 
@@ -13,8 +14,6 @@ class Delim(Parser):
         defaults = self._defaults()
         cols = defaults['values']
 
-        rv = []
-        batch = []
         for l in self.fetcher.process():
             if l == '' or self.is_comment(l):
                 continue
@@ -23,68 +22,40 @@ class Delim(Parser):
             m = self.pattern.split(l)
 
             if len(cols):
-                obs = {}
+                i = {}
                 for k, v in defaults.items():
-                    obs[k] = v
+                    i[k] = v
 
                 for idx, col in enumerate(cols):
                     if col is not None:
-                        obs[col] = m[idx]
-                obs.pop("values", None)
-                self.eval_obs(obs)
+                        i[col] = m[idx]
+                i.pop("values", None)
+                self.eval_obs(i)
 
                 skip = True
                 if self.filters and self.filters.keys():
                     for f in self.filters:
-                        if obs.get(f) and obs[f] == self.filters[f]:
+                        if i.get(f) and i[f] == self.filters[f]:
                             skip = False
                 else:
                     skip = False
 
                 if skip:
-                    self.logger.info('skipping %s' % obs['indicator'])
+                    self.logger.debug('skipping %s' % i['indicator'])
                     continue
 
                 try:
-                    i = Indicator(**obs)
+                    i = normalize_itype(i)
+                    yield Indicator(**i)
                 except InvalidIndicator as e:
                     self.logger.error(e)
-                    self.logger.info('skipping: {}'.format(obs['indicator']))
-                else:
-                    self.logger.debug(obs)
-                    self.logger.debug(i)
-                    if self.is_archived(i.indicator, i.provider, i.group, i.tags, i.firsttime, i.lasttime):
-                        self.logger.info('skipping: {}/{}'.format(i.provider, i.indicator))
-                    else:
-                        if self.fireball:
-                            batch.append(i)
+                    self.logger.debug('skipping: {}'.format(i['indicator']))
 
-                            if len(batch) == self.fireball:
-                                r = self.client.indicators_create(batch)
-                                for i in batch:
-                                    rv.append(i)
-                                    self.archive(i.indicator, i.provider, i.group, i.tags, i.firsttime, i.lasttime)
-                                batch = []
+            if self.limit:
+                self.limit -= 1
 
-                        else:
-                            r = self.client.indicators_create(i)
-                            rv.append(r)
-                            self.archive(i.indicator, i.provider, i.group, i.tags, i.firsttime, i.lasttime)
-
-                    if self.limit:
-                        self.limit -= 1
-
-                        if self.limit == 0:
-                            self.logger.debug('limit reached...')
-                            break
-
-        if self.fireball and len(batch):
-            r = self.client.indicators_create(batch)
-            if r:
-                for i in batch:
-                    rv.append(i)
-                    self.archive(i.indicator, i.provider, i.group, i.tags, i.firsttime, i.lasttime)
-
-        return rv
+            if self.limit == 0:
+                self.logger.debug('limit reached...')
+                break
 
 Plugin = Delim

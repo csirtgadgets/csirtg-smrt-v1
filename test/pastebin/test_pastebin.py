@@ -15,6 +15,8 @@ s = Smrt(REMOTE_ADDR, 1234, client='dummy')
 def test_pastebin_creds():
     rule.feeds['creds']['remote'] = 'test/pastebin/feed.txt'
     x = s.process(rule, feed="creds")
+    x = list(x)
+
     assert len(x) > 0
 
     indicators = set()

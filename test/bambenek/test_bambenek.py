@@ -15,6 +15,7 @@ s = Smrt(REMOTE_ADDR, 1234, client='dummy')
 def test_bambenek_fqdn():
     rule.feeds['c2-dommasterlist']['remote'] = 'test/bambenek/fqdn_feed.txt'
     x = s.process(rule, feed="c2-dommasterlist")
+    x = list(x)
     assert len(x) > 0
 
     indicators = set()
@@ -39,6 +40,7 @@ def test_bambenek_fqdn():
 def test_bambenek_ipv4():
     rule.feeds['c2-ipmasterlist']['remote'] = 'test/bambenek/ipv4_feed.txt'
     x = s.process(rule, feed="c2-ipmasterlist")
+    x = list(x)
     assert len(x) > 0
 
     indicators = set()
