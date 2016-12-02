@@ -15,7 +15,7 @@ import select
 import csirtg_smrt.parser
 from csirtg_smrt.archiver import Archiver
 import csirtg_smrt.client
-from csirtg_smrt.constants import REMOTE_ADDR, SMRT_RULES_PATH, SMRT_CACHE, CONFIG_PATH, RUNTIME_PATH, VERSION
+from csirtg_smrt.constants import REMOTE_ADDR, SMRT_RULES_PATH, SMRT_CACHE, CONFIG_PATH, RUNTIME_PATH, VERSION, FIREBALL_SIZE
 from csirtg_smrt.rule import Rule
 from csirtg_smrt.fetcher import Fetcher
 from csirtg_smrt.utils import setup_logging, get_argument_parser, load_plugin, setup_signals, read_config, \
@@ -127,6 +127,12 @@ class Smrt(object):
         parser = self.load_parser(rule, feed, limit=limit, data=data, filters=filters)
 
         self.archiver and self.archiver.begin()
+        queue = []
+
+        _limit = 0
+        if limit:
+            _limit = int(limit)
+
         for i in parser.process():
             if isinstance(i, dict):
                 i = Indicator(**i)
@@ -141,8 +147,29 @@ class Smrt(object):
                 self.logger.debug('skipping: {}/{}'.format(i.indicator, i.provider))
             else:
                 self.logger.debug('adding: {}/{}'.format(i.indicator, i.provider))
+                if self.client != 'stdout':
+                    if self.fireball:
+                        queue.append(i)
+                        if len(queue) == FIREBALL_SIZE:
+                            self.logger.debug('flushing queue...')
+                            n = self.client.indicators_create(queue)
+                            pprint(n)
+                            queue = []
+                    else:
+                        self.client.indicators_create(i)
                 yield i
                 self.archive(i)
+
+            if _limit:
+                _limit -= 1
+
+            if _limit == limit:
+                self.logger.debug("limit reached...")
+                break
+
+        if self.fireball and len(queue) > 0:
+            self.logger.debug('flushing queue...')
+            self.client.indicators_create(queue)
 
         self.archiver and self.archiver.commit()
 

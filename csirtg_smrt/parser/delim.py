@@ -41,7 +41,7 @@ class Delim(Parser):
                     skip = False
 
                 if skip:
-                    self.logger.info('skipping %s' % i['indicator'])
+                    self.logger.debug('skipping %s' % i['indicator'])
                     continue
 
                 try:
@@ -49,7 +49,7 @@ class Delim(Parser):
                     yield Indicator(**i)
                 except InvalidIndicator as e:
                     self.logger.error(e)
-                    self.logger.info('skipping: {}'.format(i['indicator']))
+                    self.logger.debug('skipping: {}'.format(i['indicator']))
 
             if self.limit:
                 self.limit -= 1
