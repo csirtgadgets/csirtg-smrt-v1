@@ -5,8 +5,7 @@ from csirtg_smrt.parser import Parser
 from csirtg_indicator import Indicator
 from csirtg_indicator.exceptions import InvalidIndicator
 import logging
-
-BATCH_SIZE = 500
+from pprint import pprint
 
 
 class Pattern(Parser):
@@ -53,10 +52,10 @@ class Pattern(Parser):
                 continue
 
             i = copy.deepcopy(self.defaults)
-
             for idx, col in enumerate(self.cols):
                 if col:
                     i[col] = m[idx]
+
 
             i.pop("values", None)
             i.pop("pattern", None)

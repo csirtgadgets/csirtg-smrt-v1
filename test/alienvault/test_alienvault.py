@@ -15,6 +15,7 @@ s = Smrt(REMOTE_ADDR, 1234, client='dummy')
 def test_alienvault_scanners():
     rule.feeds['scanners']['remote'] = 'test/alienvault/feed.txt'
     x = s.process(rule, feed="scanners")
+    x = list(x)
     assert len(x) > 0
 
     ips = set()
@@ -33,6 +34,7 @@ def test_alienvault_scanners():
 def test_alienvault_spammers():
     rule.feeds['spammers']['remote'] = 'test/alienvault/feed.txt'
     x = s.process(rule, feed="spammers")
+    x = list(x)
     assert len(x) > 0
 
     ips = set()
@@ -51,6 +53,7 @@ def test_alienvault_spammers():
 def test_alienvault_malware():
     rule.feeds['malware']['remote'] = 'test/alienvault/feed.txt'
     x = s.process(rule, feed="malware")
+    x = list(x)
     assert len(x) > 0
 
     ips = set()

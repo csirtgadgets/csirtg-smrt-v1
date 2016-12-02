@@ -79,26 +79,26 @@ class Smrt(object):
                         continue
 
                     for feed in r.feeds:
-                        yield feed
+                        yield r, feed
         else:
             self.logger.debug("processing {0}".format(rule))
-            r = rule
             if isinstance(rule, str):
-                r = Rule(path=rule)
+                rule = Rule(path=rule)
 
-            if not r.feeds:
+            if not rule.feeds:
                 self.logger.error("rules file contains no feeds")
                 raise RuntimeError
 
             if feed:
                 self.logger.debug(feed)
-                yield feed
+                yield rule, feed
             else:
-                for feed in r.feeds:
-                    yield feed
+                for feed in rule.feeds:
+                    yield rule, feed
 
     def load_parser(self, rule, feed, limit=None, data=None, filters=None):
-        rule = Rule(rule)
+        if isinstance(rule, str):
+            rule = Rule(rule)
 
         fetch = Fetcher(rule, feed, data=data, no_fetch=self.no_fetch)
 

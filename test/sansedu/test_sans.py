@@ -17,6 +17,8 @@ def test_sans_low():
     feed = '02_domains_low'
     rule.feeds[feed]['remote'] = 'test/sansedu/low.txt'
     x = s.process(rule, feed=feed)
+    x = list(x)
+
     assert len(x) > 0
 
     assert len(x[0].indicator) > 4
@@ -26,6 +28,7 @@ def test_sans_block():
     feed = 'block'
     rule.feeds[feed]['remote'] = 'test/sansedu/block.txt'
     x = s.process(rule, feed=feed)
+    x = list(x)
 
     assert len(x) > 0
     assert len(x[0].indicator) > 4

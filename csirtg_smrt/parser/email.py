@@ -29,8 +29,6 @@ class Email(Parser):
     def process(self, data=None):
         defaults = self._defaults()
 
-        rv = []
-
         for d in self.fetcher.process(split=False):
 
             body = parse_email_from_string(d)
@@ -48,24 +46,9 @@ class Email(Parser):
 
             try:
                 i = Indicator(**obs)
+                yield i.__dict__()
             except InvalidIndicator as e:
                 self.logger.error(e)
                 self.logger.info('skipping: {}'.format(obs['indicator']))
-            else:
-                if self.is_archived(i.indicator, i.provider, i.group, i.tags, i.firsttime, i.lasttime):
-                    self.logger.info('skipping: {}/{}'.format(i.provider, i.indicator))
-                else:
-                    r = self.client.indicators_create(i)
-                    self.archive(i.indicator, i.provider, i.group, i.tags, i.firsttime, i.lasttime)
-                    rv.append(r)
-
-                    if self.limit:
-                        self.limit -= 1
-
-                        if self.limit == 0:
-                            self.logger.debug('limit reached...')
-                            break
-
-        return rv
 
 Plugin = Email

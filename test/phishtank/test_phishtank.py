@@ -14,6 +14,7 @@ s = Smrt(REMOTE_ADDR, 1234, client='dummy')
 def test_phishtank_urls():
     rule.remote = 'test/phishtank/feed.json.gz'
     x = s.process(rule, feed="urls")
+    x = list(x)
 
     assert len(x) > 0
     assert len(x[0].indicator) > 4
