@@ -285,13 +285,14 @@ def main():
                 if args.filter_indicator:
                     filters['indicator'] = args.filter_indicator
 
-                rv = []
+                indicators = []
                 for r, f in s.load_feeds(args.rule, feed=args.feed):
                     for i in s.process(r, f, limit=args.limit, data=data, filters=filters):
-                        rv.append(i)
+                        if args.client == 'stdout':
+                            indicators.append(i)
 
                 if args.client == 'stdout':
-                    print(FORMATS[options.get('format')](data=rv))
+                    print(FORMATS[options.get('format')](data=indicators))
 
                 logger.info('complete')
 
