@@ -8,7 +8,7 @@ import os
 import arrow
 from sqlalchemy import Column, Integer, create_engine, DateTime, UnicodeText, Text
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, scoped_session
+from sqlalchemy.orm import sessionmaker, scoped_session, load_only
 from csirtg_smrt.constants import PYVERSION, RUNTIME_PATH
 from sqlalchemy.sql.expression import func
 from pprint import pprint
@@ -95,11 +95,17 @@ class Archiver(object):
 
     def clear_memcache(self):
         self.memcache = {}
-        self.memcached_provider=None
+        self.memcached_provider = None
 
     def cache_provider(self, provider):
+        if self.memcached_provider == provider:
+            return
+
         self.memcached_provider = provider
-        for i in self.handle().query(Indicator).filter_by(provider=provider):
+        logger.info("Caching archived indicators for provider {}".format(provider))
+        q = self.handle().query(Indicator).filter_by(provider=provider)
+        q = q.options(load_only("indicator", "group", "tags", "firsttime", "lasttime"))
+        for i in q:
             self.memcache[i.indicator] = (i.group, i.tags, i.firsttime, i.lasttime)
         logger.info("Cached provider {} in memory, {} objects".format(provider, len(self.memcache)))
 
@@ -109,8 +115,7 @@ class Archiver(object):
             tags.sort()
             tags = ','.join(tags)
 
-        if self.memcached_provider != indicator.provider:
-            self.cache_provider(indicator.provider)
+        self.cache_provider(indicator.provider)
 
         if indicator.indicator not in self.memcache:
             return False
@@ -125,7 +130,7 @@ class Archiver(object):
 
         if indicator.lasttime:
             existing_compare.append(existing[3])
-            new_compare.append(indicator.firsttime.replace(tzinfo=None))
+            new_compare.append(indicator.lasttime.replace(tzinfo=None))
 
         return existing_compare == new_compare
 
