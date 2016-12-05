@@ -105,6 +105,7 @@ class Archiver(object):
         logger.info("Caching archived indicators for provider {}".format(provider))
         q = self.handle().query(Indicator).filter_by(provider=provider)
         q = q.options(load_only("indicator", "group", "tags", "firsttime", "lasttime"))
+        q = q.yield_per(1000)
         for i in q:
             self.memcache[i.indicator] = (i.group, i.tags, i.firsttime, i.lasttime)
         logger.info("Cached provider {} in memory, {} objects".format(provider, len(self.memcache)))
