@@ -108,6 +108,7 @@ class Archiver(object):
             .order_by(asc(Indicator.lasttime), asc(Indicator.firsttime), asc(Indicator.created_at))
 
         q = q.options(load_only("indicator", "group", "tags", "firsttime", "lasttime"))
+        q = q.yield_per(1000)
         for i in q:
             self.memcache[i.indicator] = (i.group, i.tags, i.firsttime, i.lasttime)
 
