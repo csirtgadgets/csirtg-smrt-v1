@@ -1,0 +1,109 @@
+# cif-smrt configuration file to pull feeds from csirtg.io
+# For more information see https://csirtg.io
+#
+# If no token is given, the feed by default is a "limited feed"
+# provided by https://csirtg.io. The limits of the "limited feed"
+# are:
+#
+# 1. Only results from the last hour are returned
+# 2. A maximum of 25 results are returned per feed
+#
+# To remove the limits, sign up for an API key at https://csirtg.io
+
+parser: csv
+#token: < token here -> get one at https://csirtg.io >
+defaults:
+  provider: csirtg.io
+  altid_tlp: white
+  altid: https://csirtg.io/search?q=<indicator>
+  tlp: white
+  confidence: 9
+  tags: scanner
+  values:
+    - null
+    - indicator
+    - itype
+    - portlist
+    - null
+    - null
+    - protocol
+    - application
+    - null
+    - firsttime
+    - lasttime
+    - description
+    - null
+
+feeds:
+  lasttime:
+    remote: 'test/smrt/data/feed.txt'
+    defaults:
+      values:
+        - null
+        - indicator
+        - itype
+        - portlist
+        - null
+        - null
+        - protocol
+        - application
+        - null
+        - null
+        - lasttime
+        - description
+        - null
+
+  firsttime:
+    remote: 'test/smrt/data/feed.txt'
+    defaults:
+      values:
+        - null
+        - indicator
+        - itype
+        - portlist
+        - null
+        - null
+        - protocol
+        - application
+        - null
+        - null
+        - lasttime
+        - description
+        - null
+
+  both:
+    remote: 'test/smrt/data/feed.txt'
+    defaults:
+      values:
+        - null
+        - indicator
+        - itype
+        - portlist
+        - null
+        - null
+        - protocol
+        - application
+        - null
+        - firsttime
+        - lasttime
+        - description
+        - null
+
+  neither:
+    remote: 'test/smrt/data/feed.txt'
+    defaults:
+      values:
+        - null
+        - indicator
+        - itype
+        - portlist
+        - null
+        - null
+        - protocol
+        - application
+        - null
+        - null
+        - null
+        - description
+        - null
+

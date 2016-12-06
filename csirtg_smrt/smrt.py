@@ -144,9 +144,9 @@ class Smrt(object):
                 i.group = 'everyone'
 
             if self.is_archived(i):
-                self.logger.debug('skipping: {}/{}'.format(i.indicator, i.provider))
+                self.logger.debug('skipping: {}/{}/{}/{}'.format(i.indicator, i.provider, i.firsttime, i.lasttime))
             else:
-                self.logger.debug('adding: {}/{}'.format(i.indicator, i.provider))
+                self.logger.debug('adding: {}/{}/{}/{}'.format(i.indicator, i.provider, i.firsttime, i.lasttime))
                 if self.client != 'stdout':
                     if self.fireball:
                         queue.append(i)
