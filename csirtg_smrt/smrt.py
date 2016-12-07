@@ -163,7 +163,7 @@ class Smrt(object):
             if _limit:
                 _limit -= 1
 
-            if _limit == limit:
+            if _limit == 0:
                 self.logger.debug("limit reached...")
                 break
 
