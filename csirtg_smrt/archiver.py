@@ -6,7 +6,7 @@ except ImportError:
 import logging
 import os
 import arrow
-from sqlalchemy import Column, Integer, create_engine, DateTime, UnicodeText, Text
+from sqlalchemy import Column, Integer, create_engine, DateTime, UnicodeText, Text, desc, asc
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session, load_only
 from csirtg_smrt.constants import PYVERSION, RUNTIME_PATH
@@ -103,11 +103,15 @@ class Archiver(object):
 
         self.memcached_provider = provider
         logger.info("Caching archived indicators for provider {}".format(provider))
-        q = self.handle().query(Indicator).filter_by(provider=provider)
+        q = self.handle().query(Indicator) \
+            .filter_by(provider=provider) \
+            .order_by(asc(Indicator.lasttime), asc(Indicator.firsttime), asc(Indicator.created_at))
+
         q = q.options(load_only("indicator", "group", "tags", "firsttime", "lasttime"))
         q = q.yield_per(1000)
         for i in q:
             self.memcache[i.indicator] = (i.group, i.tags, i.firsttime, i.lasttime)
+
         logger.info("Cached provider {} in memory, {} objects".format(provider, len(self.memcache)))
 
     def search(self, indicator):
@@ -126,14 +130,30 @@ class Archiver(object):
         
         new_compare = [indicator.group, tags]
         if indicator.firsttime:
-            existing_compare.append(existing[2])
+            existing_compare.append(existing[2].replace(tzinfo=None))
             new_compare.append(indicator.firsttime.replace(tzinfo=None))
+        else:
+            new_compare.append('')
+            existing_compare.append('')
 
         if indicator.lasttime:
-            existing_compare.append(existing[3])
+            existing_compare.append(existing[3].replace(tzinfo=None))
             new_compare.append(indicator.lasttime.replace(tzinfo=None))
+        else:
+            new_compare.append('')
+            existing_compare.append('')
 
-        return existing_compare == new_compare
+        # test if latest is latest
+        if existing_compare == new_compare:
+            return True
+
+        # if lasttime and we have something newer
+        if new_compare[3] <= existing_compare[3]:
+            return True
+
+        # check firsttime is newer
+        if new_compare[2] <= existing_compare[2]:
+            return True
 
     def create(self, indicator):
         tags = indicator.tags
@@ -147,8 +167,21 @@ class Archiver(object):
         s = self.begin()
         s.add(i)
         s.commit()
-        if self.memcache:
-            self.memcache[indicator] = (indicator.group, tags, indicator.firsttime, indicator.lasttime)
+
+        firsttime = None
+        if indicator.firsttime:
+            firsttime = indicator.firsttime.replace(tzinfo=None)
+
+        lasttime = None
+        if indicator.lasttime:
+            lasttime = indicator.lasttime.replace(tzinfo=None)
+
+        self.memcache[indicator.indicator] = (
+            indicator.group,
+            tags,
+            firsttime,
+            lasttime
+        )
 
         return i.id
 
