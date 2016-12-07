@@ -164,13 +164,13 @@ class Smrt(object):
             feed_indicators = itertools.islice(feed_indicators, int(limit))
 
         feed_indicators = (self.clean_indicator(i) for i in feed_indicators)
-        feed_indicators = (i for i in feed_indicators if not self.is_archived_with_log(i))
         feed_indicators_batches = chunk(feed_indicators, FIREBALL_SIZE)
 
         for indicator_batch in feed_indicators_batches:
             self.archiver and self.archiver.begin()
             self.send_indicators(indicator_batch)
             for i in indicator_batch:
+                if self.is_archived_with_log(i): continue
                 yield i
                 self.archive(i)
             self.archiver and self.archiver.commit()
