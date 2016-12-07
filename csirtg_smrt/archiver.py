@@ -125,19 +125,19 @@ class Archiver(object):
         if indicator.indicator not in self.memcache:
             return False
 
-        existing = self.memcache[indicator.indicator]
-        existing_compare = [existing[0], existing[1]]  # group and tags
+        (ex_group, ex_tags, ex_ft, ex_lt) = self.memcache[indicator.indicator]
+        existing_compare = [ex_group, ex_tags]
         
         new_compare = [indicator.group, tags]
         if indicator.firsttime:
-            existing_compare.append(existing[2].replace(tzinfo=None))
+            existing_compare.append(ex_ft and ex_ft.replace(tzinfo=None))
             new_compare.append(indicator.firsttime.replace(tzinfo=None))
         else:
             new_compare.append('')
             existing_compare.append('')
 
         if indicator.lasttime:
-            existing_compare.append(existing[3].replace(tzinfo=None))
+            existing_compare.append(ex_lt and ex_lt.replace(tzinfo=None))
             new_compare.append(indicator.lasttime.replace(tzinfo=None))
         else:
             new_compare.append('')
