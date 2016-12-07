@@ -214,7 +214,7 @@ def main():
     p.add_argument("--token", help="specify token [default: %(default)s]", default=TOKEN)
 
     p.add_argument('--service', action='store_true', help="start in service mode")
-    p.add_argument('--service-interval', help='set run interval [in minutes, default %(default)]', default=SERVICE_INTERVAL)
+    p.add_argument('--service-interval', help='set run interval [in minutes, default %(default)s]', default=SERVICE_INTERVAL)
     p.add_argument('--ignore-unknown', action='store_true')
 
     p.add_argument('--config', help='specify csirtg-smrt config path [default %(default)s', default=CONFIG_PATH)
