@@ -96,6 +96,7 @@ def test_smrt_archiver_neither():
             assert len(x) > 0
 
             f = {i.indicator: i.__dict__() for i in x}
+            
             assert f['216.243.31.2'].get('lasttime') is None
 
     with Smrt(REMOTE_ADDR, 1234, client='stdout', archiver=archiver) as s:
