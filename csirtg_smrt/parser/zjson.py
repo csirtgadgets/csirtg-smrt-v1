@@ -16,11 +16,10 @@ class Json(Parser):
         values = self.rule.feeds[self.feed]['values']
 
         for l in self.fetcher.process():
-            i = copy.deepcopy(defaults)
 
             l = json.loads(l)
             for e in l:
-                i = {}
+                i = copy.deepcopy(defaults)
 
                 for x, c in enumerate(map):
                     i[values[x]] = e[c]
