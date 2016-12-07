@@ -136,13 +136,13 @@ class Smrt(object):
             i.group = 'everyone'
         return i
 
-    def filter_archived_indicators(self, indicators):
-        for i in indicators:
-            if self.is_archived(i):
-                self.logger.debug('skipping: {}/{}/{}/{}'.format(i.indicator, i.provider, i.firsttime, i.lasttime))
-            else:
-                self.logger.debug('adding: {}/{}/{}/{}'.format(i.indicator, i.provider, i.firsttime, i.lasttime))
-                yield i
+    def is_archived_with_log(self, i):
+        if self.is_archived(i):
+            self.logger.debug('skipping: {}/{}/{}/{}'.format(i.indicator, i.provider, i.firsttime, i.lasttime))
+            return True
+        else:
+            self.logger.debug('adding: {}/{}/{}/{}'.format(i.indicator, i.provider, i.firsttime, i.lasttime))
+            return False
 
     def send_indicators(self, indicators):
         if self.client == 'stdout':
@@ -163,10 +163,8 @@ class Smrt(object):
         if limit:
             feed_indicators = itertools.islice(feed_indicators, int(limit))
 
-        feed_indicators = itertools.imap(self.clean_indicator, feed_indicators)
-
-        feed_indicators = self.filter_archived_indicators(feed_indicators)
-
+        feed_indicators = (self.clean_indicator(i) for i in feed_indicators)
+        feed_indicators = (i for i in feed_indicators if not self.is_archived_with_log(i))
         feed_indicators_batches = chunk(feed_indicators, FIREBALL_SIZE)
 
         for indicator_batch in feed_indicators_batches:
