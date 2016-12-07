@@ -159,8 +159,6 @@ class Smrt(object):
     def process(self, rule, feed, limit=None, data=None, filters=None):
         parser = self.load_parser(rule, feed, limit=limit, data=data, filters=filters)
 
-        queue = []
-
         feed_indicators = parser.process()
         if limit:
             feed_indicators = itertools.islice(feed_indicators, int(limit))
