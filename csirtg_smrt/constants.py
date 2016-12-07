@@ -38,4 +38,3 @@ FIREBALL_SIZE = os.environ.get('CSIRTG_SMRT_FIREBALL_SIZE', 500)
 
 ROUTER_ADDR = "ipc://{}".format(os.path.join(RUNTIME_PATH, 'router.ipc'))
 ROUTER_ADDR = os.environ.get('CIF_ROUTER_ADDR', ROUTER_ADDR)
-

@@ -30,6 +30,7 @@ TOKEN = os.environ.get('CSIRTG_SMRT_TOKEN', TOKEN)
 ARCHIVE_PATH = os.environ.get('CSIRTG_SMRT_ARCHIVE_PATH', RUNTIME_PATH)
 ARCHIVE_PATH = os.path.join(ARCHIVE_PATH, 'smrt.db')
 FORMAT = os.environ.get('CSIRTG_SMRT_FORMAT', 'table')
+SERVICE_INTERVAL = os.environ.get('CSIRTG_SMRT_SERVICE_INTERVAL', 60)
 
 
 # http://python-3-patterns-idioms-test.readthedocs.org/en/latest/Factory.html
@@ -207,7 +208,7 @@ def main():
     p.add_argument("--token", help="specify token [default: %(default)s]", default=TOKEN)
 
     p.add_argument('--service', action='store_true', help="start in service mode")
-    p.add_argument('--sleep', default=60)
+    p.add_argument('--service-interval', help='set run interval [in minutes, default %(default)]', default=SERVICE_INTERVAL)
     p.add_argument('--ignore-unknown', action='store_true')
 
     p.add_argument('--config', help='specify csirtg-smrt config path [default %(default)s', default=CONFIG_PATH)
@@ -251,6 +252,7 @@ def main():
 
     stop = False
     service = args.service
+    service_interval = int(args.service_interval)
 
     verify_ssl = True
     if options.get('no_verify_ssl') or o.get('no_verify_ssl'):
@@ -258,7 +260,7 @@ def main():
 
     if service:
         r = int(args.delay)
-        logger.info("random delay is {}, then running every 60min after that".format(r))
+        logger.info("random delay is {}, then running every {} min after that".format(r, service_interval))
         try:
             sleep((r * 60))
         except KeyboardInterrupt:
@@ -270,7 +272,8 @@ def main():
             stop = True
 
         data = False
-        if select.select([sys.stdin, ], [], [], 0.0)[0]:
+        if not service and select.select([sys.stdin, ], [], [], 0.0)[0]:
+            logger.debug("reading stdin...")
             data = sys.stdin.read()
 
         logger.info('starting...')
@@ -293,12 +296,6 @@ def main():
 
                 if args.client == 'stdout':
                     print(FORMATS[options.get('format')](data=indicators))
-
-                logger.info('complete')
-
-                if args.service:
-                    logger.info('sleeping for 1 hour')
-                    sleep((60 * 60))
 
         except AuthError as e:
             logger.error(e)
@@ -325,6 +322,10 @@ def main():
             logger.info('cleaning up archive: %i' % rv)
 
         logger.info('completed')
+        if args.service:
+            logger.info('sleeping for {} minutes'.format(service_interval))
+            sleep((60 * service_interval))
+
 
 if __name__ == "__main__":
     main()
