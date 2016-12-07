@@ -91,7 +91,6 @@ class Archiver(object):
     def commit(self):
         self._session.commit()
         self.session = None
-        self.clear_memcache()
 
     def clear_memcache(self):
         self.memcache = {}
@@ -102,6 +101,7 @@ class Archiver(object):
             return
 
         self.memcached_provider = provider
+        self.memcache = {}
         logger.info("Caching archived indicators for provider {}".format(provider))
         q = self.handle().query(Indicator) \
             .filter_by(provider=provider) \

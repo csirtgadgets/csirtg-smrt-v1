@@ -5,6 +5,7 @@ import os.path
 import textwrap
 from argparse import ArgumentParser
 from argparse import RawDescriptionHelpFormatter
+import itertools
 from random import randint
 from time import sleep
 from pprint import pprint
@@ -19,7 +20,7 @@ from csirtg_smrt.constants import REMOTE_ADDR, SMRT_RULES_PATH, SMRT_CACHE, CONF
 from csirtg_smrt.rule import Rule
 from csirtg_smrt.fetcher import Fetcher
 from csirtg_smrt.utils import setup_logging, get_argument_parser, load_plugin, setup_signals, read_config, \
-    setup_runtime_path
+    setup_runtime_path, chunk
 from csirtg_smrt.exceptions import AuthError, TimeoutError
 from csirtg_indicator.format import FORMATS
 from csirtg_indicator import Indicator
@@ -124,54 +125,63 @@ class Smrt(object):
         return parser(self.client, fetch, rule, feed, limit=limit, archiver=self.archiver, filters=filters,
                       fireball=self.fireball)
 
-    def process(self, rule, feed, limit=None, data=None, filters=None):
-        parser = self.load_parser(rule, feed, limit=limit, data=data, filters=filters)
+    def clean_indicator(self, i):
+        if isinstance(i, dict):
+            i = Indicator(**i)
 
-        self.archiver and self.archiver.begin()
-        queue = []
+        if not i.firsttime:
+            i.firsttime = i.lasttime
 
-        _limit = 0
-        if limit:
-            _limit = int(limit)
+        if not i.group:
+            i.group = 'everyone'
+        return i
 
-        for i in parser.process():
-            if isinstance(i, dict):
-                i = Indicator(**i)
-
-            if not i.firsttime:
-                i.firsttime = i.lasttime
-
-            if not i.group:
-                i.group = 'everyone'
-
+    def filter_archived_indicators(self, indicators):
+        for i in indicators:
             if self.is_archived(i):
                 self.logger.debug('skipping: {}/{}/{}/{}'.format(i.indicator, i.provider, i.firsttime, i.lasttime))
             else:
                 self.logger.debug('adding: {}/{}/{}/{}'.format(i.indicator, i.provider, i.firsttime, i.lasttime))
-                if self.client != 'stdout':
-                    if self.fireball:
-                        queue.append(i)
-                        if len(queue) == FIREBALL_SIZE:
-                            self.logger.debug('flushing queue...')
-                            self.client.indicators_create(queue)
-                            queue = []
-                    else:
-                        self.client.indicators_create(i)
+                yield i
+
+    def send_indicators(self, indicators):
+        if self.client == 'stdout':
+            return
+
+        if self.fireball:
+            self.logger.debug('flushing queue...')
+            self.client.indicators_create(indicators)
+        else:
+            for i in indicators:
+                self.client.indicators_create(i)
+
+    
+    def process(self, rule, feed, limit=None, data=None, filters=None):
+        parser = self.load_parser(rule, feed, limit=limit, data=data, filters=filters)
+
+        queue = []
+
+        feed_indicators = parser.process()
+        if limit:
+            feed_indicators = itertools.islice(feed_indicators, int(limit))
+
+        feed_indicators = itertools.imap(self.clean_indicator, feed_indicators)
+
+        feed_indicators = self.filter_archived_indicators(feed_indicators)
+
+        feed_indicators_batches = chunk(feed_indicators, FIREBALL_SIZE)
+
+        for indicator_batch in feed_indicators_batches:
+            self.archiver and self.archiver.begin()
+            self.send_indicators(indicator_batch)
+            for i in indicator_batch:
                 yield i
                 self.archive(i)
+            self.archiver and self.archiver.commit()
 
-            if _limit:
-                _limit -= 1
+        if limit:
+            self.logger.debug("limit reached...")
 
-            if _limit == limit:
-                self.logger.debug("limit reached...")
-                break
-
-        if self.fireball and len(queue) > 0:
-            self.logger.debug('flushing queue...')
-            self.client.indicators_create(queue)
-
-        self.archiver and self.archiver.commit()
 
 
 def main():
@@ -320,6 +330,7 @@ def main():
         if archiver:
             rv = archiver.cleanup()
             logger.info('cleaning up archive: %i' % rv)
+            archiver.clear_memcache()
 
         logger.info('completed')
         if args.service:
