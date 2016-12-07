@@ -71,3 +71,29 @@ def setup_signals(name):
 def setup_runtime_path(path):
     if not os.path.isdir(path):
         os.mkdir(path)
+
+def chunk(it, slice=50):
+    """Generate sublists from an iterator
+    >>> list(chunk(iter(range(10)),11))
+    [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]]
+    >>> list(chunk(iter(range(10)),9))
+    [[0, 1, 2, 3, 4, 5, 6, 7, 8], [9]]
+    >>> list(chunk(iter(range(10)),5))
+    [[0, 1, 2, 3, 4], [5, 6, 7, 8, 9]]
+    >>> list(chunk(iter(range(10)),3))
+    [[0, 1, 2], [3, 4, 5], [6, 7, 8], [9]]
+    >>> list(chunk(iter(range(10)),1))
+    [[0], [1], [2], [3], [4], [5], [6], [7], [8], [9]]
+    """
+
+    assert(slice > 0)
+    a=[]
+
+    for x in it:
+        if len(a) >= slice :
+            yield a
+            a=[]
+        a.append(x)
+
+    if a:
+        yield a

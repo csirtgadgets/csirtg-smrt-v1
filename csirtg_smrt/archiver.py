@@ -91,7 +91,6 @@ class Archiver(object):
     def commit(self):
         self._session.commit()
         self.session = None
-        self.clear_memcache()
 
     def clear_memcache(self):
         self.memcache = {}
@@ -102,6 +101,7 @@ class Archiver(object):
             return
 
         self.memcached_provider = provider
+        self.memcache = {}
         logger.info("Caching archived indicators for provider {}".format(provider))
         q = self.handle().query(Indicator) \
             .filter_by(provider=provider) \
@@ -122,38 +122,34 @@ class Archiver(object):
 
         self.cache_provider(indicator.provider)
 
+        # Is there any cached record?
         if indicator.indicator not in self.memcache:
             return False
 
-        existing = self.memcache[indicator.indicator]
-        existing_compare = [existing[0], existing[1]]  # group and tags
+        (ex_group, ex_tags, ex_ft, ex_lt) = self.memcache[indicator.indicator]
         
-        new_compare = [indicator.group, tags]
-        if indicator.firsttime:
-            existing_compare.append(existing[2].replace(tzinfo=None))
-            new_compare.append(indicator.firsttime.replace(tzinfo=None))
-        else:
-            new_compare.append('')
-            existing_compare.append('')
+        # Is the indicator or tags different?
+        if (ex_group, ex_tags) != (indicator.group, tags):
+            return False
 
-        if indicator.lasttime:
-            existing_compare.append(existing[3].replace(tzinfo=None))
-            new_compare.append(indicator.lasttime.replace(tzinfo=None))
-        else:
-            new_compare.append('')
-            existing_compare.append('')
+        timestamp_comparisons = (
+            (ex_ft, indicator.firsttime),
+            (ex_lt, indicator.lasttime),
+        )
 
-        # test if latest is latest
-        if existing_compare == new_compare:
-            return True
+        for existing_ts, indicator_ts in timestamp_comparisons:
+            # If the new indicator does not have this ts, ignore it
+            if indicator_ts is None:
+                continue
+            # Cache has no old ts, but there is a new one, so we are out of date
+            if existing_ts is None:
+                return False
+            # otherwise, compare timestamps to see if we are out of date
+            if indicator_ts.replace(tzinfo=None) > existing_ts.replace(tzinfo=None):
+                return False
 
-        # if lasttime and we have something newer
-        if new_compare[3] <= existing_compare[3]:
-            return True
-
-        # check firsttime is newer
-        if new_compare[2] <= existing_compare[2]:
-            return True
+        # If we made it here, the cached indicator is >= to the one in the feed.
+        return True
 
     def create(self, indicator):
         tags = indicator.tags
