@@ -1,6 +1,7 @@
 import yaml
 import json
 import logging
+from csirtg_smrt.exceptions import RuleUnsupported
 
 
 class Rule(dict):
@@ -8,20 +9,22 @@ class Rule(dict):
     def __init__(self, path=None, rule=None, **kwargs):
         self.logger = logging.getLogger(__name__)
         if path:
-            with open(path) as f:
-                try:
-                    ## TODO - http://pyyaml.org/wiki/PyYAMLDocumentation#LoadingYAML
-                    d = yaml.load(f)
-                except Exception as e:
-                    self.logger.error('unable to parse {0}'.format(path))
-                    raise RuntimeError(e)
+            if path.endswith('.yml'):
+                with open(path) as f:
+                    try:
+                        d = yaml.load(f)
+                    except Exception as e:
+                        self.logger.error('unable to parse {0}'.format(path))
+                        raise RuntimeError(e)
 
-            self.defaults = d.get('defaults')
-            self.feeds = d.get('feeds')
-            self.parser = d.get('parser')
-            self.fetcher = d.get('fetcher')
-            self.skip = d.get('skip')
-            self.remote = d.get('remote')
+                self.defaults = d.get('defaults')
+                self.feeds = d.get('feeds')
+                self.parser = d.get('parser')
+                self.fetcher = d.get('fetcher')
+                self.skip = d.get('skip')
+                self.remote = d.get('remote')
+            else:
+                raise RuleUnsupported('unsupported file type: {}'.format(path))
         else:
             self.defaults = rule.get('defaults')
             self.feeds = rule.get('feeds')
