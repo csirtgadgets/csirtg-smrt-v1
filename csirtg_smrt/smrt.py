@@ -12,6 +12,7 @@ from pprint import pprint
 import traceback
 import sys
 import select
+import arrow
 
 import csirtg_smrt.parser
 from csirtg_smrt.archiver import Archiver
@@ -32,6 +33,7 @@ ARCHIVE_PATH = os.environ.get('CSIRTG_SMRT_ARCHIVE_PATH', RUNTIME_PATH)
 ARCHIVE_PATH = os.path.join(ARCHIVE_PATH, 'smrt.db')
 FORMAT = os.environ.get('CSIRTG_SMRT_FORMAT', 'table')
 SERVICE_INTERVAL = os.environ.get('CSIRTG_SMRT_SERVICE_INTERVAL', 60)
+GOBACK_DAYS = os.environ.get('CSIRTG_SMRT_GOBACK_DAYS', False)
 
 
 # http://python-3-patterns-idioms-test.readthedocs.org/en/latest/Factory.html
@@ -47,7 +49,7 @@ class Smrt(object):
         return self
 
     def __init__(self, token=TOKEN, remote=REMOTE_ADDR, client='stdout', username=None, feed=None, archiver=None,
-                 fireball=False, no_fetch=False, verify_ssl=True):
+                 fireball=False, no_fetch=False, verify_ssl=True, goback=False):
 
         self.logger = logging.getLogger(__name__)
 
@@ -66,6 +68,7 @@ class Smrt(object):
         self.archiver = archiver
         self.fireball = fireball
         self.no_fetch = no_fetch
+        self.goback = goback
 
     def is_archived(self, indicator):
         if self.archiver and self.archiver.search(indicator):
@@ -144,6 +147,13 @@ class Smrt(object):
             self.logger.debug('adding: {}/{}/{}/{}'.format(i.indicator, i.provider, i.firsttime, i.lasttime))
             return False
 
+    def is_old(self, i):
+        if i.lasttime is None:
+            return
+
+        if i.lasttime < self.goback:
+            return True
+
     def send_indicators(self, indicators):
         if self.client == 'stdout':
             return
@@ -163,6 +173,13 @@ class Smrt(object):
             feed_indicators = itertools.islice(feed_indicators, int(limit))
 
         feed_indicators = (self.clean_indicator(i) for i in feed_indicators)
+
+        # check to see if the indicator is too old
+        if self.goback:
+            feed_indicators = (i for i in feed_indicators if not self.is_old(i))
+        
+        feed_indicators = (i for i in feed_indicators if not self.is_archived_with_log(i))
+
         feed_indicators_batches = chunk(feed_indicators, FIREBALL_SIZE)
 
         for indicator_batch in feed_indicators_batches:
@@ -238,6 +255,9 @@ def main():
 
     p.add_argument('--no-verify-ssl', help='turn TLS/SSL verification OFF', action='store_true')
 
+    p.add_argument('--goback', help='specify default number of days to start out at [default %(default)s]',
+                   default=GOBACK_DAYS)
+
     args = p.parse_args()
 
     o = read_config(args)
@@ -266,6 +286,10 @@ def main():
     if options.get('no_verify_ssl') or o.get('no_verify_ssl'):
         verify_ssl = False
 
+    goback = args.goback
+    if goback:
+        goback = arrow.utcnow().replace(days=-int(goback))
+
     if service:
         r = int(args.delay)
         logger.info("random delay is {}, then running every {} min after that".format(r, service_interval))
@@ -289,7 +313,7 @@ def main():
         try:
             with Smrt(options.get('token'), options.get('remote'), client=args.client, username=args.user,
                       feed=args.feed, archiver=archiver, fireball=args.fireball, no_fetch=args.no_fetch,
-                      verify_ssl=verify_ssl) as s:
+                      verify_ssl=verify_ssl, goback=goback) as s:
 
                 s.client.ping(write=True)
                 filters = {}
