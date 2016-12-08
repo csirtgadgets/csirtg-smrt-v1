@@ -8,6 +8,7 @@ from csirtg_smrt.constants import VERSION, SMRT_CACHE, PYVERSION
 import magic
 import re
 import sys
+from time import sleep
 
 RE_SUPPORTED_DECODE = re.compile("zip|lzf|lzma|xz|lzop")
 RE_CACHE_TYPES = re.compile('([\w.-]+\.(csv|zip|txt|gz))$')
@@ -83,29 +84,43 @@ class Fetcher(object):
                     yield d
         else:
             if self.fetcher == 'http':
-                try:
-                    cmd = ['wget', '--header', self.ua, '--timeout={}'.format(self.fetcher_timeout), '-q', self.remote,
+                cmd = ['wget', '--header', self.ua, '--timeout={}'.format(self.fetcher_timeout), '-q', self.remote,
+                       '-N']
+                if self.logger.getEffectiveLevel() == logging.DEBUG:
+                    cmd = ['wget', '--header', self.ua, '--timeout={}'.format(self.fetcher_timeout), self.remote,
                            '-N']
-                    if self.logger.getEffectiveLevel() == logging.DEBUG:
-                        cmd = ['wget', '--header', self.ua, '--timeout={}'.format(self.fetcher_timeout), self.remote,
-                               '-N']
 
-                    if self.cache_file:
-                        cmd.append('-P')
-                        cmd.append(self.dir)
-                    else:
-                        cmd.append('-O')
-                        cmd.append(self.cache)
+                if self.cache_file:
+                    cmd.append('-P')
+                    cmd.append(self.dir)
+                else:
+                    cmd.append('-O')
+                    cmd.append(self.cache)
 
-                    self.logger.debug(cmd)
-                    if self.no_fetch and os.path.isfile(self.cache):
-                        self.logger.info('skipping fetch: {}'.format(self.cache))
-                    else:
-                        subprocess.check_call(cmd)
-                except subprocess.CalledProcessError as e:
-                    self.logger.error('failure pulling feed: {} to {}'.format(self.remote, self.dir))
-                    self.logger.error(e)
-                    raise e
+                self.logger.debug(cmd)
+                if self.no_fetch and os.path.isfile(self.cache):
+                    self.logger.info('skipping fetch: {}'.format(self.cache))
+                else:
+                    failed = 0
+                    while failed < 5:
+                        if failed > 0:
+                            self.logger.info('retrying in 5s')
+                            sleep(5)
+
+                        try:
+                            subprocess.check_call(cmd)
+                            failed = 0
+                            break
+                        except subprocess.CalledProcessError as e:
+                            failed += 1
+                            self.logger.error('failure pulling feed: {} to {}'.format(self.remote, self.dir))
+                            if self.logger.getEffectiveLevel() == logging.DEBUG:
+                                raise e
+                            else:
+                                self.logger.error(e)
+
+                    if failed:
+                        return
             else:
                 if self.fetcher == 'file':
                     self.cache = self.remote
