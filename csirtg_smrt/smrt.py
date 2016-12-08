@@ -154,7 +154,6 @@ class Smrt(object):
         else:
             for i in indicators:
                 self.client.indicators_create(i)
-
     
     def process(self, rule, feed, limit=None, data=None, filters=None):
         parser = self.load_parser(rule, feed, limit=limit, data=data, filters=filters)
@@ -169,15 +168,18 @@ class Smrt(object):
         for indicator_batch in feed_indicators_batches:
             self.archiver and self.archiver.begin()
             self.send_indicators(indicator_batch)
+
             for i in indicator_batch:
-                if self.is_archived_with_log(i): continue
+                if self.is_archived_with_log(i):
+                    continue
+
                 yield i
                 self.archive(i)
+
             self.archiver and self.archiver.commit()
 
         if limit:
             self.logger.debug("limit reached...")
-
 
 
 def main():
