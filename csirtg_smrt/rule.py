@@ -22,6 +22,7 @@ class Rule(dict):
                 self.parser = d.get('parser')
                 self.fetcher = d.get('fetcher')
                 self.skip = d.get('skip')
+                self.skip_first = d.get('skip_first')
                 self.remote = d.get('remote')
             else:
                 raise RuleUnsupported('unsupported file type: {}'.format(path))
@@ -31,6 +32,7 @@ class Rule(dict):
             self.parser = rule.get('parser')
             self.fetcher = rule.get('fetcher')
             self.skip = rule.get('skip')
+            self.skip_first = rule.get('skip_first')
             self.remote = rule.get('remote')
 
     def __repr__(self):
