@@ -19,6 +19,7 @@ class Parser(object):
         self.skip = None
         self.archiver = archiver
         self.filters = filters
+        self.skip_first = False
 
         if fireball:
             self.fireball = int(FIREBALL_SIZE)
@@ -35,11 +36,22 @@ class Parser(object):
         elif self.rule.get('skip'):
             self.skip = re.compile(self.rule['skip'])
 
+        if self.rule.feeds[self.feed].get('skip_first'):
+            self.skip_first = True
+        elif self.rule.get('skip_first'):
+            self.skip_first = True
+
+        self.line_count = 0
+
     def ignore(self, line):
         if line == '':
             return True
 
         if self.is_comment(line):
+            return True
+
+        self.line_count += 1
+        if self.line_count == 1 and self.skip_first:
             return True
 
         if self.skip:
