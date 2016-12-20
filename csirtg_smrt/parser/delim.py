@@ -12,10 +12,10 @@ class Delim(Parser):
 
     def process(self):
         defaults = self._defaults()
-        cols = defaults['values']
+        cols = defaults.get('values', [])
 
         for l in self.fetcher.process():
-            if l == '' or self.is_comment(l):
+            if self.ignore(l):  # comment or skip
                 continue
 
             l = l.replace('\"', '')
