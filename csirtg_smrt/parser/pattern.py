@@ -25,7 +25,7 @@ class Pattern(Parser):
         if self.rule.feeds[self.feed].get('values'):
             self.cols = self.rule.feeds[self.feed].get('values')
         else:
-            self.cols = self.rule.defaults['values']
+            self.cols = self.rule.defaults.get('values', [])
 
         self.defaults = self._defaults()
 
