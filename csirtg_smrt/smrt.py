@@ -17,6 +17,7 @@ import arrow
 import csirtg_smrt.parser
 from csirtg_smrt.archiver import Archiver
 import csirtg_smrt.client
+from csirtg_indicator.constants import COLUMNS
 from csirtg_smrt.constants import REMOTE_ADDR, SMRT_RULES_PATH, SMRT_CACHE, CONFIG_PATH, RUNTIME_PATH, VERSION, FIREBALL_SIZE
 from csirtg_smrt.rule import Rule
 from csirtg_smrt.fetcher import Fetcher
@@ -34,6 +35,7 @@ ARCHIVE_PATH = os.path.join(ARCHIVE_PATH, 'smrt.db')
 FORMAT = os.environ.get('CSIRTG_SMRT_FORMAT', 'table')
 SERVICE_INTERVAL = os.environ.get('CSIRTG_SMRT_SERVICE_INTERVAL', 60)
 GOBACK_DAYS = os.environ.get('CSIRTG_SMRT_GOBACK_DAYS', False)
+STDOUT_FIELDS = COLUMNS
 
 
 # http://python-3-patterns-idioms-test.readthedocs.org/en/latest/Factory.html
@@ -258,6 +260,8 @@ def main():
     p.add_argument('--goback', help='specify default number of days to start out at [default %(default)s]',
                    default=GOBACK_DAYS)
 
+    p.add_argument('--fields', help='specify fields for stdout [default %(default)s]"', default=','.join(STDOUT_FIELDS))
+
     args = p.parse_args()
 
     o = read_config(args)
@@ -327,7 +331,7 @@ def main():
                             indicators.append(i)
 
                 if args.client == 'stdout':
-                    print(FORMATS[options.get('format')](data=indicators))
+                    print(FORMATS[options.get('format')](data=indicators, cols=args.fields.split(',')))
 
         except AuthError as e:
             logger.error(e)
