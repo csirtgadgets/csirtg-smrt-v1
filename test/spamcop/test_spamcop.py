@@ -25,7 +25,4 @@ def test_spamcop():
 
         assert x[0].indicator == '204.93.2.6'
 
-        if PYVERSION == 2:
-            assert x[0].message.startswith('From: xxx@reports.spamcop.net\nT')
-        else:
-            assert x[0].message.startswith('From: xxx@reports.spamcop.net\nT')
+        assert x[0].message.startswith('RnJvbTogeHh4QHJlcG9ydHMuc3BhbWNvcC5uZXQKVG86')

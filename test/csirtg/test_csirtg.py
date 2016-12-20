@@ -3,8 +3,6 @@ import py.test
 from csirtg_smrt import Smrt
 from csirtg_smrt.rule import Rule
 from csirtg_smrt.constants import REMOTE_ADDR
-from pprint import pprint
-import re
 
 rule = 'test/csirtg/csirtg.yml'
 rule = Rule(path=rule)
