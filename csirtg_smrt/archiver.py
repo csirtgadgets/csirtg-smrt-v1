@@ -157,7 +157,12 @@ class Archiver(object):
             indicator.tags.sort()
             tags = ','.join(indicator.tags)
 
-        i = Indicator(indicator=indicator.indicator, provider=indicator.provider, group=indicator.group,
+        i = indicator.indicator
+        if PYVERSION == 2:
+            if isinstance(i, str):
+                i = unicode(i)
+
+        i = Indicator(indicator=i, provider=indicator.provider, group=indicator.group,
                       lasttime=indicator.lasttime, tags=tags, firsttime=indicator.firsttime)
 
         s = self.begin()
