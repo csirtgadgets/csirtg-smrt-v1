@@ -139,6 +139,7 @@ class Smrt(object):
 
         if not i.group:
             i.group = 'everyone'
+
         return i
 
     def is_archived_with_log(self, i):
@@ -192,7 +193,7 @@ class Smrt(object):
                 if self.is_archived_with_log(i):
                     continue
 
-                yield i
+                yield i.format_keys()
                 self.archive(i)
 
             self.archiver and self.archiver.commit()
