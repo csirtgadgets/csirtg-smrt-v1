@@ -3,6 +3,7 @@ import time
 import arrow  # pip install arrow
 import logging
 import re
+import os
 
 from tzlocal import get_localzone  # pip install tzlocal
 from csirtg_indicator import Indicator
@@ -26,6 +27,8 @@ filename = '/var/log/ufw.log'
 # logging configuration
 LOG_FORMAT = '%(asctime)s - %(levelname)s - %(name)s[%(lineno)s] - %(message)s'
 logger = logging.getLogger('')
+
+PROVIDER = os.environ.get('CSIRTG_SMRT_PROVIDER')
 
 
 def _split_equal(item):
@@ -285,8 +288,12 @@ def main():
     p.add_argument('--user')
     p.add_argument('--feed')
     p.add_argument('--format', default='csv')
+    p.add_argument('--provider', help='specify provider [default %(default)s]', default=PROVIDER)
 
     args = p.parse_args()
+
+    if not args.provider:
+        raise RuntimeError('Missing --provider flag')
 
     # setup logging
     setup_logging(args)
