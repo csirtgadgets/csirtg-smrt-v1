@@ -30,10 +30,15 @@ class Parser(object):
 
         self.comments = re.compile(RE_COMMENTS)
 
-        if self.rule.skip:
-            self.skip = re.compile(self.rule.skip)
+        if self.rule.feeds[self.feed].get('skip'):
+            self.skip = re.compile(self.rule.feeds[self.feed]['skip'])
+        elif self.rule.get('skip'):
+            self.skip = re.compile(self.rule['skip'])
 
     def ignore(self, line):
+        if line == '':
+            return True
+
         if self.is_comment(line):
             return True
 

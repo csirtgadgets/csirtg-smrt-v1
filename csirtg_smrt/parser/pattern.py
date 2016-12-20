@@ -60,6 +60,19 @@ class Pattern(Parser):
 
             self.logger.debug(i)
 
+            self.eval_obs(i)
+            skip = True
+            if self.filters and self.filters.keys():
+                for f in self.filters:
+                    if i.get(f) and i[f] == self.filters[f]:
+                        skip = False
+            else:
+                skip = False
+
+            if skip:
+                self.logger.debug('skipping %s' % i['indicator'])
+                continue
+
             try:
                 i = normalize_itype(i)
                 yield Indicator(**i)
