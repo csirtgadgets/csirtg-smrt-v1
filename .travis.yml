@@ -12,8 +12,10 @@ python:
 
 install:
   - pip install -r dev_requirements.txt
+  - pip install stix
 
 script:
+  - export CSIRTG_SMRT_STIX_TEST=1
   - python setup.py test
   - python setup.py sdist bdist bdist_wheel
   - make bin
