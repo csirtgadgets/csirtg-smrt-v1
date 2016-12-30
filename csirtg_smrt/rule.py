@@ -24,6 +24,7 @@ class Rule(dict):
                 self.skip = d.get('skip')
                 self.skip_first = d.get('skip_first')
                 self.remote = d.get('remote')
+                self.replace = d.get('replace')
             else:
                 raise RuleUnsupported('unsupported file type: {}'.format(path))
         else:
@@ -34,6 +35,7 @@ class Rule(dict):
             self.skip = rule.get('skip')
             self.skip_first = rule.get('skip_first')
             self.remote = rule.get('remote')
+            self.replace = rule.get('replace')
 
     def __repr__(self):
         return json.dumps({
@@ -42,5 +44,7 @@ class Rule(dict):
             "parser": self.parser,
             "fetcher": self.fetcher,
             'skip': self.skip,
-            'remote': self.remote
+            "skip_first": self.skip_first,
+            'remote': self.remote,
+            'replace': self.replace
         }, sort_keys=True, indent=4, separators=(',', ': '))

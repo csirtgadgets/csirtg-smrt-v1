@@ -57,11 +57,6 @@ class Rss(Parser):
                 self.logger.error('missing indicator: {}'.format(e[k]))
                 continue
 
-            try:
-                i = normalize_itype(i)
-                yield Indicator(**i)
-            except InvalidIndicator as e:
-                self.logger.error(e)
-                self.logger.info('skipping: {}'.format(i['indicator']))
+            yield i
 
 Plugin = Rss

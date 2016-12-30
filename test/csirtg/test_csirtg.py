@@ -30,7 +30,7 @@ def test_csirtg_portscanners():
 
 def test_csirtg_skips():
     rule.feeds['port-scanners']['remote'] = 'test/csirtg/feed.txt'
-    rule['skip'] = '216.121.233.27'
+    rule.skip = '216.121.233.27'
 
     x = s.process(rule, feed="port-scanners")
     x = list(x)
@@ -45,7 +45,7 @@ def test_csirtg_skips():
 
     ips = set()
 
-    del rule['skip']
+    rule.skip = None
     rule.feeds['port-scanners']['skip'] = '216.121.233.27'
 
     x = s.process(rule, feed="port-scanners")
@@ -62,6 +62,7 @@ def test_csirtg_skips():
 
 def test_csirtg_skips_quotes():
     rule.feeds['port-scanners']['remote'] = 'test/csirtg/feed2_csv.txt'
+    rule.skip_first = True
     rule['skip'] = '216.243.31.2'
 
     x = s.process(rule, feed="port-scanners")

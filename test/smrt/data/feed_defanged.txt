@@ -1,0 +1,6 @@
+337406,80[.]82[.]78[.]27,ipv4,3389,,,6,,46,2016-03-23 20:35:01 UTC,2016-03-23 20:35:01 UTC,"sourced from firewall logs (incomming WAN, TCP, Syn, blocked)",42775
+337401,216[.]243[.]31[.]2,ipv4,443,,2016-03-23 20:17:26 UTC,6,,46,2016-03-23 20:22:27 UTC,2016-03-23 20:22:27 UTC,"sourced from firewall logs (incomming, TCP, Syn, blocked)",
+337400,91[.]236[.]75[.]4,ipv4,8080,,2016-03-23 20:14:53 UTC,6,,46,2016-03-23 20:17:26 UTC,2016-03-23 20:17:26 UTC,"sourced from firewall logs (incomming, TCP, Syn, blocked)",
+337399,115[.]230[.]124[.]68,ipv4,1433,,2016-03-23 20:14:43 UTC,6,,46,2016-03-23 20:17:26 UTC,2016-03-23 20:17:26 UTC,"sourced from firewall logs (incomming, TCP, Syn, blocked)",
+337398,64[.]125[.]239[.]15,ipv4,8000,,,6,,46,2016-03-23 20:10:02 UTC,2016-03-23 20:10:02 UTC,"sourced from firewall logs (incomming WAN, TCP, Syn, blocked)",60484
+337392,93[.]174[.]93[.]94,ipv4,5900,,2016-03-23 20:03:40 UTC,6,,46,2016-03-23 20:07:26 UTC,2016-03-23 20:07:26 UTC,"sourced from firewall logs (incomming, TCP, Syn, blocked)"

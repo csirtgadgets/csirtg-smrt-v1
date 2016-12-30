@@ -44,10 +44,6 @@ class Email(Parser):
 
             i['message'] = d
 
-            try:
-                yield Indicator(**i)
-            except InvalidIndicator as e:
-                self.logger.error(e)
-                self.logger.info('skipping: {}'.format(i['indicator']))
+            yield i
 
 Plugin = Email

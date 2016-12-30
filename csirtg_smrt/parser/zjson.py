@@ -24,11 +24,6 @@ class Json(Parser):
                 for x, c in enumerate(map):
                     i[values[x]] = e[c]
 
-                try:
-                    i = normalize_itype(i)
-                    yield Indicator(**i)
-                except NotImplementedError as e:
-                    self.logger.error(e)
-                    self.logger.info('skipping: {}'.format(i['indicator']))
+                yield i
 
 Plugin = Json
