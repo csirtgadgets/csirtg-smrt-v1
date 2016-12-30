@@ -5,7 +5,7 @@ from csirtg_smrt.constants import PYVERSION, FIREBALL_SIZE
 
 RE_COMMENTS = '^([#|;]+)'
 
-
+from pprint import pprint
 class Parser(object):
 
     def __init__(self, client, fetcher, rule, feed, limit=None, archiver=None, filters=None, fireball=False):
@@ -33,12 +33,12 @@ class Parser(object):
 
         if self.rule.feeds[self.feed].get('skip'):
             self.skip = re.compile(self.rule.feeds[self.feed]['skip'])
-        elif self.rule.get('skip'):
-            self.skip = re.compile(self.rule['skip'])
+        elif self.rule.skip:
+            self.skip = re.compile(self.rule.skip)
 
         if self.rule.feeds[self.feed].get('skip_first'):
             self.skip_first = True
-        elif self.rule.get('skip_first'):
+        elif self.rule.skip_first:
             self.skip_first = True
 
         self.line_count = 0

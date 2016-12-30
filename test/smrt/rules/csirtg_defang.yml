@@ -1,0 +1,35 @@
+---
+parser: csv
+replace:
+  indicator:
+    '[.]': '.'
+
+defaults:
+  provider: csirtg.io
+  altid_tlp: white
+  altid: https://csirtg.io/search?q=<indicator>
+  tlp: white
+  confidence: 9
+  indicator: eval(indicator.replace('[.]', '.'))
+  values:
+    - null
+    - indicator
+    - itype
+    - portlist
+    - null
+    - null
+    - protocol
+    - application
+    - null
+    - firsttime
+    - lasttime
+    - description
+    - null
+
+feeds:
+  # A feed of IP addresses block by a firewall (e.g. port scanners)
+  port-scanners:
+    remote: 'test/smrt/data/feed_defanged.txt'
+    defaults:
+      tags:
+        - scanner

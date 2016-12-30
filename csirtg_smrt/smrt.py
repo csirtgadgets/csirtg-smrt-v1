@@ -26,6 +26,8 @@ from csirtg_smrt.utils import setup_logging, get_argument_parser, load_plugin, s
 from csirtg_smrt.exceptions import AuthError, TimeoutError
 from csirtg_indicator.format import FORMATS
 from csirtg_indicator import Indicator
+from csirtg_indicator.exceptions import InvalidIndicator
+from csirtg_indicator.utils import normalize_itype
 
 PARSER_DEFAULT = "pattern"
 TOKEN = os.environ.get('CSIRTG_TOKEN', None)
@@ -130,12 +132,26 @@ class Smrt(object):
         return parser(self.client, fetch, rule, feed, limit=limit, archiver=self.archiver, filters=filters,
                       fireball=self.fireball)
 
-    def clean_indicator(self, i):
+    def clean_indicator(self, i, rule):
+        # check for de-fang'd feed
+        if rule.replace:
+            for e in i:
+                if not rule.replace.get(e):
+                    continue
+
+                for k in rule.replace[e]:
+                    i[e] = i[e].replace(k, rule.replace[e][k])
+
+        i = normalize_itype(i)
+
         if isinstance(i, dict):
             i = Indicator(**i)
 
         if not i.firsttime:
             i.firsttime = i.lasttime
+
+        if not i.reporttime:
+            i.reporttime = arrow.utcnow().datetime
 
         if not i.group:
             i.group = 'everyone'
@@ -175,7 +191,7 @@ class Smrt(object):
         if limit:
             feed_indicators = itertools.islice(feed_indicators, int(limit))
 
-        feed_indicators = (self.clean_indicator(i) for i in feed_indicators)
+        feed_indicators = (self.clean_indicator(i, rule) for i in feed_indicators)
 
         # check to see if the indicator is too old
         if self.goback:
