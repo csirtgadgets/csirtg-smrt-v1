@@ -1,0 +1,16 @@
+parser: stix
+remote: 'test/stix/feed.xml'
+
+defaults:
+  provider: test.com
+  confidence: 2
+  tlp: green
+  altid_tlp: white
+  provider: test.com
+  tags: botnet
+
+feeds:
+  fqdn:
+    itype: fqdn
+    defaults:
+      asn_desc: '12'
