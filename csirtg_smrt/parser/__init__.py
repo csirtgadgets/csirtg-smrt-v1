@@ -1,11 +1,11 @@
 import logging
 import re
 import math
-from csirtg_smrt.constants import PYVERSION, FIREBALL_SIZE
+from ..constants import PYVERSION, FIREBALL_SIZE
 
 RE_COMMENTS = '^([#|;]+)'
 
-from pprint import pprint
+
 class Parser(object):
 
     def __init__(self, client, fetcher, rule, feed, limit=None, archiver=None, filters=None, fireball=False):
@@ -20,6 +20,7 @@ class Parser(object):
         self.archiver = archiver
         self.filters = filters
         self.skip_first = False
+        self.itype = None
 
         if fireball:
             self.fireball = int(FIREBALL_SIZE)
@@ -40,6 +41,11 @@ class Parser(object):
             self.skip_first = True
         elif self.rule.skip_first:
             self.skip_first = True
+
+        if self.rule.feeds[self.feed].get('itype'):
+            self.itype = self.rule.feeds[self.feed]['itype']
+        elif self.rule.itype:
+            self.itype = self.rule.itype
 
         self.line_count = 0
 

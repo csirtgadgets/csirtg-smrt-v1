@@ -2,9 +2,6 @@ import copy
 import re
 
 from csirtg_smrt.parser import Parser
-from csirtg_indicator import Indicator
-from csirtg_indicator.exceptions import InvalidIndicator
-from csirtg_indicator.utils import normalize_itype
 
 
 class Pattern(Parser):

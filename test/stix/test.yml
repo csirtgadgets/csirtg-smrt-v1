@@ -1,5 +1,6 @@
 parser: stix
 remote: 'test/stix/feed.xml'
+
 defaults:
   provider: test.com
   confidence: 2

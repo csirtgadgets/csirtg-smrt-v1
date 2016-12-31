@@ -20,13 +20,11 @@ if not DISABLE_TESTS:
 
 rule = 'test/stix/test.yml'
 rule = Rule(path=rule)
-rule.fetcher = 'file'
 s = Smrt(REMOTE_ADDR, 1234, client='dummy')
 
 
 @pytest.mark.skipif(DISABLE_TESTS, reason='need to set CSIRTG_SMRT_STIX_TEST=1 to run')
 def test_stix():
-    rule.remote = 'test/stix/feed.xml'
     x = s.process(rule, feed='fqdn')
     x = list(x)
 
@@ -37,4 +35,6 @@ def test_stix():
     for xx in x:
         indicators.add(xx.indicator)
 
-    assert 'http://efax.pfdregistry.org/efax/37486.zip' in indicators
+    assert 'http://efax.pfdregistry.org/efax/37486.zip' not in indicators
+
+    assert 'www.cderlearn.com' in indicators
