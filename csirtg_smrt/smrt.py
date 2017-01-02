@@ -139,8 +139,8 @@ class Smrt(object):
                 if not rule.replace.get(e):
                     continue
 
-                for k in rule.replace[e]:
-                    i[e] = i[e].replace(k, rule.replace[e][k])
+                for k, v in rule.replace[e].items():
+                    i[e] = i[e].replace(k, v)
 
         i = normalize_itype(i)
 
