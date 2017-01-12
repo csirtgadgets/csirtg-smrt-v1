@@ -88,6 +88,9 @@ class Smrt(object):
                 if f.startswith('.'):
                     continue
 
+                if os.path.isdir(f):
+                    continue
+
                 self.logger.debug("processing {0}/{1}".format(rule, f))
                 r = Rule(path=os.path.join(rule, f))
 
