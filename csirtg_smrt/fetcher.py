@@ -29,6 +29,7 @@ class Fetcher(object):
         self.cache_file = False
         self.no_fetch = no_fetch
         self.fetcher_timeout = FETCHER_TIMEOUT
+        self.remote_pattern = None
 
         if self.rule.remote:
             self.remote = self.rule.remote
@@ -36,6 +37,13 @@ class Fetcher(object):
             self.remote = self.rule.defaults.get('remote')
         else:
             self.remote = self.rule.feeds[feed]['remote']
+
+        if self.rule.remote_pattern:
+            self.remote_pattern = self.rule.remote_pattern
+        elif self.rule.defaults.get('remote_pattern'):
+            self.remote_pattern = self.rule.defaults.get('remote_pattern')
+        elif self.rule.feeds[feed].get('remote_pattern'):
+            self.remote_pattern = self.rule.feeds[feed]['remote_pattern']
 
         if not data:
             self.dir = os.path.join(self.cache, self.rule.defaults.get('provider'))
@@ -124,6 +132,16 @@ class Fetcher(object):
             else:
                 if self.fetcher == 'file':
                     self.cache = self.remote
+                    if self.remote_pattern:
+                        found = False
+                        for f in os.listdir(self.cache):
+                            if re.match(self.remote_pattern, f):
+                                self.cache = os.path.join(self.cache, f)
+                                found = True
+
+                        if not found:
+                            raise RuntimeError('unable to match file')
+
                 else:
                     raise NotImplementedError
 
