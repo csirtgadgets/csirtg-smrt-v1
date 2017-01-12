@@ -12,6 +12,10 @@
 
 parser: csv
 #token: < token here -> get one at https://csirtg.io >
+#token_header: 'Authorization: Token token='
+#username: test
+#password: test
+
 defaults:
   provider: csirtg.io
   altid_tlp: white

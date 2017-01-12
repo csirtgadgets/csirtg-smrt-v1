@@ -29,6 +29,8 @@ class Fetcher(object):
         self.cache_file = False
         self.no_fetch = no_fetch
         self.fetcher_timeout = FETCHER_TIMEOUT
+        self.token = None
+        self.username = None
 
         if self.rule.remote:
             self.remote = self.rule.remote
@@ -36,6 +38,17 @@ class Fetcher(object):
             self.remote = self.rule.defaults.get('remote')
         else:
             self.remote = self.rule.feeds[feed]['remote']
+
+        if self.rule.token:
+            header = 'Authorization: Token token='
+            if self.rule.token_header:
+                header = self.rule.token_header
+
+            self.token = '{}{}'.format(header, self.rule.token)
+
+        if self.rule.username:
+            self.username = self.rule.username
+            self.password = self.rule.password
 
         if not data:
             self.dir = os.path.join(self.cache, self.rule.defaults.get('provider'))
@@ -84,11 +97,20 @@ class Fetcher(object):
                     yield d
         else:
             if self.fetcher == 'http':
-                cmd = ['wget', '--header', self.ua, '--timeout={}'.format(self.fetcher_timeout), '-q', self.remote,
-                       '-N']
-                if self.logger.getEffectiveLevel() == logging.DEBUG:
-                    cmd = ['wget', '--header', self.ua, '--timeout={}'.format(self.fetcher_timeout), self.remote,
-                           '-N']
+                cmd = ['wget', '--header', self.ua]
+
+                if self.username:
+                    cmd.extend(['--user', self.username, '--password', self.password])
+
+                elif self.token:
+                    cmd.extend(['--header', self.token])
+
+                cmd.extend(['--timeout={}'.format(self.fetcher_timeout)])
+
+                if not self.logger.getEffectiveLevel() == logging.DEBUG:
+                    cmd.append('-q')
+
+                cmd.extend([self.remote, '-N'])
 
                 if self.cache_file:
                     cmd.append('-P')

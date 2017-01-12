@@ -26,6 +26,11 @@ class Rule(dict):
                 self.remote = d.get('remote')
                 self.replace = d.get('replace')
                 self.itype = d.get('itype')
+                self.token = d.get('token')
+                self.token_header = d.get('token_header')
+                self.username = d.get("username")
+                self.password = d.get("password")
+
             else:
                 raise RuleUnsupported('unsupported file type: {}'.format(path))
         else:
@@ -38,6 +43,10 @@ class Rule(dict):
             self.remote = rule.get('remote')
             self.replace = rule.get('replace')
             self.itype = rule.get('itype')
+            self.token = rule.get('token')
+            self.token_header = rule.get('token_header')
+            self.username = rule.get('username')
+            self.password = rule.get('password')
 
     def __repr__(self):
         return json.dumps({
