@@ -31,10 +31,11 @@ class Fetcher(object):
         self.fetcher_timeout = FETCHER_TIMEOUT
         self.token = None
         self.username = None
+        self.filters = None
 
         if self.rule.remote:
             self.remote = self.rule.remote
-        elif self.rule.defaults.get('remote'):
+        elif self.rule.defaults and self.rule.defaults.get('remote'):
             self.remote = self.rule.defaults.get('remote')
         else:
             self.remote = self.rule.feeds[feed]['remote']
@@ -49,6 +50,9 @@ class Fetcher(object):
         if self.rule.username:
             self.username = self.rule.username
             self.password = self.rule.password
+
+        if self.rule.feeds[feed].get('filters'):
+            self.filters = self.rule.feeds[feed]['filters']
 
         if not data:
             self.dir = os.path.join(self.cache, self.rule.defaults.get('provider'))
@@ -104,11 +108,17 @@ class Fetcher(object):
 
                 elif self.token:
                     cmd.extend(['--header', self.token])
+                    cmd.extend(['--header', 'Accept: application/json'])
 
                 cmd.extend(['--timeout={}'.format(self.fetcher_timeout)])
 
                 if not self.logger.getEffectiveLevel() == logging.DEBUG:
                     cmd.append('-q')
+
+                if self.filters:
+                    filters = ['{}={}'.format(f, self.filters[f]) for f in self.filters]
+
+                    self.remote = '{}?{}'.format(self.remote, '&'.join(filters))
 
                 cmd.extend([self.remote, '-N'])
 

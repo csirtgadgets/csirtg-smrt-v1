@@ -30,6 +30,7 @@ class Rule(dict):
                 self.token_header = d.get('token_header')
                 self.username = d.get("username")
                 self.password = d.get("password")
+                self.filters = d.get('filters')
 
             else:
                 raise RuleUnsupported('unsupported file type: {}'.format(path))
@@ -47,6 +48,7 @@ class Rule(dict):
             self.token_header = rule.get('token_header')
             self.username = rule.get('username')
             self.password = rule.get('password')
+            self.filters = rule.get('filters')
 
     def __repr__(self):
         return json.dumps({
@@ -59,4 +61,5 @@ class Rule(dict):
             'remote': self.remote,
             'replace': self.replace,
             'itype': self.itype,
+            'filters': self.filters
         }, sort_keys=True, indent=4, separators=(',', ': '))
