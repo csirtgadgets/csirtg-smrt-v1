@@ -1,0 +1,13 @@
+token: '1234....'
+parser: cifv2
+defaults:
+  provider: example.com
+
+feeds:
+  port-scanners:
+    filters:
+      otype: ipv4
+      tags: scanner
+      group: everyone
+      limit: 10
+    remote: 'https://feeds.example.com/observables'
