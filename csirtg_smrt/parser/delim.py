@@ -2,12 +2,14 @@ from csirtg_smrt.parser import Parser
 import re
 from pprint import pprint
 
+
 class Delim(Parser):
 
     def __init__(self, *args, **kwargs):
         super(Delim, self).__init__(*args, **kwargs)
 
-        self.pattern = None
+        self.pattern = re.compile("\s+")
+
         if self.rule.delim_pattern:
             self.pattern = re.compile(self.rule.delim_pattern)
 
