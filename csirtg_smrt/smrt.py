@@ -116,7 +116,7 @@ class Smrt(object):
 
         fetch = Fetcher(rule, feed, data=data, no_fetch=self.no_fetch)
 
-        parser_name = rule.parser or PARSER_DEFAULT
+        parser_name = rule.feeds[feed].get('parser') or rule.parser or PARSER_DEFAULT
         plugin_path = os.path.join(os.path.dirname(__file__), 'parser')
 
         if getattr(sys, 'frozen', False):
