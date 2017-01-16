@@ -1,7 +1,5 @@
 from csirtg_smrt.parser import Parser
-from csirtg_indicator import Indicator
-from csirtg_indicator.exceptions import InvalidIndicator
-from csirtg_indicator.utils import normalize_itype
+import re
 from pprint import pprint
 
 
@@ -9,6 +7,11 @@ class Delim(Parser):
 
     def __init__(self, *args, **kwargs):
         super(Delim, self).__init__(*args, **kwargs)
+
+        self.pattern = re.compile("\s+")
+
+        if self.rule.delim_pattern:
+            self.pattern = re.compile(self.rule.delim_pattern)
 
     def process(self):
         defaults = self._defaults()
@@ -30,6 +33,7 @@ class Delim(Parser):
                     if col is not None:
                         i[col] = m[idx]
                 i.pop("values", None)
+
                 self.eval_obs(i)
 
                 skip = True

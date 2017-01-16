@@ -27,6 +27,13 @@ class Rule(dict):
                 self.replace = d.get('replace')
                 self.itype = d.get('itype')
                 self.remote_pattern = d.get('remote_pattern')
+                self.token = d.get('token')
+                self.token_header = d.get('token_header')
+                self.username = d.get("username")
+                self.password = d.get("password")
+                self.filters = d.get('filters')
+                self.delim_pattern = d.get('delim_pattern')
+
             else:
                 raise RuleUnsupported('unsupported file type: {}'.format(path))
         else:
@@ -40,6 +47,12 @@ class Rule(dict):
             self.replace = rule.get('replace')
             self.itype = rule.get('itype')
             self.remote_pattern = rule.get('remote_pattern')
+            self.token = rule.get('token')
+            self.token_header = rule.get('token_header')
+            self.username = rule.get('username')
+            self.password = rule.get('password')
+            self.filters = rule.get('filters')
+            self.delim_pattern = rule.get('delim_pattern')
 
     def __repr__(self):
         return json.dumps({
@@ -53,4 +66,6 @@ class Rule(dict):
             'remote_pattern': self.remote_pattern,
             'replace': self.replace,
             'itype': self.itype,
+            'filters': self.filters,
+            'delim_pattern': self.delim_pattern
         }, sort_keys=True, indent=4, separators=(',', ': '))

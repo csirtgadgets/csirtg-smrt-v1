@@ -25,4 +25,4 @@ def test_spamcop():
 
         assert x[0].indicator == '204.93.2.6'
 
-        assert x[0].message.startswith('RnJvbTogeHh4QHJlcG9ydHMuc3BhbWNvcC5uZXQKVG86')
+        assert x[0].message.startswith('znjvbtogehh4qhj')
