@@ -4,10 +4,6 @@ import re
 import feedparser
 from pprint import pprint
 from csirtg_smrt.parser import Parser
-from csirtg_indicator.utils import normalize_itype
-from csirtg_indicator import Indicator
-from csirtg_indicator.exceptions import InvalidIndicator
-from csirtg_smrt.constants import PYVERSION
 
 
 class Rss(Parser):
@@ -43,13 +39,16 @@ class Rss(Parser):
                         m = patterns['description']['pattern'].search(e[k]).groups()
                     except AttributeError:
                         continue
+
                     for idx, c in enumerate(patterns['description']['values']):
                         i[c] = m[idx]
+
                 elif patterns.get(k):
                     try:
                         m = patterns[k]['pattern'].search(e[k]).groups()
                     except AttributeError:
                         continue
+
                     for idx, c in enumerate(patterns[k]['values']):
                         i[c] = m[idx]
 

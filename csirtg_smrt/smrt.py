@@ -88,6 +88,9 @@ class Smrt(object):
                 if f.startswith('.'):
                     continue
 
+                if os.path.isdir(f):
+                    continue
+
                 self.logger.debug("processing {0}/{1}".format(rule, f))
                 r = Rule(path=os.path.join(rule, f))
 
@@ -113,7 +116,7 @@ class Smrt(object):
 
         fetch = Fetcher(rule, feed, data=data, no_fetch=self.no_fetch)
 
-        parser_name = rule.parser or PARSER_DEFAULT
+        parser_name = rule.feeds[feed].get('parser') or rule.parser or PARSER_DEFAULT
         plugin_path = os.path.join(os.path.dirname(__file__), 'parser')
 
         if getattr(sys, 'frozen', False):
@@ -209,7 +212,9 @@ class Smrt(object):
                 if self.is_archived_with_log(i):
                     continue
 
-                yield i.format_keys()
+                # TODO- this affects a lot of tests
+                # converted i.format_keys to generator in indicator-0.0.0b0
+                yield list(i.format_keys())[0]
                 self.archive(i)
 
             self.archiver and self.archiver.commit()
