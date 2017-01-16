@@ -21,6 +21,7 @@ class Parser(object):
         self.filters = filters
         self.skip_first = False
         self.itype = None
+        self.line_filter = None
 
         if fireball:
             self.fireball = int(FIREBALL_SIZE)
@@ -47,6 +48,14 @@ class Parser(object):
         elif self.rule.itype:
             self.itype = self.rule.itype
 
+        if self.rule.feeds[self.feed].get('line_filter'):
+            self.line_filter = self.rule.feeds[self.feed]['line_filter']
+        elif self.rule.line_filter:
+            self.line_filter = self.rule.line_filter
+
+        if self.line_filter:
+            self.line_filter = re.compile(self.line_filter)
+
         self.line_count = 0
 
     def ignore(self, line):
@@ -62,6 +71,10 @@ class Parser(object):
 
         if self.skip:
             if self.skip.search(line):
+                return True
+
+        if self.line_filter:
+            if not self.line_filter.search(line):
                 return True
 
     def is_comment(self, line):

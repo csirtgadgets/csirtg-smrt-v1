@@ -33,6 +33,7 @@ class Rule(dict):
                 self.password = d.get("password")
                 self.filters = d.get('filters')
                 self.delim_pattern = d.get('delim_pattern')
+                self.line_filter = d.get('line_filter')
 
             else:
                 raise RuleUnsupported('unsupported file type: {}'.format(path))
@@ -53,6 +54,7 @@ class Rule(dict):
             self.password = rule.get('password')
             self.filters = rule.get('filters')
             self.delim_pattern = rule.get('delim_pattern')
+            self.line_filter = rule.get('line_filter')
 
     def __repr__(self):
         return json.dumps({
@@ -67,5 +69,6 @@ class Rule(dict):
             'replace': self.replace,
             'itype': self.itype,
             'filters': self.filters,
-            'delim_pattern': self.delim_pattern
+            'delim_pattern': self.delim_pattern,
+            'line_filter': self.line_filter
         }, sort_keys=True, indent=4, separators=(',', ': '))
