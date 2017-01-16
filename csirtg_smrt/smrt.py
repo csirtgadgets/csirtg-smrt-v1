@@ -13,6 +13,8 @@ import traceback
 import sys
 import select
 import arrow
+from multiprocessing import Process
+from zmq.eventloop import ioloop
 
 import csirtg_smrt.parser
 from csirtg_smrt.archiver import Archiver
@@ -29,6 +31,7 @@ from csirtg_indicator import Indicator
 from csirtg_indicator.exceptions import InvalidIndicator
 from csirtg_indicator.utils import normalize_itype
 
+
 PARSER_DEFAULT = "pattern"
 TOKEN = os.environ.get('CSIRTG_TOKEN', None)
 TOKEN = os.environ.get('CSIRTG_SMRT_TOKEN', TOKEN)
@@ -43,6 +46,8 @@ STDOUT_FIELDS = COLUMNS
 # http://python-3-patterns-idioms-test.readthedocs.org/en/latest/Factory.html
 # https://gist.github.com/pazdera/1099559
 logging.getLogger("requests").setLevel(logging.WARNING)
+
+logger = logging.getLogger(__name__)
 
 
 class Smrt(object):
@@ -223,6 +228,41 @@ class Smrt(object):
             self.logger.debug("limit reached...")
 
 
+def _run_smrt(options, **kwargs):
+    args = kwargs.get('args')
+    goback = kwargs.get('goback')
+    verify_ssl = kwargs.get('verify_ssl')
+    data = kwargs.get('data')
+
+    archiver = None
+    if args.remember:
+        archiver = Archiver(dbfile=args.remember_path)
+
+    with Smrt(options.get('token'), options.get('remote'), client=args.client, username=args.user,
+              feed=args.feed, archiver=archiver, fireball=args.fireball, no_fetch=args.no_fetch,
+              verify_ssl=verify_ssl, goback=goback) as s:
+
+        s.client.ping(write=True)
+        filters = {}
+        if args.filter_indicator:
+            filters['indicator'] = args.filter_indicator
+
+        indicators = []
+        for r, f in s.load_feeds(args.rule, feed=args.feed):
+            for i in s.process(r, f, limit=args.limit, data=data, filters=filters):
+                if args.client == 'stdout':
+                    indicators.append(i)
+
+        if args.client == 'stdout':
+            print(FORMATS[options.get('format')](data=indicators, cols=args.fields.split(',')))
+
+    if archiver:
+        archiver.cleanup()
+        archiver.clear_memcache()
+
+    logger.info('completed..')
+
+
 def main():
     p = get_argument_parser()
     p = ArgumentParser(
@@ -257,7 +297,8 @@ def main():
     p.add_argument("--token", help="specify token [default: %(default)s]", default=TOKEN)
 
     p.add_argument('--service', action='store_true', help="start in service mode")
-    p.add_argument('--service-interval', help='set run interval [in minutes, default %(default)s]', default=SERVICE_INTERVAL)
+    p.add_argument('--service-interval', help='set run interval [in minutes, default %(default)s]',
+                   default=SERVICE_INTERVAL)
     p.add_argument('--ignore-unknown', action='store_true')
 
     p.add_argument('--config', help='specify csirtg-smrt config path [default %(default)s', default=CONFIG_PATH)
@@ -293,20 +334,9 @@ def main():
             options[v] = o.get(v)
 
     setup_logging(args)
-    logger = logging.getLogger()
     logger.info('loglevel is: {}'.format(logging.getLevelName(logger.getEffectiveLevel())))
 
-    setup_signals(__name__)
-
     setup_runtime_path(args.runtime_path)
-
-    archiver = False
-    if args.remember:
-        archiver = Archiver(dbfile=args.remember_path)
-
-    stop = False
-    service = args.service
-    service_interval = int(args.service_interval)
 
     verify_ssl = True
     if options.get('no_verify_ssl') or o.get('no_verify_ssl'):
@@ -316,75 +346,57 @@ def main():
     if goback:
         goback = arrow.utcnow().replace(days=-int(goback))
 
-    if service:
-        r = int(args.delay)
-        logger.info("random delay is {}, then running every {} min after that".format(r, service_interval))
-        try:
-            sleep((r * 60))
-        except KeyboardInterrupt:
-            logger.info('shutting down')
-            stop = True
-
-    while not stop:
-        if not service:
-            stop = True
-
-        data = False
-        if not service and select.select([sys.stdin, ], [], [], 0.0)[0]:
-            logger.debug("reading stdin...")
+    if not args.service:
+        data = None
+        if select.select([sys.stdin, ], [], [], 0.0)[0]:
             data = sys.stdin.read()
 
-        logger.info('starting...')
-
         try:
-            with Smrt(options.get('token'), options.get('remote'), client=args.client, username=args.user,
-                      feed=args.feed, archiver=archiver, fireball=args.fireball, no_fetch=args.no_fetch,
-                      verify_ssl=verify_ssl, goback=goback) as s:
-
-                s.client.ping(write=True)
-                filters = {}
-                if args.filter_indicator:
-                    filters['indicator'] = args.filter_indicator
-
-                indicators = []
-                for r, f in s.load_feeds(args.rule, feed=args.feed):
-                    for i in s.process(r, f, limit=args.limit, data=data, filters=filters):
-                        if args.client == 'stdout':
-                            indicators.append(i)
-
-                if args.client == 'stdout':
-                    print(FORMATS[options.get('format')](data=indicators, cols=args.fields.split(',')))
-
-        except AuthError as e:
-            logger.error(e)
-            stop = True
-        except RuntimeError as e:
-            logger.error(e)
-            if str(e).startswith('submission failed'):
-                stop = True
-            else:
-                logging.exception('Got exception on main handler')
-        except TimeoutError as e:
-            logger.error(e)
-            stop = True
+            _run_smrt(options, **{
+                'args': args,
+                'data': data,
+                'verify_ssl': verify_ssl,
+                'goback': goback
+            })
         except KeyboardInterrupt:
-            logger.info('shutting down')
-            stop = True
-        except Exception as e:
-            import traceback
-            traceback.print_exc()
-            raise e
+            logger.info('exiting..')
 
-        if archiver:
-            rv = archiver.cleanup()
-            logger.info('cleaning up archive: %i' % rv)
-            archiver.clear_memcache()
+        raise SystemExit
 
-        logger.info('completed')
-        if args.service:
-            logger.info('sleeping for {} minutes'.format(service_interval))
-            sleep((60 * service_interval))
+    # we're running as a service
+    setup_signals(__name__)
+    service_interval = int(args.service_interval)
+    r = int(args.delay)
+    logger.info("random delay is {}, then running every {} min after that".format(r, service_interval))
 
+    try:
+        sleep((r * 60))
+    except KeyboardInterrupt:
+        logger.info('shutting down')
+        raise SystemExit
+
+    logger.info('starting...')
+
+    def _run():
+        Process(target=_run_smrt, args=(options,), kwargs={
+            'args': args,
+            'verify_ssl': verify_ssl,
+            'goback': goback
+        }).start()
+
+    # first run, PeriodicCallback has builtin wait..
+    _run()
+
+    main_loop = ioloop.IOLoop()
+    service_interval = (service_interval * 60000)
+    loop = ioloop.PeriodicCallback(_run, service_interval)
+
+    try:
+        loop.start()
+        main_loop.start()
+    except KeyboardInterrupt:
+        logger.info('exiting..')
+        raise SystemExit
 
 if __name__ == "__main__":
     main()
