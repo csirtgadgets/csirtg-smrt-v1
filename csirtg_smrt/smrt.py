@@ -14,7 +14,7 @@ import sys
 import select
 import arrow
 from multiprocessing import Process
-from zmq.eventloop import ioloop
+import tornado.ioloop as ioloop
 
 import csirtg_smrt.parser
 from csirtg_smrt.archiver import Archiver
