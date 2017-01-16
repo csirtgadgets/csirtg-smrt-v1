@@ -212,7 +212,9 @@ class Smrt(object):
                 if self.is_archived_with_log(i):
                     continue
 
-                yield i.format_keys()
+                # TODO- this affects a lot of tests
+                # converted i.format_keys to generator in indicator-0.0.0b0
+                yield list(i.format_keys())[0]
                 self.archive(i)
 
             self.archiver and self.archiver.commit()
