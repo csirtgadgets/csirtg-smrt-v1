@@ -49,3 +49,13 @@ def test_smrt_rule_paths():
             pass
 
         assert f is None
+
+
+def test_smrt_line_filter():
+    with Smrt(None, None, client='dummy') as s:
+
+        r, f = next(s.load_feeds('test/smrt/rules/csirtg.yml', feed='port-scanners'))
+        r.line_filter = '109.111.134.64'
+        n = list(s.process(r, f))
+        assert len(n) == 1
+        assert n[0].indicator == '109.111.134.64'
