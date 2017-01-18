@@ -61,7 +61,9 @@ setup(
         'chardet>=2.3.0',
         'csirtg_indicator>=0.0.0a25,<1.0',
         'csirtg_mail>=0.0.0a1,<1.0',
-        'SQLAlchemy>=1.0.14,<1.1'
+        'SQLAlchemy>=1.0.14,<1.1',
+        'tornado>=4.4',
+        'apwgsdk',
     ],
     entry_points={
         'console_scripts': [
