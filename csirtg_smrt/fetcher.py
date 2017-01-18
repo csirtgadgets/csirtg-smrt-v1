@@ -39,7 +39,7 @@ class Fetcher(object):
         elif self.rule.defaults and self.rule.defaults.get('remote'):
             self.remote = self.rule.defaults.get('remote')
         else:
-            self.remote = self.rule.feeds[feed]['remote']
+            self.remote = self.rule.feeds[feed].get('remote')
 
         if self.rule.remote_pattern:
             self.remote_pattern = self.rule.remote_pattern
@@ -76,7 +76,7 @@ class Fetcher(object):
             if self.rule.feeds[feed].get('cache'):
                 self.cache = os.path.join(self.dir, self.rule.feeds[feed]['cache'])
                 self.cache_file = True
-            elif RE_CACHE_TYPES.search(self.remote):
+            elif self.remote and RE_CACHE_TYPES.search(self.remote):
                 self.cache = RE_CACHE_TYPES.search(self.remote).groups()
                 self.cache = os.path.join(self.dir, self.cache[0])
                 self.cache_file = True
@@ -173,6 +173,12 @@ class Fetcher(object):
 
                         if not found:
                             raise RuntimeError('unable to match file')
+
+                elif self.fetcher == 'apwg' and os.environ.get('APWG_TOKEN'):
+                    from apwgsdk.client import Client as apwgcli
+                    cli = apwgcli()
+                    yield cli.indicators(no_last_run=True)
+                    return
 
                 else:
                     raise NotImplementedError

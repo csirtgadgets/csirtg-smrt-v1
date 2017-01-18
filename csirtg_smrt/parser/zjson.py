@@ -12,8 +12,8 @@ class Json(Parser):
 
     def process(self):
         defaults = self._defaults()
-        map = self.rule.feeds[self.feed]['map']
-        values = self.rule.feeds[self.feed]['values']
+        map = self.rule.feeds[self.feed].get('map')
+        values = self.rule.feeds[self.feed].get('values')
 
         for l in self.fetcher.process():
 
@@ -21,8 +21,9 @@ class Json(Parser):
             for e in l:
                 i = copy.deepcopy(defaults)
 
-                for x, c in enumerate(map):
-                    i[values[x]] = e[c]
+                if map:
+                    for x, c in enumerate(map):
+                        i[values[x]] = e[c]
 
                 yield i
 
