@@ -317,6 +317,10 @@ def main():
         for line in tailer.follow(f):
             logger.debug(line)
             i = next(process_events([line]))
+            if not i:
+                logger.debug('skipping line')
+                continue
+
             i = i.__dict__()
 
             if args.client == 'stdout':
