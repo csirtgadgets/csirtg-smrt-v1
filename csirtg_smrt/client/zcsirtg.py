@@ -26,6 +26,8 @@ class _Csirtg(Client):
 
         indicators = []
         for x in data:
+            d = {}
+
             if isinstance(x, Indicator):
                 d = x.__dict__()
             else:

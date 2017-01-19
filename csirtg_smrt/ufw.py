@@ -88,28 +88,27 @@ def parse_record(line):
     record = {}
 
     # parse of entire ufw log record
-    log_l = re.split(r'\s+', line, 6)
-    # set syslog time stamp
+    RE_UFW = "^(\S+\s\S+\s\S+)\s(\S+)\s\S+\s\[[^,]+\]\s\[UFW\s(\S+)\]\s([^,]+)$"
+    ts, hostname, action, message = re.match(RE_UFW, line).groups()
 
-    record['ufw_timestamp'] = "{0} {1} {2}".format(log_l[0], log_l[1], log_l[2])
+    record['ufw_timestamp'] = ts
     # set hostname
-    record['ufw_hostname'] = log_l[3]
-    # set program
-    record['ufw_program'] = log_l[4]
-    # find pid
-    m = re.match('\[(\S+)\]',log_l[5])
-    # set pid
-    record['ufw_pid'] = m.group(1)
+    record['ufw_hostname'] = hostname
+
+    record['ufw_action'] = action
+
     # set ufw message
-    record['ufw_message'] = log_l[6]
+    record['ufw_message'] = message
 
     # parse ufw_message bits
-    m = re.match('\[UFW\s(\S+)\]\s(.*)', record['ufw_message'])
-    # set ufw action
-    record['ufw_action'] = m.group(1)
+#    m = re.match('\[UFW\s(\S+)\]\s(.*)', record['ufw_message'])
+#    # set ufw action
+#    record['ufw_action'] = m.group(1)
 
     # continue parsing ufw_message
-    _r1 = re.split(r'\s+', m.group(2), 3)
+    _r1 = re.split(r'\s+', message, 3)
+#    pprint(_r1)
+#    raise
 
     # parse layer 2 items (in, out, mac)
     base = _r1[:-1]
@@ -240,29 +239,35 @@ def process_events(events):
     # get now time object based on local timezone
     time_now = arrow.get(get_localzone())
 
-    indicators = []
-
     for line in events:
-        record = parse_record(line)
+        record = []
+        try:
+            record = parse_record(line)
+        except AttributeError:
+            logger.debug("line not matched: \n{}".format(line))
+            continue
 
         normalized_timestamp = normalize_syslog_timestamp(record['ufw_timestamp'], time_now, local_tz)
 
-        if record['ufw_action'] == 'BLOCK':
-            if record['ufw_protocol'] == 'TCP':
-                if record['ufw_tcp_flag_syn'] == 1:
-                    data = {
-                        "indicator": record['ufw_src_ip'],
-                        "tags": "scanner",
-                        "description": "sourced from firewall logs (incomming, TCP, Syn, blocked)",
-                        "portlist": record['ufw_dst_port'],
-                        "protocol": record['ufw_protocol'],
-                        "lasttime": normalized_timestamp,
-                        "firsttime": normalized_timestamp
-                        }
-                    ret = Indicator(**data)
-                    indicators.append(ret)
+        if record['ufw_action'] != 'BLOCK':
+            continue
 
-    return indicators
+        if record['ufw_protocol'] != 'TCP':
+            continue
+
+        if record['ufw_tcp_flag_syn'] != 1:
+            continue
+
+        data = {
+            "indicator": record['ufw_src_ip'],
+            "tags": "scanner",
+            "description": "sourced from firewall logs (incomming, TCP, Syn, blocked)",
+            "portlist": record['ufw_dst_port'],
+            "protocol": record['ufw_protocol'],
+            "lasttime": normalized_timestamp,
+            "firsttime": normalized_timestamp
+        }
+        yield Indicator(**data)
 
 
 def main():
@@ -311,8 +316,12 @@ def main():
     try:
         for line in tailer.follow(f):
             logger.debug(line)
-            i = process_events([line])
-            i = i[0].__dict__()
+            i = next(process_events([line]))
+            if not i:
+                logger.debug('skipping line')
+                continue
+
+            i = i.__dict__()
 
             if args.client == 'stdout':
 
