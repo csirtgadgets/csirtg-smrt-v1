@@ -30,6 +30,17 @@ logger = logging.getLogger('')
 
 PROVIDER = os.environ.get('CSIRTG_SMRT_PROVIDER')
 
+PORT_APPLICATION = {
+    '21': 'ftp',
+    '22': 'ssh',
+    '23': 'telnet',
+    '80': 'http',
+    '443': 'https',
+    '3306': 'mysql',
+    '5900': 'vnc',
+    '3389': 'rdp'
+}
+
 
 def _split_equal(item):
     """
@@ -205,8 +216,10 @@ def parse_record(line):
         for item in leftover:
             if item.startswith('SPT'):
                 record['ufw_src_port'] = _split_equal(item)
+
             elif item.startswith('DPT'):
                 record['ufw_dst_port'] = _split_equal(item)
+
             elif item.startswith('LEN'):
                 record['ufw_udp_len'] = _split_equal(item)
 
@@ -260,13 +273,19 @@ def process_events(events):
 
         data = {
             "indicator": record['ufw_src_ip'],
-            "tags": "scanner",
+            "tags": ["scanner"],
             "description": "sourced from firewall logs (incomming, TCP, Syn, blocked)",
             "portlist": record['ufw_dst_port'],
             "protocol": record['ufw_protocol'],
             "lasttime": normalized_timestamp,
             "firsttime": normalized_timestamp
         }
+
+        t = PORT_APPLICATION.get(record['ufw_dst_port'])
+        if t:
+            data['tags'].append(t)
+            data['application'] = t
+
         yield Indicator(**data)
 
 
