@@ -124,61 +124,23 @@ class Fetcher(object):
             ftype = ftype.decode('utf-8')
 
         if ftype.startswith('application/x-gzip') or ftype.startswith('application/gzip'):
-            import gzip
-            with gzip.open(self.cache, 'rb') as f:
-                for l in f:
-                    if rstrip:
-                        l = l.rstrip()
+            from csirtg_smrt.decoders.zgzip import get_lines
+            for l in get_lines(self.cache, split=split):
+                yield l
 
-                    if PYVERSION > 2:
-                        l = l.decode('utf-8')
+            return
 
-                    yield l
+        if ftype == "application/zip":
+            from csirtg_smrt.decoders.zzip import get_lines
+            for l in get_lines(self.cache, split=split):
+                yield l
 
-        elif ftype.startswith('text') or ftype.startswith('application/xml'):
-            with open(self.cache) as f:
-                for l in f:
-                    if rstrip:
-                        l = l.rstrip()
+            return
 
-                    if PYVERSION > 2 and isinstance(l, bytes):
-                        l = l.decode('utf-8')
-
-                    yield l
-
-        elif ftype == "application/zip":
-            from zipfile import ZipFile
-            with ZipFile(self.cache) as f:
-                for m in f.infolist():
-                    if PYVERSION == 2:
-                        for l in f.read(m.filename).split(split):
-                            if rstrip:
-                                l = l.rstrip()
-
-                            yield l
-                    else:
-                        with f.open(m.filename) as zip:
-                            for l in zip.readlines():
-                                if rstrip:
-                                    l = l.rstrip()
-
-                                try:
-                                    l = l.decode()
-                                except UnicodeDecodeError as e:
-                                    l = l.decode('latin-1')
-
-                                yield l
-
-        elif self.cache.endswith('.txt') and ftype == 'application/octet-stream':
-            with open(self.cache) as f:
-                for l in f:
-                    if rstrip:
-                        l = l.rstrip()
-
-                    if PYVERSION > 2 and isinstance(l, bytes):
-                        l = l.decode('utf-8')
-
-                    yield l
+        # all others, mostly txt, etc...
+        with open(self.cache) as f:
+            for l in f:
+                yield l
 
     def _cache_modified(self):
         ts = os.stat(self.cache)
@@ -199,7 +161,6 @@ class Fetcher(object):
                 auth = (self.username, self.password)
 
             resp = s.get(self.remote, stream=True, auth=auth, timeout=self.fetcher_timeout)
-
             for block in resp.iter_content(1024):
                 f.write(block)
 
@@ -219,7 +180,7 @@ class Fetcher(object):
             s.headers['Accept'] = 'application/json'
 
         if self._cache_size() == 0:
-            logger.debug('cache size is 0')
+            logger.debug('cache size is 0, downloading...')
             self._cache_write(s)
             return
 
@@ -262,6 +223,12 @@ class Fetcher(object):
                 self._fetch()
 
             for l in self._process_cache(split=split, rstrip=rstrip):
+                if rstrip:
+                    l = l.rstrip()
+
+                if PYVERSION > 2 and isinstance(l, bytes):
+                    l = l.decode('utf-8')
+
                 yield l
 
             return
@@ -279,4 +246,10 @@ class Fetcher(object):
                     raise RuntimeError('unable to match file')
 
             for l in self._process_cache(split=split, rstrip=rstrip):
+                if rstrip:
+                    l = l.rstrip()
+
+                if PYVERSION > 2 and isinstance(l, bytes):
+                    l = l.decode('utf-8')
+
                 yield l
