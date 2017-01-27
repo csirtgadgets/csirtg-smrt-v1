@@ -19,7 +19,6 @@ def parse_timestamp(ts):
 
         return t
     except ValueError as e:
-        print(len(ts))
         if len(ts) == 14:
             match = re.search('^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})$', ts)
             if match:
