@@ -2,18 +2,20 @@ import logging
 import subprocess
 import os
 from pprint import pprint
-
 from csirtg_smrt.constants import VERSION, SMRT_CACHE, PYVERSION
-
+from datetime import datetime
 import magic
 import re
 import sys
 from time import sleep
+import arrow
+import requests
 
 RE_SUPPORTED_DECODE = re.compile("zip|lzf|lzma|xz|lzop")
 RE_CACHE_TYPES = re.compile('([\w.-]+\.(csv|zip|txt|gz))$')
 
 FETCHER_TIMEOUT = os.environ.get('CSIRTG_SMRT_FETCHER_TIMEOUT', 120)
+logger = logging.getLogger(__name__)
 
 
 class Fetcher(object):
@@ -62,186 +64,196 @@ class Fetcher(object):
         if self.rule.feeds[feed].get('filters'):
             self.filters = self.rule.feeds[feed]['filters']
 
-        if not data:
-            self.dir = os.path.join(self.cache, self.rule.defaults.get('provider'))
-            self.logger.debug(self.dir)
+        if data:
+            return
 
-            if not os.path.exists(self.dir):
-                try:
-                    os.makedirs(self.dir)
-                except OSError:
-                    self.logger.critical('failed to create {0}'.format(self.dir))
-                    raise
+        self.dir = os.path.join(self.cache, self.rule.defaults.get('provider'))
+        self.logger.debug(self.dir)
 
-            if self.rule.feeds[feed].get('cache'):
-                self.cache = os.path.join(self.dir, self.rule.feeds[feed]['cache'])
-                self.cache_file = True
-            elif self.remote and RE_CACHE_TYPES.search(self.remote):
-                self.cache = RE_CACHE_TYPES.search(self.remote).groups()
-                self.cache = os.path.join(self.dir, self.cache[0])
-                self.cache_file = True
-            else:
-                self.cache = os.path.join(self.dir, self.feed)
+        if not os.path.exists(self.dir):
+            try:
+                os.makedirs(self.dir)
+            except OSError:
+                self.logger.critical('failed to create {0}'.format(self.dir))
+                raise
 
-            self.logger.debug('CACHE %s' % self.cache)
+        if self.rule.feeds[feed].get('cache'):
+            self.cache = os.path.join(self.dir, self.rule.feeds[feed]['cache'])
+            self.cache_file = True
 
-            self.ua = "User-Agent: csirtg-smrt/{0} (csirtgadgets.org)".format(VERSION)
+        elif self.remote and RE_CACHE_TYPES.search(self.remote):
+            self.cache = RE_CACHE_TYPES.search(self.remote).groups()
+            self.cache = os.path.join(self.dir, self.cache[0])
+            self.cache_file = True
 
-            if not self.fetcher:
-                if self.remote.startswith('http'):
-                    self.fetcher = 'http'
-                else:
-                    self.fetcher = 'file'
-
-    def process(self, split="\n", limit=0, rstrip=True):
-        if self.data:
-            if isinstance(self.data, str):
-                if split:
-                    for l in self.data.split(split):
-                        if rstrip:
-                            l = l.rstrip()
-
-                        yield l
-                else:
-                    yield self.data
-            else:
-                for d in self.data:
-                    yield d
         else:
-            if self.fetcher == 'http':
-                cmd = ['wget', '--header', self.ua]
+            self.cache = os.path.join(self.dir, self.feed)
 
-                if self.username:
-                    cmd.extend(['--user', self.username, '--password', self.password])
+        self.logger.debug('CACHE %s' % self.cache)
 
-                elif self.token:
-                    cmd.extend(['--header', self.token])
-                    cmd.extend(['--header', 'Accept: application/json'])
+        self.ua = "csirtg-smrt/{0} (csirtgadgets.org)".format(VERSION)
 
-                cmd.extend(['--timeout={}'.format(self.fetcher_timeout)])
+        if self.fetcher:
+            return
 
-                if not self.logger.getEffectiveLevel() == logging.DEBUG:
-                    cmd.append('-q')
+        if self.remote.startswith('http'):
+            self.fetcher = 'http'
+        else:
+            self.fetcher = 'file'
 
-                if self.filters:
-                    filters = ['{}={}'.format(f, self.filters[f]) for f in self.filters]
+    def _process_data(self, split="\n", rstrip=True):
+        if not isinstance(self.data, str):
+            for d in self.data:
+                yield d
 
-                    self.remote = '{}?{}'.format(self.remote, '&'.join(filters))
+            return
 
-                cmd.extend([self.remote, '-N'])
+        if not split:
+            yield self.data
+            return
 
-                if self.cache_file:
-                    cmd.append('-P')
-                    cmd.append(self.dir)
-                else:
-                    cmd.append('-O')
-                    cmd.append(self.cache)
+        for l in self.data.split(split):
+            if rstrip:
+                l = l.rstrip()
 
-                self.logger.debug(cmd)
-                if self.no_fetch and os.path.isfile(self.cache):
-                    self.logger.info('skipping fetch: {}'.format(self.cache))
-                else:
-                    failed = 0
-                    while failed < 5:
-                        if failed > 0:
-                            self.logger.info('retrying in 5s')
-                            sleep(5)
+            yield l
 
-                        try:
-                            subprocess.check_call(cmd)
-                            failed = 0
-                            break
-                        except subprocess.CalledProcessError as e:
-                            failed += 1
-                            self.logger.error('failure pulling feed: {} to {}'.format(self.remote, self.dir))
-                            if self.logger.getEffectiveLevel() == logging.DEBUG:
-                                raise e
-                            else:
-                                self.logger.error(e)
+    def _process_cache(self, split="\n", rstrip=True):
+        ftype = magic.from_file(self.cache, mime=True)
+        if PYVERSION < 3:
+            ftype = ftype.decode('utf-8')
 
-                    if failed:
-                        return
+        if ftype.startswith('application/x-gzip') or ftype.startswith('application/gzip'):
+            from csirtg_smrt.decoders.zgzip import get_lines
+            for l in get_lines(self.cache, split=split):
+                yield l
+
+            return
+
+        if ftype == "application/zip":
+            from csirtg_smrt.decoders.zzip import get_lines
+            for l in get_lines(self.cache, split=split):
+                yield l
+
+            return
+
+        # all others, mostly txt, etc...
+        with open(self.cache) as f:
+            for l in f:
+                yield l
+
+    def _cache_modified(self):
+        ts = os.stat(self.cache)
+        ts = arrow.get(ts.st_mtime)
+        return ts
+
+    def _cache_size(self):
+        if not os.path.isfile(self.cache):
+            return 0
+
+        s = os.stat(self.cache)
+        return s.st_size
+
+    def _cache_write(self, s):
+        with open(self.cache, 'wb') as f:
+            auth = False
+            if self.username:
+                auth = (self.username, self.password)
+
+            resp = s.get(self.remote, stream=True, auth=auth, timeout=self.fetcher_timeout)
+            for block in resp.iter_content(1024):
+                f.write(block)
+
+    def _fetch(self):
+
+        if self.filters:
+            filters = ['{}={}'.format(f, self.filters[f]) for f in self.filters]
+            self.remote = '{}?{}'.format(self.remote, '&'.join(filters))
+
+        s = requests.session()
+
+        s.headers['User-Agent'] = self.ua
+
+        if self.token:
+            t1, t2 = self.token.split(': ')
+            s.headers[t1] = t2
+            s.headers['Accept'] = 'application/json'
+
+        if self._cache_size() == 0:
+            logger.debug('cache size is 0, downloading...')
+            self._cache_write(s)
+            return
+
+        logger.debug('checking HEAD')
+
+        resp = s.head(self.remote)
+
+        if not resp.headers.get('Last-Modified'):
+            logger.debug('no last-modified header')
+            self._cache_write(s)
+            return
+
+        ts = resp.headers.get('Last-Modified')
+
+        ts1 = arrow.get(datetime.strptime(ts, '%a, %d %b %Y %X %Z'))
+        ts2 = self._cache_modified()
+
+        if ts1 <= ts2:
+            logger.debug('cache is OK: {} <= {}'.format(ts1, ts2))
+            return
+
+        logger.debug("refreshing cache...")
+        self._cache_write(s)
+
+    def process(self, split="\n", rstrip=True):
+        if self.data:
+            for d in self._process_data(split=split, rstrip=rstrip):
+                yield d
+            return
+
+        if self.fetcher == 'apwg' and os.environ.get('APWG_TOKEN'):
+            from apwgsdk.client import Client as apwgcli
+            cli = apwgcli()
+            yield cli.indicators(no_last_run=True)
+            return
+
+        if self.fetcher == 'http':
+            if self.no_fetch and os.path.isfile(self.cache):
+                self.logger.info('skipping fetch: {}'.format(self.cache))
             else:
-                if self.fetcher == 'file':
-                    self.cache = self.remote
-                    if self.remote_pattern:
-                        found = False
-                        for f in os.listdir(self.cache):
-                            if re.match(self.remote_pattern, f):
-                                self.cache = os.path.join(self.cache, f)
-                                found = True
+                self._fetch()
 
-                        if not found:
-                            raise RuntimeError('unable to match file')
+            for l in self._process_cache(split=split, rstrip=rstrip):
+                if rstrip:
+                    l = l.rstrip()
 
-                elif self.fetcher == 'apwg' and os.environ.get('APWG_TOKEN'):
-                    from apwgsdk.client import Client as apwgcli
-                    cli = apwgcli()
-                    yield cli.indicators(no_last_run=True)
-                    return
+                if PYVERSION > 2 and isinstance(l, bytes):
+                    l = l.decode('utf-8')
 
-                else:
-                    raise NotImplementedError
+                yield l
 
-            ftype = magic.from_file(self.cache, mime=True)
-            if PYVERSION < 3:
-                ftype = ftype.decode('utf-8')
+            return
 
-            self.logger.debug(ftype)
+        if self.fetcher == 'file':
+            self.cache = self.remote
+            if self.remote_pattern:
+                found = False
+                for f in os.listdir(self.cache):
+                    if re.match(self.remote_pattern, f):
+                        self.cache = os.path.join(self.cache, f)
+                        found = True
 
-            if ftype.startswith('application/x-gzip') or ftype.startswith('application/gzip'):
-                import gzip
-                with gzip.open(self.cache, 'rb') as f:
-                    for l in f:
-                        if rstrip:
-                            l = l.rstrip()
+                if not found:
+                    raise RuntimeError('unable to match file')
 
-                        if PYVERSION > 2:
-                            l = l.decode('utf-8')
+            for l in self._process_cache(split=split, rstrip=rstrip):
+                if rstrip:
+                    l = l.rstrip()
 
-                        yield l
+                if PYVERSION > 2 and isinstance(l, bytes):
+                    try:
+                        l = l.decode('utf-8')
+                    except UnicodeDecodeError:
+                        l = l.decode('latin-1')
 
-            elif ftype.startswith('text') or ftype.startswith('application/xml'):
-                with open(self.cache) as f:
-                    for l in f:
-                        if rstrip:
-                            l = l.rstrip()
-
-                        if PYVERSION > 2 and isinstance(l, bytes):
-                            l = l.decode('utf-8')
-
-                        yield l
-
-            elif ftype == "application/zip":
-                from zipfile import ZipFile
-                with ZipFile(self.cache) as f:
-                    for m in f.infolist():
-                        if PYVERSION == 2:
-                            for l in f.read(m.filename).split(split):
-                                if rstrip:
-                                    l = l.rstrip()
-
-                                yield l
-                        else:
-                            with f.open(m.filename) as zip:
-                                for l in zip.readlines():
-                                    if rstrip:
-                                        l = l.rstrip()
-
-                                    try:
-                                        l = l.decode()
-                                    except UnicodeDecodeError as e:
-                                        l = l.decode('latin-1')
-
-                                    yield l
-
-            elif self.cache.endswith('.txt') and ftype == 'application/octet-stream':
-                with open(self.cache) as f:
-                    for l in f:
-                        if rstrip:
-                            l = l.rstrip()
-
-                        if PYVERSION > 2 and isinstance(l, bytes):
-                            l = l.decode('utf-8')
-
-                        yield l
+                yield l
