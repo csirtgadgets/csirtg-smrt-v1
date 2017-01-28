@@ -11,7 +11,7 @@ from pprint import pprint
 from argparse import ArgumentParser
 from argparse import RawDescriptionHelpFormatter
 import textwrap
-from csirtg_smrt.utils import setup_logging, get_argument_parser
+from csirtg_smrt.utils import setup_logging, get_argument_parser, setup_signals
 from csirtg_indicator.format import FORMATS
 
 
@@ -343,16 +343,17 @@ def main():
             i = i.__dict__()
 
             if args.client == 'stdout':
-
                 print(FORMATS[args.format](data=[i]))
             else:
-                rv = s.client.indicators_create(i)
+                s.client.indicators_create(i)
                 logger.info('indicator created: {}'.format(i['indicator']))
+
     except KeyboardInterrupt:
-        try:
+        logger.info('SIGINT caught... stopping')
+        if args.client != 'stdout':
             s.client.stop()
-        except Exception as e:
-            pass
+
+    logger.info('exiting...')
 
 if __name__ == '__main__':
     main()
