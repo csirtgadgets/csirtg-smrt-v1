@@ -207,7 +207,8 @@ class Fetcher(object):
 
     def process(self, split="\n", rstrip=True):
         if self.data:
-            yield self._process_data(split=split, rstrip=rstrip)
+            for d in self._process_data(split=split, rstrip=rstrip):
+                yield d
             return
 
         if self.fetcher == 'apwg' and os.environ.get('APWG_TOKEN'):
@@ -250,6 +251,9 @@ class Fetcher(object):
                     l = l.rstrip()
 
                 if PYVERSION > 2 and isinstance(l, bytes):
-                    l = l.decode('utf-8')
+                    try:
+                        l = l.decode('utf-8')
+                    except UnicodeDecodeError:
+                        l = l.decode('latin-1')
 
                 yield l
