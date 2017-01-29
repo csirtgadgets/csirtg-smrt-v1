@@ -72,6 +72,7 @@ def setup_runtime_path(path):
     if not os.path.isdir(path):
         os.mkdir(path)
 
+
 def chunk(it, slice=50):
     """Generate sublists from an iterator
     >>> list(chunk(iter(range(10)),11))
