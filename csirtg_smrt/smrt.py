@@ -181,6 +181,24 @@ class Smrt(object):
         if i.lasttime < self.goback:
             return True
 
+    def is_valid(self, i, rule):
+        # check for de-fang'd feed
+        if rule.replace:
+            for e in i:
+                if not rule.replace.get(e):
+                    continue
+
+                for k, v in rule.replace[e].items():
+                    i[e] = i[e].replace(k, v)
+
+        try:
+            i = normalize_itype(i)
+            return True
+        except InvalidIndicator as e:
+            if logger.getEffectiveLevel() == logging.DEBUG:
+                raise e
+            return False
+
     def send_indicators(self, indicators):
         if self.client == 'stdout':
             return
@@ -199,6 +217,7 @@ class Smrt(object):
         if limit:
             feed_indicators = itertools.islice(feed_indicators, int(limit))
 
+        feed_indicators = (i for i in feed_indicators if self.is_valid(i, rule))
         feed_indicators = (self.clean_indicator(i, rule) for i in feed_indicators)
 
         # check to see if the indicator is too old
