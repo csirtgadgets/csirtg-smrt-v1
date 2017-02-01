@@ -265,12 +265,15 @@ def process_events(events):
         normalized_timestamp = normalize_syslog_timestamp(record['ufw_timestamp'], time_now, local_tz)
 
         if record['ufw_action'] != 'BLOCK':
+            yield
             continue
 
         if record['ufw_protocol'] != 'TCP':
+            yield
             continue
 
         if record['ufw_tcp_flag_syn'] != 1:
+            yield
             continue
 
         data = {
