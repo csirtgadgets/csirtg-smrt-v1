@@ -99,7 +99,8 @@ def parse_record(line):
     record = {}
 
     # parse of entire ufw log record
-    RE_UFW = "^(\S+\s\S+\s\S+)\s(\S+)\s\S+\s\[[^,]+\]\s\[UFW\s(\S+)\]\s([^,]+)$"
+    #RE_UFW = "^(\S+\s\S+\s\S+)\s(\S+)\s\S+\s\[[^,]+\]\s\[UFW\s(\S+)\]\s([^,]+)$"
+    RE_UFW = '^(\S+\s{1,2}\S+\s\S+)\s(\S+)\s\S+\s\[[\s+]?[^,]+\]\s\[UFW\s(\S+)\]\s([^,]+)$'
     ts, hostname, action, message = re.match(RE_UFW, line).groups()
 
     record['ufw_timestamp'] = ts
@@ -258,6 +259,7 @@ def process_events(events):
             record = parse_record(line)
         except AttributeError:
             logger.debug("line not matched: \n{}".format(line))
+            yield
             continue
 
         normalized_timestamp = normalize_syslog_timestamp(record['ufw_timestamp'], time_now, local_tz)
