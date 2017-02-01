@@ -25,3 +25,4 @@ def test_ufw_ubuntu16():
 
     assert len(events) > 0
     assert events[0].indicator == '10.0.2.2'
+    assert events[1].indicator == '61.7.190.140'
