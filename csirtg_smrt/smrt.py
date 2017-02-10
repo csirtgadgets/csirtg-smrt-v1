@@ -58,7 +58,7 @@ class Smrt(object):
         return self
 
     def __init__(self, token=TOKEN, remote=REMOTE_ADDR, client='stdout', username=None, feed=None, archiver=None,
-                 fireball=False, no_fetch=False, verify_ssl=True, goback=False):
+                 fireball=False, no_fetch=False, verify_ssl=True, goback=False, skip_invalid=False):
 
         self.logger = logging.getLogger(__name__)
 
@@ -78,6 +78,7 @@ class Smrt(object):
         self.fireball = fireball
         self.no_fetch = no_fetch
         self.goback = goback
+        self.skip_invalid = skip_invalid
 
     def is_archived(self, indicator):
         if self.archiver and self.archiver.search(indicator):
@@ -196,7 +197,8 @@ class Smrt(object):
             return True
         except InvalidIndicator as e:
             if logger.getEffectiveLevel() == logging.DEBUG:
-                raise e
+                if not self.skip_invalid:
+                    raise e
             return False
 
     def send_indicators(self, indicators):
@@ -259,7 +261,7 @@ def _run_smrt(options, **kwargs):
 
     with Smrt(options.get('token'), options.get('remote'), client=args.client, username=args.user,
               feed=args.feed, archiver=archiver, fireball=args.fireball, no_fetch=args.no_fetch,
-              verify_ssl=verify_ssl, goback=goback) as s:
+              verify_ssl=verify_ssl, goback=goback, skip_invalid=args.skip_invalid) as s:
 
         s.client.ping(write=True)
         filters = {}
@@ -343,6 +345,8 @@ def main():
                    default=GOBACK_DAYS)
 
     p.add_argument('--fields', help='specify fields for stdout [default %(default)s]"', default=','.join(STDOUT_FIELDS))
+
+    p.add_argument('--skip-invalid', help="skip invalid indicators in DEBUG (-d) mode", action="store_true")
 
     args = p.parse_args()
 
