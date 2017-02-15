@@ -13,8 +13,7 @@ s = Smrt(REMOTE_ADDR, 1234, client='dummy')
 
 
 def test_alexa_top1m():
-    print(rule)
-    r, feed = next(s.load_feeds(rule, feed='top1m'))
+    r, feed = next(s.load_feeds(rule, feed='topN'))
 
     r.defaults['remote'] = 'test/alexa/alexa_top-1m.csv.zip'
     x = s.process(r, feed)
@@ -33,6 +32,8 @@ def test_alexa_top1m():
     assert int(x[1000].confidence) == 25
     assert int(x[9999].confidence) == 25
     assert int(x[10000].confidence) == 0
+
+    assert len(x) == 10100
     
     tags = set()
     for xx in x:

@@ -34,6 +34,7 @@ class Rule(dict):
                 self.filters = d.get('filters')
                 self.delim_pattern = d.get('delim_pattern')
                 self.line_filter = d.get('line_filter')
+                self.limit = d.get('limit')
 
             else:
                 raise RuleUnsupported('unsupported file type: {}'.format(path))
@@ -55,6 +56,7 @@ class Rule(dict):
             self.filters = rule.get('filters')
             self.delim_pattern = rule.get('delim_pattern')
             self.line_filter = rule.get('line_filter')
+            self.limit = rule.get('limit')
 
     def __repr__(self):
         return json.dumps({
@@ -70,5 +72,6 @@ class Rule(dict):
             'itype': self.itype,
             'filters': self.filters,
             'delim_pattern': self.delim_pattern,
-            'line_filter': self.line_filter
+            'line_filter': self.line_filter,
+            'limit': self.limit
         }, sort_keys=True, indent=4, separators=(',', ': '))
