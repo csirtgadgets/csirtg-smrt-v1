@@ -216,6 +216,10 @@ class Smrt(object):
         parser = self.load_parser(rule, feed, limit=limit, data=data, filters=filters)
 
         feed_indicators = parser.process()
+
+        if not limit:
+            limit = rule.feeds[feed].get('limit')
+
         if limit:
             feed_indicators = itertools.islice(feed_indicators, int(limit))
 
