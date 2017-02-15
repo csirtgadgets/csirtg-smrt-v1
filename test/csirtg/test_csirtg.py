@@ -84,3 +84,12 @@ def test_csirtg_skips_first():
     x = s.process(rule, feed="port-scanners")
     x = list(x)
     assert len(x) == 3
+
+
+def test_csirtg_limits():
+    rule.feeds['port-scanners']['remote'] = 'test/csirtg/feed2_csv.txt'
+    rule.feeds['port-scanners']['limit'] = 1
+
+    x = s.process(rule, feed="port-scanners")
+    x = list(x)
+    assert len(x) == 1
