@@ -345,10 +345,11 @@ def main():
                 logger.debug('skipping line')
                 continue
 
-            i = i.__dict__()
+            i.provider = args.provider
 
             if args.client == 'stdout':
                 print(FORMATS[args.format](data=[i]))
+
             else:
                 s.client.indicators_create(i)
                 logger.info('indicator created: {}'.format(i['indicator']))
