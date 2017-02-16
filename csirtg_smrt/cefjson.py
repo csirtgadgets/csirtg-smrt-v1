@@ -70,9 +70,9 @@ def main():
                 CSIRTG_RUNTIME_PATH
 
             example usage:
-                $ csirtg-ufw -f /var/log/ufw.log
-                $ ZYRE_GROUP=honeynet csirtg-ufw -d -f /var/log/ufw.log
-                $ csirtg-ufw -f /var/log/ufw.log --client csirtg --user wes --feed scanners -d
+                $ csirtg-cefjson -f /var/log/foo.json.log
+                $ ZYRE_GROUP=honeynet csirtg-cefjson -d -f /var/log/foo.json.log --client zyre
+                $ csirtg-cefjson -f /var/log/foo.json.log --client csirtg --user wes --feed scanners -d
             '''),
         formatter_class=RawDescriptionHelpFormatter,
         prog='csirtg-cefjson',
