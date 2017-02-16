@@ -116,7 +116,7 @@ def main():
 
             logger.debug(i)
 
-            i = i.__dict__()
+            i.provider = args.provider
 
             if args.client == 'stdout':
                 print(FORMATS[args.format](data=[i]))
