@@ -22,7 +22,7 @@ import requests
 requests.packages.urllib3.disable_warnings()
 
 # usually /var/log/ufw.log
-filename = '/var/log/ufw.log'
+FILENAME = '/var/log/ufw.log'
 
 # logging configuration
 LOG_FORMAT = '%(asctime)s - %(levelname)s - %(name)s[%(lineno)s] - %(message)s'
@@ -303,7 +303,7 @@ def main():
 
             example usage:
                 $ csirtg-ufw -f /var/log/ufw.log
-                $ ZYRE_GROUP=honeynet csirtg-ufw -d -f /var/log/ufw.log
+                $ ZYRE_GROUP=honeynet csirtg-ufw -d -f /var/log/ufw.log --client zyre
                 $ csirtg-ufw -f /var/log/ufw.log --client csirtg --user wes --feed scanners -d
             '''),
         formatter_class=RawDescriptionHelpFormatter,
@@ -312,7 +312,7 @@ def main():
     )
 
     p.add_argument('--no-verify-ssl', help='turn TLS/SSL verification OFF', action='store_true')
-    p.add_argument('-f', '--file')
+    p.add_argument('-f', '--file', default=FILENAME)
     p.add_argument('--client', default='stdout')
     p.add_argument('--user')
     p.add_argument('--feed')
