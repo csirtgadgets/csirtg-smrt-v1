@@ -70,9 +70,9 @@ def main():
                 CSIRTG_RUNTIME_PATH
 
             example usage:
-                $ csirtg-ufw -f /var/log/ufw.log
-                $ ZYRE_GROUP=honeynet csirtg-ufw -d -f /var/log/ufw.log
-                $ csirtg-ufw -f /var/log/ufw.log --client csirtg --user wes --feed scanners -d
+                $ csirtg-cefjson -f /var/log/foo.json.log
+                $ ZYRE_GROUP=honeynet csirtg-cefjson -d -f /var/log/foo.json.log --client zyre
+                $ csirtg-cefjson -f /var/log/foo.json.log --client csirtg --user wes --feed scanners -d
             '''),
         formatter_class=RawDescriptionHelpFormatter,
         prog='csirtg-cefjson',
@@ -116,13 +116,13 @@ def main():
 
             logger.debug(i)
 
-            i = i.__dict__()
+            i.provider = args.provider
 
             if args.client == 'stdout':
                 print(FORMATS[args.format](data=[i]))
             else:
                 s.client.indicators_create(i)
-                logger.info('indicator created: {}'.format(i['indicator']))
+                logger.info('indicator created: {}'.format(i.indicator))
 
     except KeyboardInterrupt:
         logger.info('SIGINT caught... stopping')

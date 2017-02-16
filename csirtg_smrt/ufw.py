@@ -22,7 +22,7 @@ import requests
 requests.packages.urllib3.disable_warnings()
 
 # usually /var/log/ufw.log
-filename = '/var/log/ufw.log'
+FILENAME = '/var/log/ufw.log'
 
 # logging configuration
 LOG_FORMAT = '%(asctime)s - %(levelname)s - %(name)s[%(lineno)s] - %(message)s'
@@ -303,7 +303,7 @@ def main():
 
             example usage:
                 $ csirtg-ufw -f /var/log/ufw.log
-                $ ZYRE_GROUP=honeynet csirtg-ufw -d -f /var/log/ufw.log
+                $ ZYRE_GROUP=honeynet csirtg-ufw -d -f /var/log/ufw.log --client zyre
                 $ csirtg-ufw -f /var/log/ufw.log --client csirtg --user wes --feed scanners -d
             '''),
         formatter_class=RawDescriptionHelpFormatter,
@@ -312,7 +312,7 @@ def main():
     )
 
     p.add_argument('--no-verify-ssl', help='turn TLS/SSL verification OFF', action='store_true')
-    p.add_argument('-f', '--file')
+    p.add_argument('-f', '--file', default=FILENAME)
     p.add_argument('--client', default='stdout')
     p.add_argument('--user')
     p.add_argument('--feed')
@@ -345,13 +345,14 @@ def main():
                 logger.debug('skipping line')
                 continue
 
-            i = i.__dict__()
+            i.provider = args.provider
 
             if args.client == 'stdout':
                 print(FORMATS[args.format](data=[i]))
+
             else:
                 s.client.indicators_create(i)
-                logger.info('indicator created: {}'.format(i['indicator']))
+                logger.info('indicator created: {}'.format(i.indicator))
 
     except KeyboardInterrupt:
         logger.info('SIGINT caught... stopping')
