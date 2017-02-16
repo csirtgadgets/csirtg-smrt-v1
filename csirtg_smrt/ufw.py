@@ -352,7 +352,7 @@ def main():
 
             else:
                 s.client.indicators_create(i)
-                logger.info('indicator created: {}'.format(i['indicator']))
+                logger.info('indicator created: {}'.format(i.indicator))
 
     except KeyboardInterrupt:
         logger.info('SIGINT caught... stopping')
