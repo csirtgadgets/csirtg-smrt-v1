@@ -79,6 +79,7 @@ class Smrt(object):
         self.no_fetch = no_fetch
         self.goback = goback
         self.skip_invalid = skip_invalid
+        self.verify_ssl = verify_ssl
 
     def is_archived(self, indicator):
         if self.archiver and self.archiver.search(indicator):
@@ -120,7 +121,7 @@ class Smrt(object):
         if isinstance(rule, str):
             rule = Rule(rule)
 
-        fetch = Fetcher(rule, feed, data=data, no_fetch=self.no_fetch)
+        fetch = Fetcher(rule, feed, data=data, no_fetch=self.no_fetch, verify_ssl=self.verify_ssl)
 
         parser_name = rule.feeds[feed].get('parser') or rule.parser or PARSER_DEFAULT
         plugin_path = os.path.join(os.path.dirname(__file__), 'parser')
