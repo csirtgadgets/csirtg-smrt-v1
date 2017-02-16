@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 class Fetcher(object):
 
-    def __init__(self, rule, feed, cache=SMRT_CACHE, data=None, no_fetch=False):
+    def __init__(self, rule, feed, cache=SMRT_CACHE, data=None, no_fetch=False, verify_ssl=True):
 
         self.logger = logging.getLogger(__name__)
         self.feed = feed
@@ -35,6 +35,7 @@ class Fetcher(object):
         self.token = None
         self.username = None
         self.filters = None
+        self.verify_ssl = verify_ssl
 
         if self.rule.remote:
             self.remote = self.rule.remote
@@ -160,7 +161,7 @@ class Fetcher(object):
             if self.username:
                 auth = (self.username, self.password)
 
-            resp = s.get(self.remote, stream=True, auth=auth, timeout=self.fetcher_timeout)
+            resp = s.get(self.remote, stream=True, auth=auth, timeout=self.fetcher_timeout, verify=self.verify_ssl)
             for block in resp.iter_content(1024):
                 f.write(block)
 
@@ -186,7 +187,8 @@ class Fetcher(object):
 
         logger.debug('checking HEAD')
 
-        resp = s.head(self.remote)
+        logger.debug('verify_ssl: {}'.format(self.verify_ssl))
+        resp = s.head(self.remote, verify=self.verify_ssl)
 
         if not resp.headers.get('Last-Modified'):
             logger.debug('no last-modified header')
