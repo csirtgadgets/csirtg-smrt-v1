@@ -62,17 +62,19 @@ class Smrt(object):
 
         self.logger = logging.getLogger(__name__)
 
-        plugin_path = os.path.join(os.path.dirname(__file__), 'client')
-        if getattr(sys, 'frozen', False):
-            plugin_path = os.path.join(sys._MEIPASS, 'csirtg_smrt', 'client')
+        self.client = None
+        if client != 'stdout':
+            plugin_path = os.path.join(os.path.dirname(__file__), 'client')
+            if getattr(sys, 'frozen', False):
+                plugin_path = os.path.join(sys._MEIPASS, 'csirtg_smrt', 'client')
 
-        self.client = load_plugin(plugin_path, client)
+            self.client = load_plugin(plugin_path, client)
 
-        if not self.client:
-            raise RuntimeError("Unable to load plugin: {}".format(client))
+            if not self.client:
+                raise RuntimeError("Unable to load plugin: {}".format(client))
 
-        self.client = self.client(remote=remote, token=token, username=username, feed=feed, fireball=fireball,
-                                  verify_ssl=verify_ssl)
+            self.client = self.client(remote=remote, token=token, username=username, feed=feed, fireball=fireball,
+                                      verify_ssl=verify_ssl)
 
         self.archiver = archiver
         self.fireball = fireball
@@ -203,7 +205,7 @@ class Smrt(object):
             return False
 
     def send_indicators(self, indicators):
-        if self.client == 'stdout':
+        if not self.client:
             return
 
         if self.fireball:
@@ -268,7 +270,9 @@ def _run_smrt(options, **kwargs):
               feed=args.feed, archiver=archiver, fireball=args.fireball, no_fetch=args.no_fetch,
               verify_ssl=verify_ssl, goback=goback, skip_invalid=args.skip_invalid) as s:
 
-        s.client.ping(write=True)
+        if s.client:
+            s.client.ping(write=True)
+
         filters = {}
         if args.filter_indicator:
             filters['indicator'] = args.filter_indicator
