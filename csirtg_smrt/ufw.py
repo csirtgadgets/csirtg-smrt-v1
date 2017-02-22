@@ -286,7 +286,7 @@ def process_events(events):
         if t:
             data['tags'].append(t)
             data['application'] = t
-
+        
         yield Indicator(**data)
 
 
