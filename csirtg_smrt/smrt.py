@@ -93,7 +93,7 @@ class Smrt(object):
 
     def load_feeds(self, rule, feed=None):
         if isinstance(rule, str) and os.path.isdir(rule):
-            for f in os.listdir(rule):
+            for f in sorted(os.listdir(rule)):
                 if f.startswith('.'):
                     continue
 
