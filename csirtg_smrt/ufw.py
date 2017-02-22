@@ -355,14 +355,17 @@ def main():
                 s.client.indicators_create(i)
                 logger.info('indicator created: {}'.format(i.indicator))
             except Exception as e:
+                logger.error(e)
                 if args.ignore_client_errors:
-                    logger.error(e)
                     pass
 
     except KeyboardInterrupt:
         logger.info('SIGINT caught... stopping')
         if args.client != 'stdout':
-            s.client.stop()
+            try:
+                s.client.stop()
+            except AttributeError:
+                pass
 
     logger.info('exiting...')
 

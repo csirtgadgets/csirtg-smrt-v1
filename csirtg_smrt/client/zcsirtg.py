@@ -1,5 +1,6 @@
 from csirtgsdk.client import Client as CSIRTGClient
 from csirtgsdk.indicator import Indicator
+import csirtg_indicator
 from csirtg_smrt.client.plugin import Client
 from pprint import pprint
 import os
@@ -28,7 +29,7 @@ class _Csirtg(Client):
         for x in data:
             d = {}
 
-            if isinstance(x, Indicator):
+            if isinstance(x, csirtg_indicator.Indicator):
                 d = x.__dict__()
             else:
                 d = x
