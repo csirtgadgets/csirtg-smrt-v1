@@ -259,21 +259,17 @@ def process_events(events):
             record = parse_record(line)
         except AttributeError:
             logger.debug("line not matched: \n{}".format(line))
-            yield
             continue
 
         normalized_timestamp = normalize_syslog_timestamp(record['ufw_timestamp'], time_now, local_tz)
 
         if record['ufw_action'] != 'BLOCK':
-            yield
             continue
 
         if record['ufw_protocol'] != 'TCP':
-            yield
             continue
 
         if record['ufw_tcp_flag_syn'] != 1:
-            yield
             continue
 
         data = {
@@ -318,6 +314,7 @@ def main():
     p.add_argument('--feed')
     p.add_argument('--format', default='csv')
     p.add_argument('--provider', help='specify provider [default %(default)s]', default=PROVIDER)
+    p.add_argument('--ignore-client-errors', help='skip when client errors out (eg: HTTP 5XX, etc)', action='store_true')
 
     args = p.parse_args()
 
@@ -340,8 +337,11 @@ def main():
     try:
         for line in tailer.follow(f):
             logger.debug(line)
-            i = next(process_events([line]))
-            if not i:
+
+            # TODO- refactor process_events so we don't need to use next/StopIteration
+            try:
+                i = next(process_events([line]))
+            except StopIteration:
                 logger.debug('skipping line')
                 continue
 
@@ -349,10 +349,15 @@ def main():
 
             if args.client == 'stdout':
                 print(FORMATS[args.format](data=[i]))
+                continue
 
-            else:
+            try:
                 s.client.indicators_create(i)
                 logger.info('indicator created: {}'.format(i.indicator))
+            except Exception as e:
+                if args.ignore_client_errors:
+                    logger.error(e)
+                    pass
 
     except KeyboardInterrupt:
         logger.info('SIGINT caught... stopping')
