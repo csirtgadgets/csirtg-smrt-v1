@@ -20,9 +20,16 @@ def test_ufw_ubuntu16():
     events = []
     with open(file) as f:
         for l in f.read().split("\n"):
-            i = next(process_events([l]))
+            i = process_events([l])
+
+            try:
+                i = next(i)
+            except StopIteration:
+                pass
+
             events.append(i)
 
+    from pprint import pprint
     assert len(events) > 0
     assert events[0].indicator == '10.0.2.2'
     assert events[1].indicator == '61.7.190.140'
