@@ -362,7 +362,10 @@ def main():
     except KeyboardInterrupt:
         logger.info('SIGINT caught... stopping')
         if args.client != 'stdout':
-            s.client.stop()
+            try:
+                s.client.stop()
+            except AttributeError:
+                pass
 
     logger.info('exiting...')
 
