@@ -223,7 +223,10 @@ class Fetcher(object):
             if self.no_fetch and os.path.isfile(self.cache):
                 self.logger.info('skipping fetch: {}'.format(self.cache))
             else:
-                self._fetch()
+                try:
+                    self._fetch()
+                except Exception as e:
+                    logger.error(e)
 
             for l in self._process_cache(split=split, rstrip=rstrip):
                 if rstrip:
