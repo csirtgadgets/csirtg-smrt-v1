@@ -406,15 +406,23 @@ def main():
     except KeyboardInterrupt:
         logger.info('shutting down')
         raise SystemExit
+    except Exception as e:
+        logger.error(e)
+        raise SystemExit
 
     logger.info('starting...')
 
     def _run():
-        Process(target=_run_smrt, args=(options,), kwargs={
+        logger.debug('forking process...')
+        p = Process(target=_run_smrt, args=(options,), kwargs={
             'args': args,
             'verify_ssl': verify_ssl,
             'goback': goback
-        }).start()
+        })
+        p.daemon = False
+        p.start()
+        p.join()
+        logger.debug('done')
 
     # first run, PeriodicCallback has builtin wait..
     _run()
@@ -428,7 +436,10 @@ def main():
         main_loop.start()
     except KeyboardInterrupt:
         logger.info('exiting..')
-        raise SystemExit
+        pass
+    except Exception as e:
+        logger.error(e)
+        pass
 
 if __name__ == "__main__":
     main()
