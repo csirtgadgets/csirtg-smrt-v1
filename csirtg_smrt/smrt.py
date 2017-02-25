@@ -100,14 +100,14 @@ class Smrt(object):
                 if os.path.isdir(f):
                     continue
 
-                self.logger.debug("processing {0}/{1}".format(rule, f))
+                self.logger.info("processing {0}/{1}".format(rule, f))
                 r = Rule(path=os.path.join(rule, f))
 
                 for feed in r.feeds:
                     yield r, feed
 
         else:
-            self.logger.debug("processing {0}".format(rule))
+            self.logger.info("processing {0}".format(rule))
             if isinstance(rule, str):
                 rule = Rule(path=rule)
 
