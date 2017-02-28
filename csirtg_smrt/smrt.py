@@ -235,7 +235,7 @@ class Smrt(object):
         
         feed_indicators = (i for i in feed_indicators if not self.is_archived_with_log(i))
 
-        feed_indicators_batches = chunk(feed_indicators, FIREBALL_SIZE)
+        feed_indicators_batches = chunk(feed_indicators, int(FIREBALL_SIZE))
 
         for indicator_batch in feed_indicators_batches:
             self.archiver and self.archiver.begin()
