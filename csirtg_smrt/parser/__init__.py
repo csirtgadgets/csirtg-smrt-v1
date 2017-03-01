@@ -8,7 +8,7 @@ RE_COMMENTS = '^([#|;]+)'
 
 class Parser(object):
 
-    def __init__(self, client, fetcher, rule, feed, limit=None, archiver=None, filters=None, fireball=False):
+    def __init__(self, client, fetcher, rule, feed, limit=None, filters=None, fireball=False):
 
         self.logger = logging.getLogger(__name__)
         self.client = client
@@ -17,7 +17,6 @@ class Parser(object):
         self.feed = feed
         self.limit = limit
         self.skip = None
-        self.archiver = archiver
         self.filters = filters
         self.skip_first = False
         self.itype = None

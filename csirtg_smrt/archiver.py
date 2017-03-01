@@ -13,6 +13,8 @@ from csirtg_smrt.constants import PYVERSION, RUNTIME_PATH
 from sqlalchemy.sql.expression import func
 from pprint import pprint
 
+TRACE = os.environ.get('CSIRTG_SMRT_SQLITE_TRACE')
+
 DB_FILE = os.path.join(RUNTIME_PATH, 'smrt.db')
 Base = declarative_base()
 
@@ -20,6 +22,9 @@ if PYVERSION > 2:
     basestring = (str, bytes)
 
 logger = logging.getLogger(__name__)
+
+if not TRACE:
+    logger.setLevel(logging.ERROR)
 
 
 class Indicator(Base):
@@ -64,9 +69,8 @@ class Archiver(object):
         self.path = "sqlite:///{0}".format(self.dbfile)
 
         echo = False
-
-        #if logger.getEffectiveLevel() == logging.DEBUG:
-        #   echo = True
+        if TRACE:
+            echo = True
 
         # http://docs.sqlalchemy.org/en/latest/orm/contextual.html
         self.engine = create_engine(self.path, echo=echo)
@@ -90,7 +94,7 @@ class Archiver(object):
 
     def commit(self):
         self._session.commit()
-        self.session = None
+        self._session = None
 
     def clear_memcache(self):
         self.memcache = {}

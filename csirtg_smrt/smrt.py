@@ -141,8 +141,7 @@ class Smrt(object):
 
         self.logger.debug("loading parser: {}".format(parser))
 
-        return parser(self.client, fetch, rule, feed, limit=limit, archiver=self.archiver, filters=filters,
-                      fireball=self.fireball)
+        return parser(self.client, fetch, rule, feed, limit=limit, filters=filters, fireball=self.fireball)
 
     def clean_indicator(self, i, rule):
         # check for de-fang'd feed
@@ -249,6 +248,8 @@ class Smrt(object):
                 # converted i.format_keys to generator in indicator-0.0.0b0
                 yield list(i.format_keys())[0]
                 self.archive(i)
+
+            pprint(self.archiver)
 
             self.archiver and self.archiver.commit()
 
@@ -401,14 +402,15 @@ def main():
     r = int(args.delay)
     logger.info("random delay is {}, then running every {} min after that".format(r, service_interval))
 
-    try:
-        sleep((r * 60))
-    except KeyboardInterrupt:
-        logger.info('shutting down')
-        raise SystemExit
-    except Exception as e:
-        logger.error(e)
-        raise SystemExit
+    if r != 0:
+        try:
+            sleep((r * 60))
+        except KeyboardInterrupt:
+            logger.info('shutting down')
+            raise SystemExit
+        except Exception as e:
+            logger.error(e)
+            raise SystemExit
 
     logger.info('starting...')
 
@@ -417,7 +419,7 @@ def main():
         p = Process(target=_run_smrt, args=(options,), kwargs={
             'args': args,
             'verify_ssl': verify_ssl,
-            'goback': goback
+            'goback': goback,
         })
         p.daemon = False
         p.start()
