@@ -249,8 +249,6 @@ class Smrt(object):
                 yield list(i.format_keys())[0]
                 self.archive(i)
 
-            pprint(self.archiver)
-
             self.archiver and self.archiver.commit()
 
         if limit:
