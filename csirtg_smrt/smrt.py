@@ -17,7 +17,7 @@ from multiprocessing import Process
 import tornado.ioloop as ioloop
 
 import csirtg_smrt.parser
-from csirtg_smrt.archiver import Archiver
+from csirtg_smrt.archiver import Archiver, NOOPArchiver
 import csirtg_smrt.client
 from csirtg_indicator.constants import COLUMNS
 from csirtg_smrt.constants import REMOTE_ADDR, SMRT_RULES_PATH, SMRT_CACHE, CONFIG_PATH, RUNTIME_PATH, VERSION, FIREBALL_SIZE
@@ -76,20 +76,19 @@ class Smrt(object):
             self.client = self.client(remote=remote, token=token, username=username, feed=feed, fireball=fireball,
                                       verify_ssl=verify_ssl)
 
-        self.archiver = archiver
+        self.archiver = archiver or NOOPArchiver()
         self.fireball = fireball
         self.no_fetch = no_fetch
         self.goback = goback
         self.skip_invalid = skip_invalid
         self.verify_ssl = verify_ssl
 
+
     def is_archived(self, indicator):
-        if self.archiver and self.archiver.search(indicator):
-            return True
+        return self.archiver.search(indicator)
 
     def archive(self, indicator):
-        if self.archiver and self.archiver.create(indicator):
-            return True
+        return self.archiver.create(indicator)
 
     def load_feeds(self, rule, feed=None):
         if isinstance(rule, str) and os.path.isdir(rule):
@@ -237,7 +236,7 @@ class Smrt(object):
         feed_indicators_batches = chunk(feed_indicators, int(FIREBALL_SIZE))
 
         for indicator_batch in feed_indicators_batches:
-            self.archiver and self.archiver.begin()
+            self.archiver.begin()
             self.send_indicators(indicator_batch)
 
             for i in indicator_batch:
@@ -249,9 +248,7 @@ class Smrt(object):
                 yield list(i.format_keys())[0]
                 self.archive(i)
 
-            pprint(self.archiver)
-
-            self.archiver and self.archiver.commit()
+            self.archiver.commit()
 
         if limit:
             self.logger.debug("limit reached...")
@@ -266,6 +263,8 @@ def _run_smrt(options, **kwargs):
     archiver = None
     if args.remember:
         archiver = Archiver(dbfile=args.remember_path)
+    else:
+        archiver = NOOPArchiver()
 
     with Smrt(options.get('token'), options.get('remote'), client=args.client, username=args.user,
               feed=args.feed, archiver=archiver, fireball=args.fireball, no_fetch=args.no_fetch,
@@ -287,9 +286,8 @@ def _run_smrt(options, **kwargs):
         if args.client == 'stdout':
             print(FORMATS[options.get('format')](data=indicators, cols=args.fields.split(',')))
 
-    if archiver:
-        archiver.cleanup()
-        archiver.clear_memcache()
+    archiver.cleanup()
+    archiver.clear_memcache()
 
     logger.info('completed..')
 
