@@ -201,7 +201,7 @@ class Archiver(object):
 
         s = self.begin()
         count = s.query(Indicator).filter(Indicator.created_at < date.datetime).delete()
-        s.commit()
+        self.commit()
 
         return count
 
