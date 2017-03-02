@@ -77,6 +77,7 @@ class Archiver(object):
         self.handle = sessionmaker(bind=self.engine)
         self.handle = scoped_session(self.handle)
         self._session = None
+        self._tx_count = 0
 
         Base.metadata.create_all(self.engine)
 
@@ -85,16 +86,20 @@ class Archiver(object):
         self.clear_memcache()
 
     def begin(self):
+        self._tx_count += 1
         if self._session:
-            self._session.begin(subtransactions=True)
             return self._session
 
         self._session = self.handle()
         return self._session
 
     def commit(self):
-        self._session.commit()
-        self._session = None
+        if self._tx_count == 0:
+            raise Exception("commit outside of transaction")
+        self._tx_count -= 1
+        if self._tx_count == 0:
+            self._session.commit()
+            self._session = None
 
     def clear_memcache(self):
         self.memcache = {}
@@ -194,8 +199,30 @@ class Archiver(object):
         date = arrow.utcnow()
         date = date.replace(days=-days)
 
-        s = self.handle()
+        s = self.begin()
         count = s.query(Indicator).filter(Indicator.created_at < date.datetime).delete()
-        s.commit()
+        self.commit()
 
         return count
+
+class NOOPArchiver:
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def begin(self):
+        pass
+
+    def commit(self):
+        pass
+
+    def clear_memcache(self):
+        pass
+
+    def search(self, indicator):
+        return False
+
+    def create(self, indicator):
+        pass
+
+    def cleanup(self, days=180):
+        return 0
