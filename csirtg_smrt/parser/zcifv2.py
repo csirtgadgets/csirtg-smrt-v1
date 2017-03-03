@@ -1,6 +1,15 @@
-import copy
 import json
 from csirtg_smrt.parser import Parser
+import os
+import logging
+
+TRACE = os.environ.get('CSIRTG_SMRT_PARSER_TRACE')
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
+if not TRACE:
+    logger.setLevel(logging.ERROR)
 
 
 class Cifv2(Parser):
@@ -11,7 +20,11 @@ class Cifv2(Parser):
     def process(self):
         for l in self.fetcher.process():
 
-            l = json.loads(l)
+            try:
+                l = json.loads(l)
+            except ValueError as e:
+                logger.error('json parsing error: {}'.format(e))
+                continue
 
             for e in l:
                 e['indicator'] = e['observable']

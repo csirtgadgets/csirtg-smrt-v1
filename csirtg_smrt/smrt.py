@@ -259,6 +259,7 @@ def _run_smrt(options, **kwargs):
     goback = kwargs.get('goback')
     verify_ssl = kwargs.get('verify_ssl')
     data = kwargs.get('data')
+    service_mode = kwargs.get("service_mode")
 
     archiver = None
     if args.remember:
@@ -279,9 +280,17 @@ def _run_smrt(options, **kwargs):
 
         indicators = []
         for r, f in s.load_feeds(args.rule, feed=args.feed):
-            for i in s.process(r, f, limit=args.limit, data=data, filters=filters):
-                if args.client == 'stdout':
-                    indicators.append(i)
+            logger.info('processing: {} - {}'.format(args.rule, args.feed))
+            try:
+                for i in s.process(r, f, limit=args.limit, data=data, filters=filters):
+                    if args.client == 'stdout':
+                        indicators.append(i)
+            except Exception as e:
+                if not service_mode:
+                    raise e
+
+                logger.error(e)
+                logger.info('skipping: {}'.format(args.feed))
 
         if args.client == 'stdout':
             print(FORMATS[options.get('format')](data=indicators, cols=args.fields.split(',')))
@@ -403,9 +412,11 @@ def main():
     if r != 0:
         try:
             sleep((r * 60))
+
         except KeyboardInterrupt:
             logger.info('shutting down')
             raise SystemExit
+
         except Exception as e:
             logger.error(e)
             raise SystemExit
@@ -418,6 +429,7 @@ def main():
             'args': args,
             'verify_ssl': verify_ssl,
             'goback': goback,
+            'service_mode': True
         })
         p.daemon = False
         p.start()
@@ -434,9 +446,11 @@ def main():
     try:
         loop.start()
         main_loop.start()
+
     except KeyboardInterrupt:
         logger.info('exiting..')
         pass
+
     except Exception as e:
         logger.error(e)
         pass

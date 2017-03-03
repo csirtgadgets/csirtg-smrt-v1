@@ -1,8 +1,16 @@
 import copy
 import json
 from csirtg_smrt.parser import Parser
-from csirtg_indicator import Indicator
-from csirtg_indicator.utils import normalize_itype
+import logging
+import os
+
+TRACE = os.environ.get('CSIRTG_SMRT_PARSER_TRACE')
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
+if not TRACE:
+    logger.setLevel(logging.ERROR)
 
 
 class Json(Parser):
@@ -17,7 +25,12 @@ class Json(Parser):
 
         for l in self.fetcher.process():
 
-            l = json.loads(l)
+            try:
+                l = json.loads(l)
+            except ValueError as e:
+                logger.error('json parsing error: {}'.format(e))
+                continue
+
             for e in l:
                 i = copy.deepcopy(defaults)
 

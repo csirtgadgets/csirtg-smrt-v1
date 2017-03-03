@@ -32,6 +32,7 @@ class Delim(Parser):
                 for idx, col in enumerate(cols):
                     if col is not None:
                         i[col] = m[idx]
+
                 i.pop("values", None)
 
                 self.eval_obs(i)
