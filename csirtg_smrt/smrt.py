@@ -25,7 +25,7 @@ from csirtg_smrt.rule import Rule
 from csirtg_smrt.fetcher import Fetcher
 from csirtg_smrt.utils import setup_logging, get_argument_parser, load_plugin, setup_signals, read_config, \
     setup_runtime_path, chunk
-from csirtg_smrt.exceptions import AuthError, TimeoutError
+from csirtg_smrt.exceptions import AuthError, TimeoutError, RuleUnsupported
 from csirtg_indicator.format import FORMATS
 from csirtg_indicator import Indicator
 from csirtg_indicator.exceptions import InvalidIndicator
@@ -83,7 +83,6 @@ class Smrt(object):
         self.skip_invalid = skip_invalid
         self.verify_ssl = verify_ssl
 
-
     def is_archived(self, indicator):
         return self.archiver.search(indicator)
 
@@ -100,7 +99,11 @@ class Smrt(object):
                     continue
 
                 self.logger.info("processing {0}/{1}".format(rule, f))
-                r = Rule(path=os.path.join(rule, f))
+                try:
+                    r = Rule(path=os.path.join(rule, f))
+                except RuleUnsupported as e:
+                    logger.error(e)
+                    continue
 
                 for feed in r.feeds:
                     yield r, feed
@@ -108,7 +111,11 @@ class Smrt(object):
         else:
             self.logger.info("processing {0}".format(rule))
             if isinstance(rule, str):
-                rule = Rule(path=rule)
+                try:
+                    rule = Rule(path=rule)
+                except RuleUnsupported as e:
+                    logger.error(e)
+                    return
 
             if feed:
                 # replace the feeds dict with the single feed

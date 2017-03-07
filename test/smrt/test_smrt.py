@@ -45,7 +45,7 @@ def test_smrt_rule_paths():
 
         try:
             r, f = next(s.load_feeds('test/smrt/rules/csirtg.yml~', feed='port-scanners'))
-        except RuleUnsupported:
+        except StopIteration:
             pass
 
         assert f is None
