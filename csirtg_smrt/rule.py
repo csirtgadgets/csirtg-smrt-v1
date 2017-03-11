@@ -73,5 +73,6 @@ class Rule(dict):
             'filters': self.filters,
             'delim_pattern': self.delim_pattern,
             'line_filter': self.line_filter,
-            'limit': self.limit
+            'limit': self.limit,
+            'token': self.token
         }, sort_keys=True, indent=4, separators=(',', ': '))

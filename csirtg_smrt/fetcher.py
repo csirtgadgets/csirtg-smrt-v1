@@ -51,7 +51,13 @@ class Fetcher(object):
         elif self.rule.feeds[feed].get('remote_pattern'):
             self.remote_pattern = self.rule.feeds[feed]['remote_pattern']
 
-        if self.rule.token:
+        if '{token}' in self.remote:
+            if self.rule.token:
+                self.remote = self.remote.format(token=self.rule.token)
+            else:
+                self.remote = self.remote.format(token='')
+
+        else:
             header = 'Authorization: Token token='
             if self.rule.token_header:
                 header = self.rule.token_header
