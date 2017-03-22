@@ -7,7 +7,7 @@ replace:
 defaults:
   provider: csirtg.io
   altid_tlp: white
-  altid: https://csirtg.io/search?q=<indicator>
+  altid: https://csirtg.io/search?q={indicator}
   tlp: white
   confidence: 9
   indicator: eval(indicator.replace('[.]', '.'))
