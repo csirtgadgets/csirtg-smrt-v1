@@ -82,6 +82,7 @@ class Smrt(object):
         self.goback = goback
         self.skip_invalid = skip_invalid
         self.verify_ssl = verify_ssl
+        self.last_cache = None
 
     def is_archived(self, indicator):
         return self.archiver.search(indicator)
@@ -130,6 +131,7 @@ class Smrt(object):
             rule = Rule(rule)
 
         fetch = Fetcher(rule, feed, data=data, no_fetch=self.no_fetch, verify_ssl=self.verify_ssl)
+        self.last_cache = fetch.cache
 
         parser_name = rule.feeds[feed].get('parser') or rule.parser or PARSER_DEFAULT
         plugin_path = os.path.join(os.path.dirname(__file__), 'parser')
@@ -294,6 +296,7 @@ def _run_smrt(options, **kwargs):
                         indicators.append(i)
             except Exception as e:
                 if not service_mode and not args.skip_broken:
+                    logger.error('may need to remove the old cache file: %s' % s.last_cache)
                     raise e
 
                 logger.error(e)
