@@ -1,0 +1,29 @@
+#                     - db.findings.dropIndexes();
+#     Tue Jan 24 2017 - HTTP 302 requests to kittenlasers.com (thanks Jim!) due to bandwidth usage, please still use the original URL should resources move again and the HTTP 302 redirect be updated.
+#
+# This list was last updated on Thu Mar 23 07:55:01 2017
+#
+# IP; last_seen; context; cumulative history
+114.33.197.113; 2017-03-21 12:55:03; Honeypot hits in 3600 hash-collection seconds: 1; Cumulative honeypot hits for IP over all days: 1
+114.35.1.82; 2017-03-21 12:56:09; Honeypot hits in 3600 hash-collection seconds: 1; Cumulative honeypot hits for IP over all days: 2
+178.223.87.108; 2017-03-21 12:57:05; Honeypot hits in 3600 hash-collection seconds: 1; Cumulative honeypot hits for IP over all days: 1
+1.54.29.215; 2017-03-21 12:58:09; Honeypot hits in 3600 hash-collection seconds: 1; Cumulative honeypot hits for IP over all days: 1
+179.40.212.141; 2017-03-21 12:59:02; Honeypot hits in 3600 hash-collection seconds: 1; Cumulative honeypot hits for IP over all days: 1
+189.212.144.250; 2017-03-21 13:01:01; Honeypot hits in 3600 hash-collection seconds: 1; Cumulative honeypot hits for IP over all days: 1
+179.32.180.203; 2017-03-21 13:02:03; Honeypot hits in 3600 hash-collection seconds: 1; Cumulative honeypot hits for IP over all days: 2
+14.162.12.153; 2017-03-21 13:03:35; Honeypot hits in 3600 hash-collection seconds: 1; Cumulative honeypot hits for IP over all days: 1
+14.176.65.42; 2017-03-21 13:05:46; Honeypot hits in 3600 hash-collection seconds: 1; Cumulative honeypot hits for IP over all days: 1
+191.190.77.119; 2017-03-21 13:06:04; Honeypot hits in 3600 hash-collection seconds: 1; Cumulative honeypot hits for IP over all days: 1
+113.164.193.91; 2017-03-21 13:07:47; Honeypot hits in 3600 hash-collection seconds: 1; Cumulative honeypot hits for IP over all days: 1
+175.182.75.190; 2017-03-21 13:08:05; Honeypot hits in 3600 hash-collection seconds: 1; Cumulative honeypot hits for IP over all days: 1
+186.236.187.26; 2017-03-21 13:10:51; Honeypot hits in 3600 hash-collection seconds: 1; Cumulative honeypot hits for IP over all days: 1
+118.163.131.73; 2017-03-21 13:11:07; Honeypot hits in 3600 hash-collection seconds: 1; Cumulative honeypot hits for IP over all days: 1
+191.250.122.75; 2017-03-21 13:12:04; Honeypot hits in 3600 hash-collection seconds: 1; Cumulative honeypot hits for IP over all days: 1
+109.242.80.192; 2017-03-21 13:13:01; Honeypot hits in 3600 hash-collection seconds: 1; Cumulative honeypot hits for IP over all days: 1
+107.170.220.174; 2017-03-21 13:13:02; Honeypot hits in 3600 hash-collection seconds: 1; Cumulative honeypot hits for IP over all days: 1
+59.61.49.162; 2017-03-21 16:57:03; Honeypot hits in 3600 hash-collection seconds: 1; Cumulative honeypot hits for IP over all days: 1
+168.196.127.6; 2017-03-21 16:57:06; Honeypot hits in 3600 hash-collection seconds: 1; Cumulative honeypot hits for IP over all days: 1
+104.131.128.9; 2017-03-21 16:58:51; Honeypot hits in 3600 hash-collection seconds: 1; Cumulative honeypot hits for IP over all days: 2
+115.73.192.50; 2017-03-21 16:59:07; Honeypot hits in 3600 hash-collection seconds: 1; Cumulative honeypot hits for IP over all days: 1
+39.45.138.249; 2017-03-21 17:00:17; Honeypot hits in 3600 hash-collection seconds: 1; Cumulative honeypot hits for IP over all days: 1
+112.162.97.148; 2017-03-21 17:03:29; Honeypot hits in 3600 hash-collection seconds: 1; Cumulative honeypot hits for IP over all days: 1

@@ -7,7 +7,7 @@ class Semicolon(Delim):
     def __init__(self, *args, **kwargs):
         super(Semicolon, self).__init__(*args, **kwargs)
 
-        self.pattern = re.compile('[\s+|\S]?;\s+?')
+        self.pattern = re.compile('[\s+]?;[\s+]?')
 
 
 Plugin = Semicolon

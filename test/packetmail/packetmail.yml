@@ -1,0 +1,24 @@
+parser: semicolon
+
+defaults:
+  protocol: tcp
+  provider: packetmail.net
+  tlp: green
+  altid_tlp: white
+  confidence: 8
+  description: honeypot traffic
+  tags:
+    - scanner
+    - honeynet
+    - suspicious
+
+  values:
+    - indicator
+    - lasttime
+    - null
+    - null
+
+feeds:
+  iprep:
+    remote: https://www.packetmail.net/iprep.txt
+    description: 'TCP SYN to 206.82.85.196/30 to a non-listening service or daemon'
