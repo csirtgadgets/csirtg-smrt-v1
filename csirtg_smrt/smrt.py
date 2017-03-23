@@ -82,6 +82,7 @@ class Smrt(object):
         self.goback = goback
         self.skip_invalid = skip_invalid
         self.verify_ssl = verify_ssl
+        self.last_cache = None
 
     def is_archived(self, indicator):
         return self.archiver.search(indicator)
@@ -130,6 +131,7 @@ class Smrt(object):
             rule = Rule(rule)
 
         fetch = Fetcher(rule, feed, data=data, no_fetch=self.no_fetch, verify_ssl=self.verify_ssl)
+        self.last_cache = fetch.cache
 
         parser_name = rule.feeds[feed].get('parser') or rule.parser or PARSER_DEFAULT
         plugin_path = os.path.join(os.path.dirname(__file__), 'parser')
@@ -293,7 +295,8 @@ def _run_smrt(options, **kwargs):
                     if args.client == 'stdout':
                         indicators.append(i)
             except Exception as e:
-                if not service_mode:
+                if not service_mode and not args.skip_broken:
+                    logger.error('may need to remove the old cache file: %s' % s.last_cache)
                     raise e
 
                 logger.error(e)
@@ -371,6 +374,7 @@ def main():
     p.add_argument('--fields', help='specify fields for stdout [default %(default)s]"', default=','.join(STDOUT_FIELDS))
 
     p.add_argument('--skip-invalid', help="skip invalid indicators in DEBUG (-d) mode", action="store_true")
+    p.add_argument('--skip-broken', help='skip seemingly broken feeds', action='store_true')
 
     args = p.parse_args()
 
