@@ -31,7 +31,11 @@ class Delim(Parser):
 
                 for idx, col in enumerate(cols):
                     if col is not None:
-                        i[col] = m[idx]
+                        try:
+                            i[col] = m[idx]
+                        except IndexError as e:
+                            self.logger.error(l)
+                            raise
 
                 i.pop("values", None)
 
