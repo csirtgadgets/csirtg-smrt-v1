@@ -293,7 +293,7 @@ def _run_smrt(options, **kwargs):
                     if args.client == 'stdout':
                         indicators.append(i)
             except Exception as e:
-                if not service_mode:
+                if not service_mode and not args.skip_broken:
                     raise e
 
                 logger.error(e)
@@ -371,6 +371,7 @@ def main():
     p.add_argument('--fields', help='specify fields for stdout [default %(default)s]"', default=','.join(STDOUT_FIELDS))
 
     p.add_argument('--skip-invalid', help="skip invalid indicators in DEBUG (-d) mode", action="store_true")
+    p.add_argument('--skip-broken', help='skip seemingly broken feeds', action='store_true')
 
     args = p.parse_args()
 
