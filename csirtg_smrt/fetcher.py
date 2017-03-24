@@ -57,7 +57,7 @@ class Fetcher(object):
             else:
                 self.remote = self.remote.format(token='')
 
-        elif self.token:
+        elif self.rule.token:
             header = 'Authorization: Token token='
             if self.rule.token_header:
                 header = self.rule.token_header
