@@ -126,7 +126,16 @@ class Fetcher(object):
             yield l
 
     def _process_cache(self, split="\n", rstrip=True):
-        ftype = magic.from_file(self.cache, mime=True)
+        try:
+            ftype = magic.from_file(self.cache, mime=True)
+        except AttributeError:
+            try:
+                mag = magic.open(magic.MAGIC_MIME)
+                mag.load()
+                ftype = mag.file(self.cache)
+            except AttributeError as e:
+                raise RuntimeError('unable to detect cached file type')
+        
         if PYVERSION < 3:
             ftype = ftype.decode('utf-8')
 
