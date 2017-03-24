@@ -48,6 +48,9 @@ class Indicator(Base):
         self.lasttime = lasttime
         self.tags = tags
 
+        if isinstance(group, list):
+            self.group = group[0]
+
         if isinstance(self.tags, list):
             self.tags.sort()
             self.tags = ','.join(self.tags)
