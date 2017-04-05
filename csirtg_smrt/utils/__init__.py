@@ -66,6 +66,7 @@ def setup_signals(name):
         raise SystemExit
 
     signal.signal(signal.SIGTERM, sigterm_handler)
+    signal.signal(signal.SIGINT, sigterm_handler)
 
 
 def setup_runtime_path(path):

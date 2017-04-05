@@ -25,7 +25,7 @@ from csirtg_smrt.rule import Rule
 from csirtg_smrt.fetcher import Fetcher
 from csirtg_smrt.utils import setup_logging, get_argument_parser, load_plugin, setup_signals, read_config, \
     setup_runtime_path, chunk
-from csirtg_smrt.exceptions import AuthError, TimeoutError, RuleUnsupported
+from csirtg_smrt.exceptions import AuthError, TimeoutError, RuleUnsupported, SubmissionFailure
 from csirtg_indicator.format import FORMATS
 from csirtg_indicator import Indicator
 from csirtg_indicator.exceptions import InvalidIndicator
@@ -58,7 +58,8 @@ class Smrt(object):
         return self
 
     def __init__(self, token=TOKEN, remote=REMOTE_ADDR, client='stdout', username=None, feed=None, archiver=None,
-                 fireball=False, no_fetch=False, verify_ssl=True, goback=False, skip_invalid=False):
+                 fireball=False, no_fetch=False, verify_ssl=True, goback=False, skip_invalid=False, send_retries=5,
+                 send_retries_wait=30):
 
         self.logger = logging.getLogger(__name__)
 
@@ -83,6 +84,8 @@ class Smrt(object):
         self.skip_invalid = skip_invalid
         self.verify_ssl = verify_ssl
         self.last_cache = None
+        self.send_retries = send_retries
+        self.send_retries_wait = send_retries_wait
 
     def is_archived(self, indicator):
         return self.archiver.search(indicator)
@@ -211,16 +214,35 @@ class Smrt(object):
                     raise e
             return False
 
+    def _send_indicators(self, indicators):
+        n = int(self.send_retries) - 1
+        s = int(self.send_retries_wait)
+        success = False
+        while n > 0:
+            try:
+                self.client.indicators_create(indicators)
+                n = 0
+                success = True
+            except Exception as e:
+                logger.error(e)
+                logger.info('[{} / {}] waiting {}s for retry...'.format((int(self.send_retries) - n), self.send_retries, s))
+                n -= 1
+                sleep(s)
+
+        if not success:
+            raise SubmissionFailure('unable reach remote node')
+
     def send_indicators(self, indicators):
         if not self.client:
             return
 
         if self.fireball:
             self.logger.debug('flushing queue...')
-            self.client.indicators_create(indicators)
-        else:
-            for i in indicators:
-                self.client.indicators_create(i)
+            self._send_indicators(indicators)
+            return
+
+        for i in indicators:
+            self._send_indicators(i)
     
     def process(self, rule, feed, limit=None, data=None, filters=None):
         parser = self.load_parser(rule, feed, limit=limit, data=data, filters=filters)
@@ -278,7 +300,8 @@ def _run_smrt(options, **kwargs):
 
     with Smrt(options.get('token'), options.get('remote'), client=args.client, username=args.user,
               feed=args.feed, archiver=archiver, fireball=args.fireball, no_fetch=args.no_fetch,
-              verify_ssl=verify_ssl, goback=goback, skip_invalid=args.skip_invalid) as s:
+              verify_ssl=verify_ssl, goback=goback, skip_invalid=args.skip_invalid, send_retries=args.send_retries,
+              send_retries_wait=args.send_retries_wait) as s:
 
         if s.client:
             s.client.ping(write=True)
@@ -289,7 +312,7 @@ def _run_smrt(options, **kwargs):
 
         indicators = []
         for r, f in s.load_feeds(args.rule, feed=args.feed):
-            logger.info('processing: {} - {}'.format(args.rule, f))
+            logger.info('processing: {} - {}:{}'.format(args.rule, r.defaults['provider'], f))
             try:
                 for i in s.process(r, f, limit=args.limit, data=data, filters=filters):
                     if args.client == 'stdout':
@@ -376,6 +399,11 @@ def main():
     p.add_argument('--skip-invalid', help="skip invalid indicators in DEBUG (-d) mode", action="store_true")
     p.add_argument('--skip-broken', help='skip seemingly broken feeds', action='store_true')
 
+    p.add_argument('--send-retries', help='specify how many times to re-try sending indicators after a failure '
+                                          '[default: %(default)s', default=5)
+    p.add_argument('--send-retries-wait', help='how many seconds to wait between retries [default: %(default)s',
+                   default=30)
+
     args = p.parse_args()
 
     o = read_config(args)
@@ -442,10 +470,10 @@ def main():
             'goback': goback,
             'service_mode': True
         })
+
         p.daemon = False
         p.start()
         p.join()
-        logger.debug('done')
 
     # first run, PeriodicCallback has builtin wait..
     _run()
