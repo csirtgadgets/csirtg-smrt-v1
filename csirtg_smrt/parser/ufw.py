@@ -188,6 +188,7 @@ def to_indicator(record):
 
     return Indicator(**data)
 
+
 def main():
     p = get_argument_parser()
     p = ArgumentParser(
