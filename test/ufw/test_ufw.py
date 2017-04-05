@@ -1,4 +1,4 @@
-from csirtg_smrt.ufw import process_events
+from csirtg_smrt.parser.ufw import parse_line, to_indicator
 
 
 def test_ufw():
@@ -7,7 +7,9 @@ def test_ufw():
     events = []
     with open(file) as f:
         for l in f.read().split("\n"):
-            i = next(process_events([l]))
+            i = parse_line(l)
+            i = to_indicator(i)
+
             events.append(i)
 
     assert len(events) > 0
@@ -20,16 +22,14 @@ def test_ufw_ubuntu16():
     events = []
     with open(file) as f:
         for l in f.read().split("\n"):
-            i = process_events([l])
-
-            try:
-                i = next(i)
-            except StopIteration:
-                pass
+            i = parse_line(l)
+            i = to_indicator(i)
 
             events.append(i)
 
-    from pprint import pprint
     assert len(events) > 0
     assert events[0].indicator == '10.0.2.2'
     assert events[1].indicator == '61.7.190.140'
+
+    from pprint import pprint
+    pprint(events)
