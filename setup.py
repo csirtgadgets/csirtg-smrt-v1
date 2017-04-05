@@ -70,7 +70,7 @@ setup(
             'csirtg-smrt=csirtg_smrt.smrt:main',
             'csirtg-ufw=csirtg_smrt.parser.ufw:main',
             'csirtg-cef=csirtg_smrt.parser.cef:main',
-            #'csirtg-bro=csirtg_smrt.parser.bro:main',
+            'csirtg-bro=csirtg_smrt.parser.bro:main',
         ]
     },
 )
