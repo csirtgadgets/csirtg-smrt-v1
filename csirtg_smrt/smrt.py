@@ -289,7 +289,7 @@ def _run_smrt(options, **kwargs):
 
         indicators = []
         for r, f in s.load_feeds(args.rule, feed=args.feed):
-            logger.info('processing: {} - {}'.format(args.rule, f))
+            logger.info('processing: {} - {}:{}'.format(args.rule, r.defaults['provider'], f))
             try:
                 for i in s.process(r, f, limit=args.limit, data=data, filters=filters):
                     if args.client == 'stdout':
