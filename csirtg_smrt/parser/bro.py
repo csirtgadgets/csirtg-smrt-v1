@@ -141,7 +141,6 @@ def main():
             if l.startswith('#'):
                 continue
 
-            pprint(l)
             i = b.parse_line(l)
 
             if not i:
