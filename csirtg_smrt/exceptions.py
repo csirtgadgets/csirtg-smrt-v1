@@ -14,5 +14,10 @@ class AuthError(CsirtgException):
 class TimeoutError(CsirtgException):
     pass
 
+
 class RuleUnsupported(CsirtgException):
+    pass
+
+
+class SubmissionFailure(CsirtgException):
     pass
