@@ -64,6 +64,7 @@ setup(
         'SQLAlchemy>=1.0.14,<1.1',
         'tornado>=4.4',
         'apwgsdk',
+        'tailer',
     ],
     entry_points={
         'console_scripts': [
