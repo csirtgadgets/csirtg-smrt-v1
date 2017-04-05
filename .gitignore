@@ -62,6 +62,7 @@ coverage.xml
 # Django stuff:
 *.log
 !test/ufw/ufw.log
+!test/cef/cef.log
 
 
 # Sphinx documentation
