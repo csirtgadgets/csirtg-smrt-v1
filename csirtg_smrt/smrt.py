@@ -442,10 +442,10 @@ def main():
             'goback': goback,
             'service_mode': True
         })
+
         p.daemon = False
         p.start()
         p.join()
-        logger.debug('done')
 
     # first run, PeriodicCallback has builtin wait..
     _run()
