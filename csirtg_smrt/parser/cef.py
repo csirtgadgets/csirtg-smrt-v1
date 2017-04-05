@@ -3,10 +3,7 @@ import time
 import arrow  # pip install arrow
 from json import loads as json_loads
 import logging
-import re
 import os
-
-from tzlocal import get_localzone  # pip install tzlocal
 from csirtg_indicator import Indicator
 from pprint import pprint
 from argparse import ArgumentParser
@@ -14,13 +11,6 @@ from argparse import RawDescriptionHelpFormatter
 import textwrap
 from csirtg_smrt.utils import setup_logging, get_argument_parser, setup_signals
 from csirtg_indicator.format import FORMATS
-
-
-# this is a crappy work around for using python 2.7.6 that
-# ships with Ubuntu 14.04. This is discuraged, see:
-# http://urllib3.readthedocs.org/en/latest/security.html#disabling-warnings
-import requests
-requests.packages.urllib3.disable_warnings()
 
 # logging configuration
 LOG_FORMAT = '%(asctime)s - %(levelname)s - %(name)s[%(lineno)s] - %(message)s'
@@ -30,14 +20,25 @@ PROVIDER = os.environ.get('CSIRTG_SMRT_PROVIDER')
 
 CORE_FIELDS = set('src msg time dst dpt destinationServicename'.split())
 
-def process_line(line):
+
+def parse_line(line):
     """
 
     :param line: line from the input stream
     """
-    try:
-        record = json_loads(line)
-    except ValueError:
+    if line.startswith('{') and line.endswith('}'):
+        try:
+            record = json_loads(line)
+        except ValueError:
+            logger.exception("decode failed: \n{}".format(line))
+            return None
+    else:
+        record = line.split('|')
+        header = record[0:6]
+        ext = record[7]
+
+        # TODO - finish
+        # https://www.protect724.hpe.com/servlet/JiveServlet/downloadBody/1072-102-9-20354/CommonEventFormatv23.pdf
         logger.exception("decode failed: \n{}".format(line))
         return None
 
@@ -60,7 +61,8 @@ def process_line(line):
     if additional_data:
         data["additional_data"] = additional_data
 
-    return Indicator(**data)
+    return data
+
 
 def main():
     p = get_argument_parser()
@@ -70,12 +72,12 @@ def main():
                 CSIRTG_RUNTIME_PATH
 
             example usage:
-                $ csirtg-cefjson -f /var/log/foo.json.log
-                $ ZYRE_GROUP=honeynet csirtg-cefjson -d -f /var/log/foo.json.log --client zyre
-                $ csirtg-cefjson -f /var/log/foo.json.log --client csirtg --user wes --feed scanners -d
+                $ csirtg-cef -f /var/log/foo.log
+                $ ZYRE_GROUP=honeynet csirtg-cef -d -f /var/log/foo.log --client zyre
+                $ csirtg-cef -f /var/log/foo.log --client csirtg --user wes --feed scanners -d
             '''),
         formatter_class=RawDescriptionHelpFormatter,
-        prog='csirtg-cefjson',
+        prog='csirtg-cef',
         parents=[p],
     )
 
@@ -85,7 +87,10 @@ def main():
     p.add_argument('--user')
     p.add_argument('--feed')
     p.add_argument('--format', default='csv')
+    p.add_argument('--tags', help='specify indicator tags [default %(default)s', default='scanner')
     p.add_argument('--provider', help='specify provider [default %(default)s]', default=PROVIDER)
+
+    p.add_argument('--tail-docker')
 
     args = p.parse_args()
 
@@ -109,14 +114,18 @@ def main():
 
     try:
         for line in tailer.follow(f):
-            i = process_line(line)
+            i = parse_line(line)
+
             if not i:
                 logger.debug('skipping line')
                 continue
 
+            i = Indicator(**i)
+
             logger.debug(i)
 
             i.provider = args.provider
+            i.tags = args.tags
 
             if args.client == 'stdout':
                 print(FORMATS[args.format](data=[i]))
