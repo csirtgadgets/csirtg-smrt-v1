@@ -68,7 +68,7 @@ setup(
     entry_points={
         'console_scripts': [
             'csirtg-smrt=csirtg_smrt.smrt:main',
-            'csirtg-ufw=csirtg_smrt.ufw:main',
+            'csirtg-ufw=csirtg_smrt.parser.ufw:main',
             'csirtg-cefjson=csirtg_smrt.cefjson:main',
         ]
     },
