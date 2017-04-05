@@ -69,7 +69,8 @@ setup(
         'console_scripts': [
             'csirtg-smrt=csirtg_smrt.smrt:main',
             'csirtg-ufw=csirtg_smrt.parser.ufw:main',
-            'csirtg-cefjson=csirtg_smrt.cefjson:main',
+            'csirtg-cef=csirtg_smrt.parser.cef:main',
+            #'csirtg-bro=csirtg_smrt.parser.bro:main',
         ]
     },
 )

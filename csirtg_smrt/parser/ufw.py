@@ -160,18 +160,15 @@ def parse_line(line):
         leftover.remove(item)
 
     if leftover[0] == 'PROTO=UDP':
-        return _parse_udp(record, leftover)
+        record = _parse_udp(record, leftover)
 
-    if leftover[0] == 'PROTO=ICMP':
-        return _parse_icmp(record, leftover)
+    elif leftover[0] == 'PROTO=ICMP':
+        record = _parse_icmp(record, leftover)
 
-    # parse out protocols
-    if leftover[0] == 'PROTO=TCP':
-        return _parse_tcp(record, leftover)
+    elif leftover[0] == 'PROTO=TCP':
+        record = _parse_tcp(record, leftover)
 
-
-def to_indicator(record):
-    data = {
+    i = {
         'indicator': record['ufw_src_ip'],
         'tags': ['scanner'],
         'description': 'iptable DROP logs',
@@ -183,10 +180,10 @@ def to_indicator(record):
 
     t = PORT_APPLICATION_MAP.get(record['ufw_dst_port'])
     if t:
-        data['tags'].append(t)
-        data['application'] = t
+        i['tags'].append(t)
+        i['application'] = t
 
-    return Indicator(**data)
+    return i
 
 
 def main():
@@ -237,20 +234,18 @@ def main():
         for line in tailer.follow(f):
             logger.debug(line)
 
+            if '[UFW BLOCK]' not in line:
+                continue
+
+            if ' SYN ' not in line:
+                continue
+
             try:
-                record = parse_line(line)
+                i = parse_line(line)
 
             except AttributeError:
                 logger.debug("line not matched: \n{}".format(line))
                 continue
-
-            if record['ufw_action'] != 'BLOCK':
-                continue
-
-            if not record.get('ufw_tcp_flag_syn'):
-                continue
-
-            i = to_indicator(record)
 
             i.provider = args.provider
 
