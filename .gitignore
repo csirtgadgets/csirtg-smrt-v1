@@ -63,6 +63,7 @@ coverage.xml
 *.log
 !test/ufw/ufw.log
 !test/cef/cef.log
+!test/bro/bro.log
 
 
 # Sphinx documentation
