@@ -30,6 +30,9 @@ class Cifv2(Parser):
                 e['indicator'] = e['observable']
                 e['itype'] = e['otype']
 
+                if isinstance(e['group'], list):
+                    e['group'] = e['group'][0]
+                
                 yield e
 
 Plugin = Cifv2
