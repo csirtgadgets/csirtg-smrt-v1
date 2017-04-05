@@ -1,0 +1,10 @@
+#separator \x09
+#set_separator	,
+#empty_field	(empty)
+#unset_field	-
+#path	notice
+#open	2017-04-05-13-00-02
+#fields	ts	uid	id.orig_h	id.orig_p	id.resp_h	id.resp_p	fuid	file_mime_type	file_desc	proto	note	msg	sub	src	dst	p	n	peer_descr	actions	suppress_for	dropped	remote_location.country_code	remote_location.region	remote_location.city	remote_location.latitude	remote_location.longitude
+#types	time	string	addr	port	addr	port	string	string	string	enum	enum	string	string	addr	addr	port	count	string	set[enum]	interval	bool	string	string	string	double	double
+1491415201.614778	-	-	-	-	-	-	-	-	-	SSH::Bad_Client	138.117.125.206 connected to SSH with a bad client (GET / HTTP/1.1)	GET / HTTP/1.1	138.117.125.206	-	-	-	nids-prod06a-2	Notice::ACTION_LOG,BHR::ACTION_BHR	3600.000000	F	-	-	-	-	-
+1491415217.040387	-	-	-	-	-	-	-	-	-	Scan::Address_Scan	kk: 5.37.231.72 scanned at least 5 unique hosts on ports 22/tcp, 2222/tcp in 37m16s	remote	5.37.231.72	-	-	-	nids-prod08a-1	Notice::ACTION_LOG,BHR::ACTION_BHR	800.000000	F	-	-	-	-	-
