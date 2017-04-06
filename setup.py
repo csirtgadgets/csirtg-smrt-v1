@@ -65,6 +65,7 @@ setup(
         'tornado>=4.4',
         'apwgsdk',
         'tailer',
+        'docker==2.2.1',
     ],
     entry_points={
         'console_scripts': [
