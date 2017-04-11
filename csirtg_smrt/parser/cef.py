@@ -1,3 +1,4 @@
+import docker
 import tailer  # pip install tailer
 import time
 import arrow  # pip install arrow
@@ -26,6 +27,9 @@ def parse_line(line):
 
     :param line: line from the input stream
     """
+    line = line.rstrip()
+    if not line:
+        return None
     if line.startswith('{') and line.endswith('}'):
         try:
             record = json_loads(line)
@@ -96,24 +100,32 @@ def main():
 
     if not args.provider:
         raise RuntimeError('Missing --provider flag')
-    if not args.file:
-        raise RuntimeError('Missing --file flag')
 
     # setup logging
     setup_logging(args)
-
-    logger.debug('starting on: {}'.format(args.file))
 
     verify_ssl = True
     if args.no_verify_ssl:
         verify_ssl = False
 
-    f = open(args.file)
+    if args.file:
+        logger.debug('starting on: {}'.format(args.file))
+        f = open(args.file)
+        data_source = tailer.follow(f)
+    elif args.tail_docker:
+        logger.debug('starting on container: {}'.format(args.tail_docker))
+        #data_source = subprocess.Popen(["docker", "logs", "-f", "--tail", "0", args.tail_docker], bufsize=1, stdout=subprocess.PIPE).stdout
+        client = docker.from_env(version='auto')
+        container = client.containers.get(args.tail_docker)
+        data_source = container.logs(stream=True, follow=True, tail=0)
+    else:
+        raise RuntimeError('Missing --file or --tail-docker flag')
+
     from csirtg_smrt import Smrt
     s = Smrt(client=args.client, username=args.user, feed=args.feed, verify_ssl=verify_ssl)
 
     try:
-        for line in tailer.follow(f):
+        for line in data_source:
             i = parse_line(line)
 
             if not i:
