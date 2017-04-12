@@ -1,5 +1,5 @@
 # Getting Started
-Parse data using simple YAML and throw it just about anywhere.
+Parse data using [simple YAML](https://github.com/csirtgadgets/csirtg-smrt-py/wiki/Examples) and throw it just about anywhere.
 
 ```
 $ [sudo] pip install csirtg-smrt
