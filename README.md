@@ -1,5 +1,5 @@
 # Getting Started
-Parse data using simple YAML and throw that data just about anywhere.
+Parse data using simple YAML and throw it just about anywhere.
 
 ```
 $ [sudo] pip install csirtg-smrt
@@ -33,4 +33,4 @@ If you've never worked on a GitHub project, [this is a good piece](https://guide
 
 Copyright (C) 2017 [the CSIRT Gadgets Foundation](http://csirtgadgets.org)
 
-Free use of this software is granted under the terms of the GNU Lesser General Public License (LGPLv3). For details see the files `COPYING` included with the distribution.
+Free use of this software is granted under the terms of the Mozilla Public License (MPL2). For details see the file `LICENSE` included with the distribution.
