@@ -1,52 +1,36 @@
 # Getting Started
-## Quickstart
-```
-$ pip install pip --upgrade
-$ pip install csirtg-smrt
-$ csirtg-smrt -h
-```
+Parse data using [simple YAML](https://github.com/csirtgadgets/csirtg-smrt-py/wiki/Examples) and throw it just about anywhere.
 
-## Development
 ```
-$ git clone https://github.com/csirtgadgets/csirtg-smrt-py.git
-$ cd csirtg-smrt-py
-$ mkvirtualenv smrt
-$ pip install pip --upgrade
-$ pip install -r dev_requirements.txt
-$ python setup.py develop
-$ csirtg-smrt -h
-$ csirtg-smrt -r examples/csirtgio.yml
-```
+$ [sudo] pip install csirtg-smrt
+$ curl https://raw.githubusercontent.com/csirtgadgets/csirtg-smrt-py/master/examples/csirtg.yml > csirtg.yml
+$ csirtg-smrt -r csirtg.yml -f port-scanners --format table|csv|bro
 
-## Getting Help
- * [the Wiki](https://github.com/csirtgadgets/csirtg-smrt-py/wiki)
- * [Known Issues](https://github.com/csirtgadgets/csirtg-smrt-py/issues?labels=bug&state=open) 
- * [FAQ](https://github.com/csirtgadgets/csirtg-smrt-py/issues?labels=faq)
+017-04-12 12:22:26,244 - INFO - csirtg_smrt.smrt[416] - loglevel is: INFO
+2017-04-12 12:22:26,244 - INFO - csirtg_smrt.smrt[116] - processing csirtg.yml
+2017-04-12 12:22:26,251 - INFO - csirtg_smrt.smrt[315] - processing: csirtg.yml - csirtg.io:port-scanners
++-------+----------+----------------------------+-----------------+-------+------------+---------+----------------------------------+-------+-----------+
+|  tlp  |  group   |          lasttime          |    indicator    | count | confidence |   tags  |           description            | rdata | provider  |
++-------+----------+----------------------------+-----------------+-------+------------+---------+----------------------------------+-------+-----------+
+| white | everyone | 2017-04-12T16:22:06.00000Z |   59.27.82.202  |   1   |    9.0     | scanner | sourced from firewall logs (in.. |       | csirtg.io |
+| white | everyone | 2017-04-12T16:21:43.00000Z |  31.162.111.152 |   1   |    9.0     | scanner | sourced from firewall logs (in.. |       | csirtg.io |
+| white | everyone | 2017-04-12T16:20:29.00000Z |    5.238.33.0   |   1   |    9.0     | scanner | sourced from firewall logs (in.. |       | csirtg.io |
+...
+```
 
 # Getting Involved
 There are many ways to get involved with the project. If you have a new and exciting feature, or even a simple bugfix, simply [fork the repo](https://help.github.com/articles/fork-a-repo), create some simple test cases, [generate a pull-request](https://help.github.com/articles/using-pull-requests) and give yourself credit!
 
 If you've never worked on a GitHub project, [this is a good piece](https://guides.github.com/activities/contributing-to-open-source) for getting started.
 
+* [the Wiki](https://github.com/csirtgadgets/csirtg-smrt-py/wiki)  
+* [Known Issues](https://github.com/csirtgadgets/csirtg-smrt-py/issues?labels=bug&state=open)  
 * [How To Contribute](contributing.md)  
 * [Mailing List](https://groups.google.com/forum/#!forum/ci-framework)  
-
-# Development
-## Some of the tools we use:
-
-* [PyCharm](https://www.jetbrains.com/pycharm/)
-* [VirtualenvWrapper](https://virtualenvwrapper.readthedocs.org/en/latest/)
-* [Ansible](http://ansible.com)
-* [Vagrant](https://www.vagrantup.com/)
-
-## Some useful books:
-
-* [Ansible Up & Running](http://www.amazon.com/Ansible-Up-Running-Lorin-Hochstein/dp/1491915323/ref=sr_1_1?ie=UTF8&qid=1450109562&sr=8-1&keywords=ansible+up+and+running)
-* [Vagrant Up & Running](http://www.amazon.com/Vagrant-Up-Running-Mitchell-Hashimoto/dp/1449335837/ref=sr_1_3?ie=UTF8&qid=1450109562&sr=8-3&keywords=ansible+up+and+running)
-
+ 
 
 # COPYRIGHT AND LICENCE
 
-Copyright (C) 2016 [the CSIRT Gadgets Foundation](http://csirtgadgets.org)
+Copyright (C) 2017 [the CSIRT Gadgets Foundation](http://csirtgadgets.org)
 
-Free use of this software is granted under the terms of the GNU Lesser General Public License (LGPLv3). For details see the files `COPYING` included with the distribution.
+Free use of this software is granted under the terms of the Mozilla Public License (MPL2). For details see the file `LICENSE` included with the distribution.
