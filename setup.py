@@ -73,6 +73,7 @@ setup(
             'csirtg-ufw=csirtg_smrt.parser.ufw:main',
             'csirtg-cef=csirtg_smrt.parser.cef:main',
             'csirtg-bro=csirtg_smrt.parser.bro:main',
+            'csirtg-smtpd=csirtg_smrt.parser.zsmtpd:main',
         ]
     },
 )

@@ -11,7 +11,7 @@ from pprint import pprint
 
 TYPE = os.environ.get('CSIRTG_SMRT_ZMQ_TYPE', 'PUB')
 TOPIC = os.environ.get('CSIRTG_SMRT_ZMQ_TOPIC', 'scanners')
-ENDPOINT = os.environ.get('CSIRTG_SMRT_ZMQ_ENDPOINT','')
+ENDPOINT = os.environ.get('CSIRTG_SMRT_ZMQ_ENDPOINT', 'ipc:///tmp/csirtg_smrt.ipc')
 
 TYPE_MAPPING = {
     'PUB': zmq.PUB,
@@ -20,6 +20,7 @@ TYPE_MAPPING = {
 }
 
 logger = logging.getLogger()
+
 
 class _Zmq(object):
 
@@ -31,6 +32,7 @@ class _Zmq(object):
         self.endpoint = endpoint
         if not endpoint:
             raise ValueError("Invalid endpoint: '{}'".format(endpoint))
+
         context = zmq.Context()
         self.socket = context.socket(TYPE_MAPPING[socket_type])
         self.start()
