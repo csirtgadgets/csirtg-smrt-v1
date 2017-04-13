@@ -86,7 +86,6 @@ class BroTailer(object):
         return data
 
 
-
 def main():
     p = get_argument_parser()
     p = ArgumentParser(

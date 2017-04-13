@@ -20,6 +20,12 @@ class _Csirtg(Client):
         self.feed = feed
         self.handle = CSIRTGClient(token=token)
 
+    def start(self):
+        return True
+
+    def stop(self):
+        return True
+
     def indicators_create(self, data):
 
         if not isinstance(data, list):
