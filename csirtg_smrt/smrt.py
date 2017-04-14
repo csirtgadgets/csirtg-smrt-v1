@@ -65,11 +65,16 @@ class Smrt(object):
 
         self.client = None
         if client != 'stdout':
-            plugin_path = os.path.join(os.path.dirname(__file__), 'client')
-            if getattr(sys, 'frozen', False):
-                plugin_path = os.path.join(sys._MEIPASS, 'csirtg_smrt', 'client')
 
-            self.client = load_plugin(plugin_path, client)
+            for t in ['app', 'client']:
+                plugin_path = os.path.join(os.path.dirname(__file__), t)
+                if getattr(sys, 'frozen', False):
+                    plugin_path = os.path.join(sys._MEIPASS, 'csirtg_smrt', t)
+
+                self.client = load_plugin(plugin_path, client)
+
+                if self.client:
+                    break
 
             if not self.client:
                 raise RuntimeError("Unable to load plugin: {}".format(client))
