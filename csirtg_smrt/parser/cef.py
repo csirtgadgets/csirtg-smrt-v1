@@ -142,8 +142,14 @@ def main():
             if args.client == 'stdout':
                 print(FORMATS[args.format](data=[i]))
             else:
-                s.client.indicators_create(i)
-                logger.info('indicator created: {}'.format(i.indicator))
+                try:
+                    s.client.indicators_create(i)
+                    logger.info('indicator created: {}'.format(i.indicator))
+                except Exception as e:
+                    logger.error(e)
+
+    except Exception as e:
+        logger.error(e)
 
     except KeyboardInterrupt:
         logger.info('SIGINT caught... stopping')
