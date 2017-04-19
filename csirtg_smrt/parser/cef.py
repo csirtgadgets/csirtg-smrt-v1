@@ -12,6 +12,7 @@ from argparse import RawDescriptionHelpFormatter
 import textwrap
 from csirtg_smrt.utils import setup_logging, get_argument_parser, setup_signals
 from csirtg_indicator.format import FORMATS
+from datetime import datetime, timedelta
 
 # logging configuration
 LOG_FORMAT = '%(asctime)s - %(levelname)s - %(name)s[%(lineno)s] - %(message)s'
@@ -93,6 +94,7 @@ def main():
     p.add_argument('--format', default='csv')
     p.add_argument('--tags', help='specify indicator tags [default %(default)s', default='scanner')
     p.add_argument('--provider', help='specify provider [default %(default)s]', default=PROVIDER)
+    p.add_argument('--aggregate', help='specify how many seconds to aggregate batches before sending to client')
 
     p.add_argument('--tail-docker')
 

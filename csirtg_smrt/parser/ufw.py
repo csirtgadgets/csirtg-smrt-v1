@@ -247,6 +247,7 @@ def main():
                 logger.debug("line not matched: \n{}".format(line))
                 continue
 
+            i = Indicator(**i)
             i.provider = args.provider
 
             if args.client == 'stdout':
