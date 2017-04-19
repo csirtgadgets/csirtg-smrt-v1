@@ -23,7 +23,7 @@ LOG_FORMAT = '%(asctime)s - %(levelname)s - %(name)s[%(lineno)s] - %(message)s'
 logger = logging.getLogger('')
 
 PROVIDER = os.environ.get('CSIRTG_SMRT_PROVIDER')
-RE_UFW = '^(\S+\s{1,2}\S+\s\S+)\s(\S+)\s.*UFW\s\S+\]\s([^,]+)$'
+RE_UFW = '^(\S+\s{1,2}\S+\s\S+)\s(\S+)\s.*UFW\s(\S+)\]\s([^,]+)$'
 
 def _parse_tcp(record, leftover):
     record['ufw_protocol'] = 'TCP'
