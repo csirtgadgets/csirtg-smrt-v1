@@ -6,6 +6,9 @@ from tzlocal import get_localzone  # pip install tzlocal
 
 
 def round_time(dt=datetime.datetime.now(), round=60):
+    if isinstance(round, str):
+        round = int(round)
+    
     seconds = (dt.replace(tzinfo=None) - dt.min).seconds
     rounding = (seconds+round/2) // round * round
     return dt + datetime.timedelta(0, rounding-seconds, -dt.microsecond)
