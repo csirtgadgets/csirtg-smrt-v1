@@ -149,9 +149,6 @@ def main():
                 if t != last_t:
                     bucket = set()
                 
-                logger.debug(last_t)
-                logger.debug(t)
-
                 last_t = t
 
                 if i.indicator in bucket:
