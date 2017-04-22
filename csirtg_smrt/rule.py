@@ -2,6 +2,7 @@ import yaml
 import json
 import logging
 from csirtg_smrt.exceptions import RuleUnsupported
+import os
 
 
 class Rule(dict):
@@ -57,6 +58,9 @@ class Rule(dict):
             self.delim_pattern = rule.get('delim_pattern')
             self.line_filter = rule.get('line_filter')
             self.limit = rule.get('limit')
+
+        if self.token.endswith('_TOKEN'):
+            self.token = os.getenv(self.token)
 
     def __repr__(self):
         return json.dumps({

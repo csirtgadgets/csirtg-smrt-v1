@@ -133,7 +133,7 @@ class Smrt(object):
         if isinstance(rule, str):
             rule = Rule(rule)
 
-        fetch = Fetcher(rule, feed, data=data, no_fetch=self.no_fetch, verify_ssl=self.verify_ssl)
+        fetch = Fetcher(rule, feed, data=data, no_fetch=self.no_fetch, verify_ssl=self.verify_ssl, limit=limit)
         self.last_cache = fetch.cache
 
         parser_name = rule.feeds[feed].get('parser') or rule.parser or PARSER_DEFAULT
