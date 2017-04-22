@@ -59,7 +59,7 @@ class Rule(dict):
             self.line_filter = rule.get('line_filter')
             self.limit = rule.get('limit')
 
-        if self.token.endswith('_TOKEN'):
+        if self.token and self.token.endswith('_TOKEN'):
             self.token = os.getenv(self.token)
 
     def __repr__(self):
