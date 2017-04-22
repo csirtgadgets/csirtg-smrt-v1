@@ -10,6 +10,7 @@ import sys
 from time import sleep
 import arrow
 import requests
+logging.getLogger('requests.packages.urllib3.connectionpool').setLevel(logging.DEBUG)
 
 RE_SUPPORTED_DECODE = re.compile("zip|lzf|lzma|xz|lzop")
 RE_CACHE_TYPES = re.compile('([\w.-]+\.(csv|zip|txt|gz))$')
@@ -20,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 class Fetcher(object):
 
-    def __init__(self, rule, feed, cache=SMRT_CACHE, data=None, no_fetch=False, verify_ssl=True):
+    def __init__(self, rule, feed, cache=SMRT_CACHE, data=None, no_fetch=False, verify_ssl=True, limit=None):
 
         self.logger = logging.getLogger(__name__)
         self.feed = feed
@@ -36,6 +37,7 @@ class Fetcher(object):
         self.username = None
         self.filters = None
         self.verify_ssl = verify_ssl
+        self.limit = limit
 
         if self.rule.remote:
             self.remote = self.rule.remote
@@ -70,6 +72,15 @@ class Fetcher(object):
 
         if self.rule.feeds[feed].get('filters'):
             self.filters = self.rule.feeds[feed]['filters']
+
+        if not self.filters:
+            self.filters = {}
+
+        if self.rule.limit:
+            self.filters['limit'] = self.rule.limit
+
+        if self.limit:
+            self.filters['limit'] = self.limit
 
         if data:
             return
