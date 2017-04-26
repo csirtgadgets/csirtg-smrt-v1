@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='ISO-8859-1'?>
+<rss version='2.0'>
+
+<channel>
+<title>Malc0de Database Feed</title>
+<link>http://malc0de.com/database/</link>
+<description>Updated Feed of Malicious Executables</description>
+<language>en-us</language>
+<copyright>Copyright (C) 2010 malc0de.com</copyright>
+<item>
+<title>down12.xiazaidc.com</title>
+<link>http://malc0de.com/database/index.php?search=down12.xiazaidc.com</link>
+<description>URL: , IP Address: 121.41.10.159, Country: CN, ASN: 37963, MD5: 2a65f85d09f36402fbd91484a9a4adac</description>
+</item>
+<item>
+</channel>
+</rss>
