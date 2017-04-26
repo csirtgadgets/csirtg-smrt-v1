@@ -139,9 +139,9 @@ class Smrt(object):
         parser_name = rule.feeds[feed].get('parser') or rule.parser
 
         if not parser_name:
-            from csirtg_smrt.utils.zcontent import data_type
+            from csirtg_smrt.utils.zcontent import get_type
             try:
-                parser_name = data_type(self.last_cache)
+                parser_name = get_type(self.last_cache)
             except Exception as e:
                 logger.error(e)
 

@@ -3,20 +3,17 @@ import sys
 from pprint import pprint
 from csirtg_smrt.constants import PYVERSION
 
+f = sys.argv[1]
+
 
 def _is_ascii(f, mime):
     if mime.startswith(('text/plain', 'ASCII text')):
         return True
 
 
-def _is_rss(f, mime):
-    if not _is_xml(f, mime):
-        return
-
-
 def _is_xml(f, mime):
-    if mime == 'XML document text':
-        return 'xml'
+    if not mime.startswith(("application/xml", "'XML document text")):
+        return
 
     first = f.readline()
     second = f.readline().rstrip("\n")
@@ -27,6 +24,8 @@ def _is_xml(f, mime):
 
     if second.startswith("<rss ") and last.endswith("</rss>"):
         return 'rss'
+
+    return 'xml'
 
 
 def _is_json(f, mime):
@@ -99,7 +98,7 @@ def get_mimetype(f):
     return ftype
 
 
-def data_type(f, mime=None):
+def get_type(f, mime=None):
     if not mime:
         mime = get_mimetype(f)
 
@@ -113,10 +112,11 @@ def data_type(f, mime=None):
         if t:
             return t
 
-f = sys.argv[1]
+
 if __name__ == "__main__":
+    f = sys.argv[1]
     with open(f) as FILE:
         mime_type = magic.from_file(f)
         print(mime_type)
 
-        print(data_type(FILE, mime_type))
+        print(get_type(FILE, mime_type))
