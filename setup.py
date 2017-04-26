@@ -38,12 +38,11 @@ setup(
     description="s.m.r.t",
     long_description="the fastest way to use data",
     url="https://github.com/csirtgadgets/csirtg-smrt-py",
-    license='LGPLv3+',
+    license='MPL2',
     classifiers=[
                "Topic :: System :: Networking",
                "Environment :: Other Environment",
                "Intended Audience :: Developers",
-               "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
                "Programming Language :: Python",
                ],
     keywords=['security'],
