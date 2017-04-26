@@ -133,10 +133,21 @@ class Smrt(object):
         if isinstance(rule, str):
             rule = Rule(rule)
 
-        fetch = Fetcher(rule, feed, data=data, no_fetch=self.no_fetch, verify_ssl=self.verify_ssl)
+        fetch = Fetcher(rule, feed, data=data, no_fetch=self.no_fetch, verify_ssl=self.verify_ssl, limit=limit)
         self.last_cache = fetch.cache
 
-        parser_name = rule.feeds[feed].get('parser') or rule.parser or PARSER_DEFAULT
+        parser_name = rule.feeds[feed].get('parser') or rule.parser
+
+        if not parser_name:
+            from csirtg_smrt.utils.zcontent import get_type
+            try:
+                parser_name = get_type(self.last_cache)
+            except Exception as e:
+                logger.error(e)
+
+        if not parser_name:
+            parser_name = PARSER_DEFAULT
+
         plugin_path = os.path.join(os.path.dirname(__file__), 'parser')
 
         if getattr(sys, 'frozen', False):
@@ -274,9 +285,7 @@ class Smrt(object):
                 if self.is_archived_with_log(i):
                     continue
 
-                # TODO- this affects a lot of tests
-                # converted i.format_keys to generator in indicator-0.0.0b0
-                yield list(i.format_keys())[0]
+                yield i.format_keys()
                 self.archive(i)
 
             self.archiver.commit()
