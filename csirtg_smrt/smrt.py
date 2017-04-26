@@ -136,7 +136,18 @@ class Smrt(object):
         fetch = Fetcher(rule, feed, data=data, no_fetch=self.no_fetch, verify_ssl=self.verify_ssl, limit=limit)
         self.last_cache = fetch.cache
 
-        parser_name = rule.feeds[feed].get('parser') or rule.parser or PARSER_DEFAULT
+        parser_name = rule.feeds[feed].get('parser') or rule.parser
+
+        if not parser_name:
+            from csirtg_smrt.utils.zcontent import data_type
+            try:
+                parser_name = data_type(self.last_cache)
+            except Exception as e:
+                logger.error(e)
+
+        if not parser_name:
+            parser_name = PARSER_DEFAULT
+
         plugin_path = os.path.join(os.path.dirname(__file__), 'parser')
 
         if getattr(sys, 'frozen', False):
