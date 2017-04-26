@@ -32,7 +32,7 @@ class EmlServer(SMTPServer):
 
     def process_message(self, peer, mailfrom, rcpttos, data):
         if self.log_message:
-            filename = '%s/%s-%d.eml' % self.log_message, (datetime.now().strftime('%Y%m%d%H%M%S'), self.no)
+            filename = '%s/%s-%d.eml' % (self.log_message, datetime.now().strftime('%Y%m%d%H%M%S'), self.no)
             f = open(filename, 'w')
             f.write(data)
             f.close
