@@ -33,8 +33,7 @@ from csirtg_indicator.utils import normalize_itype
 
 
 PARSER_DEFAULT = "pattern"
-TOKEN = os.environ.get('CSIRTG_TOKEN', None)
-TOKEN = os.environ.get('CSIRTG_SMRT_TOKEN', TOKEN)
+TOKEN = os.environ.get('CSIRTG_SMRT_TOKEN')
 ARCHIVE_PATH = os.environ.get('CSIRTG_SMRT_ARCHIVE_PATH', RUNTIME_PATH)
 ARCHIVE_PATH = os.path.join(ARCHIVE_PATH, 'smrt.db')
 FORMAT = os.environ.get('CSIRTG_SMRT_FORMAT', 'table')
@@ -349,7 +348,7 @@ def main():
         description=textwrap.dedent('''\
         Env Variables:
             CSIRTG_RUNTIME_PATH
-            CSIRTG_TOKEN
+            CSIRTG_SMRT_TOKEN
 
         example usage:
             $ csirtg-smrt --rule rules/default
