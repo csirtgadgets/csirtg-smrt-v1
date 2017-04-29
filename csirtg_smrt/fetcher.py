@@ -15,7 +15,10 @@ logging.getLogger('requests.packages.urllib3.connectionpool').setLevel(logging.D
 RE_SUPPORTED_DECODE = re.compile("zip|lzf|lzma|xz|lzop")
 RE_CACHE_TYPES = re.compile('([\w.-]+\.(csv|zip|txt|gz))$')
 
-FETCHER_TIMEOUT = os.environ.get('CSIRTG_SMRT_FETCHER_TIMEOUT', 120)
+FETCHER_TIMEOUT = os.getenv('CSIRTG_SMRT_FETCHER_TIMEOUT', 120)
+RETRIES = os.getenv('CSIRTG_SMRT_FETCHER_RETRIES', 3)
+RETRIES_DELAY = os.getenv('CSIRTG_SMRT_FETCHER_RETRY_DELAY', 30) # seconds
+NO_HEAD = os.getenv('CSIRTG_SMRT_FETCHER_NOHEAD')
 logger = logging.getLogger(__name__)
 
 
@@ -181,13 +184,39 @@ class Fetcher(object):
         s = os.stat(self.cache)
         return s.st_size
 
+    def _cache_refresh(self, s, auth):
+        resp = s.get(self.remote, stream=True, auth=auth, timeout=self.fetcher_timeout, verify=self.verify_ssl)
+
+        if resp.status_code == 200:
+            return resp
+
+        if resp.status_code == 429 or resp.status_code in [500, 502, 503, 504]:
+            n = RETRIES
+            retry_delay = RETRIES_DELAY
+            while n != 0:
+                if resp.status_code == 429:
+                    logger.info('Rate Limit Exceeded, retrying in %ss' % retry_delay)
+                else:
+                    logger.error('%s found, retrying in %ss' % (resp.status_code, retry_delay))
+                
+                sleep(retry_delay)
+                resp = s.get(self.remote, stream=True, auth=auth, timeout=self.fetcher_timeout,
+                             verify=self.verify_ssl)
+                if resp.status_code == 200:
+                    return resp
+
+                n -= 1
+
     def _cache_write(self, s):
         with open(self.cache, 'wb') as f:
             auth = False
             if self.username:
                 auth = (self.username, self.password)
 
-            resp = s.get(self.remote, stream=True, auth=auth, timeout=self.fetcher_timeout, verify=self.verify_ssl)
+            resp = self._cache_refresh(s, auth)
+            if not resp:
+                return
+
             for block in resp.iter_content(1024):
                 f.write(block)
 
@@ -226,9 +255,9 @@ class Fetcher(object):
         ts1 = arrow.get(datetime.strptime(ts, '%a, %d %b %Y %X %Z'))
         ts2 = self._cache_modified()
 
-        if ts1 <= ts2:
-            logger.debug('cache is OK: {} <= {}'.format(ts1, ts2))
-            return
+        if not NO_HEAD and (ts1 <= ts2):
+           logger.debug('cache is OK: {} <= {}'.format(ts1, ts2))
+           return
 
         logger.debug("refreshing cache...")
         self._cache_write(s)
