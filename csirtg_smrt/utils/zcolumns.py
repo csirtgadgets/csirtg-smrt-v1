@@ -3,6 +3,10 @@ from csirtg_smrt.utils.zarrow import parse_timestamp
 from csirtg_indicator.utils import resolve_itype
 from csirtg_indicator import Indicator
 from pprint import pprint
+from csirtg_smrt.constants import PYVERSION
+
+if PYVERSION >= 3:
+    basestring = (str, bytes)
 
 
 def is_timestamp(s):
@@ -35,7 +39,7 @@ def get_indicator(l):
             i[e] = 'timestamp'
             continue
 
-        if isinstance(e, str):
+        if isinstance(e, basestring):
             i[e] = 'string'
 
     i2 = Indicator()
