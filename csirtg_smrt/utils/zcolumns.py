@@ -6,21 +6,14 @@ from pprint import pprint
 
 
 def is_timestamp(s):
-    t = False
     try:
         t = parse_timestamp(s)
         return t
     except Exception:
         pass
 
-    return t
 
-
-def is_reporttime(s):
-    pass
-
-
-def detect(l):
+def get_indicator(l):
     i = {}
 
     # step 1, detect datatypes
@@ -68,7 +61,7 @@ def detect(l):
                 continue
 
             if len(e) < 10:
-                i2.tags = e
+                i2.tags = [e]
                 continue
 
     timestamps = sorted(timestamps, reverse=True)
@@ -79,8 +72,6 @@ def detect(l):
     if len(timestamps) > 1:
         i2.firsttime = timestamps[1]
 
-
-    # TODO! double check this
     if len(ports) > 0:
         if len(ports) == 1:
             i2.portlist = ports[0]
@@ -92,19 +83,13 @@ def detect(l):
                 i2.portlist = ports[1]
                 i2.dest_portlist = ports[0]
 
-    pprint(i2)
+    return i2
 
-    # id sub-datatype
-        # reporttime vs lasttime vs firsttime
-        # src port, dest port
-        # tag vs description
 
-    pass
-
-import sys
 def main():
     i = ['192.168.1.1', '2015-02-28T00:00:00Z', 'scanner', '2015-02-28T01:00:00Z', 1159, 2293]
-    detect(i)
+    i2 = get_indicator(i)
+    print(i2)
 
 if __name__ == "__main__":
     main()
