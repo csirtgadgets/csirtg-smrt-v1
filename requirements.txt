@@ -13,7 +13,7 @@ chardet>=2.3.0,<2.4
 html5lib==1.0b8
 SQLAlchemy>=1.0.14,<1.1
 tornado>=4.4.2,<5.0
-apwgsdk==0.0.0a3
+apwgsdk==0.0.0a4
 tailer==0.4.1
 docker==2.2.1
 
