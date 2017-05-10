@@ -288,7 +288,14 @@ class Fetcher(object):
                     l = l.rstrip()
 
                 if PYVERSION > 2 and isinstance(l, bytes):
-                    l = l.decode('utf-8')
+                    try:
+                        l = l.decode('utf-8')
+                    except Exception:
+                        try:
+                            l = l.decode('latin-1')
+                        except Exception:
+                            logger.error('unable to decode %s' % l)
+                            continue
 
                 yield l
 
