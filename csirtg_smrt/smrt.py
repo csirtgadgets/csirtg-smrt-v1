@@ -135,7 +135,7 @@ class Smrt(object):
         fetch = Fetcher(rule, feed, data=data, no_fetch=self.no_fetch, verify_ssl=self.verify_ssl, limit=limit)
         self.last_cache = fetch.cache
 
-        parser_name = rule.feeds[feed].get('parser') or rule.parser
+        parser_name = rule.feeds[feed].get('parser') or rule.parser or PARSER_DEFAULT
 
         if not parser_name:
             from csirtg_smrt.utils.zcontent import get_type
@@ -234,6 +234,7 @@ class Smrt(object):
                 n = 0
                 success = True
             except Exception as e:
+                logger.error('delay trying to submit indicators')
                 logger.error(e)
                 logger.info('[{} / {}] waiting {}s for retry...'.format((int(self.send_retries) - n), self.send_retries, s))
                 n -= 1
