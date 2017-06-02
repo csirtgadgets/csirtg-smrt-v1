@@ -266,6 +266,7 @@ class Fetcher(object):
         if self.data:
             for d in self._process_data(split=split, rstrip=rstrip):
                 yield d
+
             return
 
         if self.fetcher == 'apwg' and os.environ.get('APWG_TOKEN'):
@@ -282,6 +283,15 @@ class Fetcher(object):
                     self._fetch()
                 except Exception as e:
                     logger.error(e)
+
+            # testing only, we need to re-write for smrtv1
+            # fetcher loads the parsers, not the other way around
+            from csirtg_smrt.utils.zcontent import get_type
+            try:
+                parser_name = get_type(self.cache)
+                logger.debug(parser_name)
+            except Exception as e:
+                logger.debug(e)
 
             for l in self._process_cache(split=split, rstrip=rstrip):
                 if rstrip:
