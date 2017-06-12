@@ -1,4 +1,4 @@
-import tailer
+from csirtg_smrt.utils.ztail import tail
 import logging
 import re
 import os
@@ -226,12 +226,11 @@ def main():
     if args.no_verify_ssl:
         verify_ssl = False
 
-    f = open(args.file)
     from csirtg_smrt import Smrt
     s = Smrt(client=args.client, username=args.user, feed=args.feed, verify_ssl=verify_ssl)
 
     try:
-        for line in tailer.follow(f):
+        for line in tail(args.file):
             logger.debug(line)
 
             if '[UFW BLOCK]' not in line:

@@ -1,5 +1,5 @@
 import docker
-import tailer
+from csirtg_smrt.utils.ztail import tail
 from json import loads as json_loads
 import logging
 import os
@@ -111,8 +111,7 @@ def main():
 
     if args.file:
         logger.debug('starting on: {}'.format(args.file))
-        f = open(args.file)
-        data_source = tailer.follow(f)
+        data_source = tail(args.file)
     elif args.tail_docker:
         logger.debug('starting on container: {}'.format(args.tail_docker))
         #data_source = subprocess.Popen(["docker", "logs", "-f", "--tail", "0", args.tail_docker], bufsize=1, stdout=subprocess.PIPE).stdout
