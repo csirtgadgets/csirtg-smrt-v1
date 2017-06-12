@@ -14,7 +14,6 @@ html5lib==1.0b8
 SQLAlchemy>=1.0.14,<1.1
 tornado>=4.4.2,<5.0
 apwgsdk>=0.0.0a4,<1.0
-tailer==0.4.1
 docker==2.2.1
 
 # http://stackoverflow.com/questions/31649390/python-requests-ssl-handshake-failure

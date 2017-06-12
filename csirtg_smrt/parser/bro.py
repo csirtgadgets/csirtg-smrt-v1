@@ -1,4 +1,4 @@
-import tailer
+from csirtg_smrt.utils.ztail import tail
 from json import loads as json_loads
 import logging
 import os
@@ -133,10 +133,8 @@ def main():
 
     b = BroTailer(args.file)
 
-    _file = open(args.file)
-
     try:
-        for l in tailer.follow(_file):
+        for l in tail(args.file):
             if l.startswith('#'):
                 continue
 
