@@ -16,7 +16,7 @@ ENDPOINT = os.environ.get('CSIRTG_SMRT_ZMQ_ENDPOINT', 'ipc:///tmp/csirtg_smrt.ip
 TYPE_MAPPING = {
     'PUB': zmq.PUB,
     'PUSH': zmq.PUSH,
-    'PUSH_ZYRE_GATEWQAY': zmq.PUSH,
+    'PUSH_ZYRE_GATEWAY': zmq.PUSH,
 }
 
 logger = logging.getLogger()
@@ -55,7 +55,7 @@ class _Zmq(object):
                 self.socket.send_multipart([self.topic, str(i)])
             return
 
-        if self.socket_type == 'PUSH_ZYRE_GATEWQAY':
+        if self.socket_type == 'PUSH_ZYRE_GATEWAY':
             for i in data:
                 self.socket.send_multipart(['PUB', self.topic, str(i)])
             return
