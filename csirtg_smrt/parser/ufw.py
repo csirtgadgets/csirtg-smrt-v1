@@ -1,4 +1,4 @@
-import tailer
+from csirtg_smrt.utils.ztail import tail
 import logging
 import re
 import os
@@ -23,7 +23,7 @@ LOG_FORMAT = '%(asctime)s - %(levelname)s - %(name)s[%(lineno)s] - %(message)s'
 logger = logging.getLogger('')
 
 PROVIDER = os.environ.get('CSIRTG_SMRT_PROVIDER')
-RE_UFW = '^(\S+\s{1,2}\S+\s\S+)\s(\S+)\s\S+\s\[[\s+]?[^,]+\]\s\[UFW\s(\S+)\]\s([^,]+)$'
+RE_UFW = '^(\S+\s{1,2}\S+\s\S+)\s(\S+)\s.*UFW\s(\S+)\]\s([^,]+)$'
 
 
 def _parse_tcp(record, leftover):
@@ -226,12 +226,11 @@ def main():
     if args.no_verify_ssl:
         verify_ssl = False
 
-    f = open(args.file)
     from csirtg_smrt import Smrt
     s = Smrt(client=args.client, username=args.user, feed=args.feed, verify_ssl=verify_ssl)
 
     try:
-        for line in tailer.follow(f):
+        for line in tail(args.file):
             logger.debug(line)
 
             if '[UFW BLOCK]' not in line:
@@ -247,6 +246,7 @@ def main():
                 logger.debug("line not matched: \n{}".format(line))
                 continue
 
+            i = Indicator(**i)
             i.provider = args.provider
 
             if args.client == 'stdout':

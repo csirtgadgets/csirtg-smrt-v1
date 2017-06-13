@@ -33,8 +33,7 @@ from csirtg_indicator.utils import normalize_itype
 
 
 PARSER_DEFAULT = "pattern"
-TOKEN = os.environ.get('CSIRTG_TOKEN', None)
-TOKEN = os.environ.get('CSIRTG_SMRT_TOKEN', TOKEN)
+TOKEN = os.environ.get('CSIRTG_SMRT_TOKEN')
 ARCHIVE_PATH = os.environ.get('CSIRTG_SMRT_ARCHIVE_PATH', RUNTIME_PATH)
 ARCHIVE_PATH = os.path.join(ARCHIVE_PATH, 'smrt.db')
 FORMAT = os.environ.get('CSIRTG_SMRT_FORMAT', 'table')
@@ -138,10 +137,21 @@ class Smrt(object):
         if isinstance(rule, str):
             rule = Rule(rule)
 
-        fetch = Fetcher(rule, feed, data=data, no_fetch=self.no_fetch, verify_ssl=self.verify_ssl)
+        fetch = Fetcher(rule, feed, data=data, no_fetch=self.no_fetch, verify_ssl=self.verify_ssl, limit=limit)
         self.last_cache = fetch.cache
 
         parser_name = rule.feeds[feed].get('parser') or rule.parser or PARSER_DEFAULT
+
+        if not parser_name:
+            from csirtg_smrt.utils.zcontent import get_type
+            try:
+                parser_name = get_type(self.last_cache)
+            except Exception as e:
+                logger.error(e)
+
+        if not parser_name:
+            parser_name = PARSER_DEFAULT
+
         plugin_path = os.path.join(os.path.dirname(__file__), 'parser')
 
         if getattr(sys, 'frozen', False):
@@ -229,6 +239,7 @@ class Smrt(object):
                 n = 0
                 success = True
             except Exception as e:
+                logger.error('delay trying to submit indicators')
                 logger.error(e)
                 logger.info('[{} / {}] waiting {}s for retry...'.format((int(self.send_retries) - n), self.send_retries, s))
                 n -= 1
@@ -279,9 +290,7 @@ class Smrt(object):
                 if self.is_archived_with_log(i):
                     continue
 
-                # TODO- this affects a lot of tests
-                # converted i.format_keys to generator in indicator-0.0.0b0
-                yield list(i.format_keys())[0]
+                yield i.format_keys()
                 self.archive(i)
 
             self.archiver.commit()
@@ -345,7 +354,7 @@ def main():
         description=textwrap.dedent('''\
         Env Variables:
             CSIRTG_RUNTIME_PATH
-            CSIRTG_TOKEN
+            CSIRTG_SMRT_TOKEN
 
         example usage:
             $ csirtg-smrt --rule rules/default

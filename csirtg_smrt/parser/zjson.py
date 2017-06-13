@@ -3,6 +3,7 @@ import json
 from csirtg_smrt.parser import Parser
 import logging
 import os
+from pprint import pprint
 
 TRACE = os.environ.get('CSIRTG_SMRT_PARSER_TRACE')
 
@@ -22,14 +23,17 @@ class Json(Parser):
         defaults = self._defaults()
         map = self.rule.feeds[self.feed].get('map')
         values = self.rule.feeds[self.feed].get('values')
+        envelope = self.rule.feeds[self.feed].get('envelope')
 
         for l in self.fetcher.process():
-
             try:
                 l = json.loads(l)
             except ValueError as e:
                 logger.error('json parsing error: {}'.format(e))
                 continue
+
+            if envelope:
+                l = l[envelope]
 
             for e in l:
                 i = copy.deepcopy(defaults)

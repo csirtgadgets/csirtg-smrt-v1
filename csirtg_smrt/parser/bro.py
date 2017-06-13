@@ -1,4 +1,4 @@
-import tailer
+from csirtg_smrt.utils.ztail import tail
 from json import loads as json_loads
 import logging
 import os
@@ -133,10 +133,8 @@ def main():
 
     b = BroTailer(args.file)
 
-    _file = open(args.file)
-
     try:
-        for l in tailer.follow(_file):
+        for l in tail(args.file):
             if l.startswith('#'):
                 continue
 
@@ -156,8 +154,14 @@ def main():
             if args.client == 'stdout':
                 print(FORMATS[args.format](data=[i]))
             else:
-                s.client.indicators_create(i)
-                logger.info('indicator created: {}'.format(i.indicator))
+                try:
+                    s.client.indicators_create(i)
+                    logger.info('indicator created: {}'.format(i.indicator))
+                except Exception as e:
+                    logger.error(e)
+
+    except Exception as e:
+        logger.error(e)
 
     except KeyboardInterrupt:
         logger.info('SIGINT caught... stopping')
