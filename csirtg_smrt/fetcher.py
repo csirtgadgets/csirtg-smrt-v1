@@ -289,7 +289,7 @@ class Fetcher(object):
             from csirtg_smrt.utils.zcontent import get_type
             try:
                 parser_name = get_type(self.cache)
-                logger.debug(parser_name)
+                logger.debug('detected parser: %s' % parser_name)
             except Exception as e:
                 logger.debug(e)
 

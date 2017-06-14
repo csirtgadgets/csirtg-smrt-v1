@@ -307,6 +307,8 @@ def _run_smrt(options, **kwargs):
     else:
         archiver = NOOPArchiver()
 
+    logger.info('starting run...')
+
     with Smrt(options.get('token'), options.get('remote'), client=args.client, username=args.user,
               feed=args.feed, archiver=archiver, fireball=args.fireball, no_fetch=args.no_fetch,
               verify_ssl=verify_ssl, goback=goback, skip_invalid=args.skip_invalid, send_retries=args.send_retries,
@@ -337,10 +339,11 @@ def _run_smrt(options, **kwargs):
         if args.client == 'stdout':
             print(FORMATS[options.get('format')](data=indicators, cols=args.fields.split(',')))
 
+    logger.info('cleaning up')
     archiver.cleanup()
     archiver.clear_memcache()
 
-    logger.info('completed..')
+    logger.info('finished run')
 
 
 def main():
@@ -483,6 +486,7 @@ def main():
         p.daemon = False
         p.start()
         p.join()
+        logger.debug('child process re-joined')
 
     # first run, PeriodicCallback has builtin wait..
     _run()
