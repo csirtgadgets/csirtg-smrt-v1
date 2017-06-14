@@ -35,11 +35,8 @@ class Pattern(Parser):
             if self.ignore(l):  # comment or skip
                 continue
 
-            self.logger.debug(l)
-
             try:
                 m = self.pattern.search(l).groups()
-                self.logger.debug(m)
                 if isinstance(m, str):
                     m = [m]
             except ValueError as e:
