@@ -35,6 +35,8 @@ class Pattern(Parser):
             if self.ignore(l):  # comment or skip
                 continue
 
+            #self.logger.debug(l)
+
             try:
                 m = self.pattern.search(l).groups()
                 if isinstance(m, str):

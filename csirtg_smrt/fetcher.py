@@ -243,7 +243,11 @@ class Fetcher(object):
         logger.debug('checking HEAD')
 
         logger.debug('verify_ssl: {}'.format(self.verify_ssl))
-        resp = s.head(self.remote, verify=self.verify_ssl)
+        auth = False
+        if self.username:
+            auth = (self.username, self.password)
+
+        resp = s.head(self.remote, auth=auth, verify=self.verify_ssl)
 
         if not resp.headers.get('Last-Modified'):
             logger.debug('no last-modified header')
