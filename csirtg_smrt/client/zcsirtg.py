@@ -5,16 +5,25 @@ from csirtg_smrt.client.plugin import Client
 from pprint import pprint
 import os
 
-TOKEN = os.environ.get('CSIRTG_TOKEN')
+TOKEN = os.getenv('CSIRTG_TOKEN')
+USER = os.getenv('CSIRTG_USER')
+FEED = os.getenv('CSIRTG_FEED')
 
 
 class _Csirtg(Client):
 
     def __init__(self, remote='https://csirtg.io/api', token=TOKEN, username=None, feed=None, **kwargs):
-        super(_Csirtg, self).__init__(remote, token=token)
 
-        assert username
-        assert token
+        if not username:
+            username = USER
+
+        if not feed:
+            feed = FEED
+
+        if not token:
+            token = TOKEN
+
+        super(_Csirtg, self).__init__(remote, token=token)
 
         self.user = username
         self.feed = feed
