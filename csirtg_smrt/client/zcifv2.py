@@ -29,6 +29,7 @@ class CIF(HTTPClient):
     def _get(self, uri, params={}):
         if not uri.startswith('http'):
             uri = self.remote + uri
+
         body = self.session.get(uri, params=params, verify=self.verify_ssl)
 
         if body.status_code > 303:
@@ -72,6 +73,32 @@ class CIF(HTTPClient):
                         pass
         return msgs
 
+    def _post(self, uri, data):
+        if type(data) == dict:
+            data = [data]
+
+        pprint(data)
+
+        if type(data[0]) != dict:
+            raise RuntimeError('submitted data must be a dictionary')
+
+        data = json.dumps(data)
+
+        if self.nowait:
+            uri = "{0}?nowait=1".format(uri)
+
+        logger.debug('uri: %s' % uri)
+
+        body = self.session.post(uri, data=data, verify=self.verify_ssl)
+        logger.debug('status code: ' + str(body.status_code))
+        if body.status_code > 299:
+            logger.error('request failed: %s' % str(body.status_code))
+            logger.error(json.loads(body.text).get('message'))
+            return None
+
+        body = json.loads(body.text)
+        return body
+
     def indicators_create(self, data):
         if not isinstance(data, list):
             data = [data]
@@ -87,15 +114,18 @@ class CIF(HTTPClient):
 
             if d.get('lasttime'):
                 d['lasttime'] = arrow.get(d['lasttime']).datetime.strftime('%Y-%m-%dT%m:%H:%SZ')
+            else:
+                d['lasttime'] = d['reporttime']
 
             if d.get('reference'):
                 d['altid'] = d['reference']
                 d['altid_tlp'] = d.get('reference_tlp')
 
+            del d['uuid']
+            del d['count']
             new.append(d)
 
         data = new
-        data = json.dumps(data)
 
         uri = "{0}/observables".format(self.remote)
         logger.debug(uri)
