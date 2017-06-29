@@ -30,9 +30,26 @@ class Stix(Parser):
 
             i = copy.deepcopy(defaults)
             i['description'] = e['title'].lower()
-            i['lasttime'] = e['timestamp']
-            i['indicator'] = e['observable']['object']['properties']['value']['value'].lower()
-            i['tlp'] = header['handling'][0]['marking_structures'][1]['color'].lower()
+            i['lasttime'] = e.get('timestamp')
+            try:
+                i['indicator'] = e['observable']['object']['properties']['value']['value']
+            except KeyError:
+                if e['observable']['object']['properties'].get('address_value'):
+                    i['indicator'] = e['observable']['object']['properties']['address_value']['value']
+
+                if e['observable']['object']['properties'].get('hashes'):
+                    i['indicator'] = e['observable']['object']['properties']['hashes'][0]['simple_hash_value']['value']
+
+                if e['observable']['object']['properties'].get('header'):
+                    i['indicator'] = e['observable']['object']['properties']['header']['from']['address_value']['value']
+
+            try:
+                i['tlp'] = header['handling'][0]['marking_structures'][1]['color'].lower()
+            except KeyError:
+                i['tlp'] = header['handling'][0]['marking_structures'][0]['color']
+
+            i['indicator'] = i['indicator'].lower()
+            i['tlp'] = i['tlp'].lower()
 
             if not i.get('indicator'):
                 continue
