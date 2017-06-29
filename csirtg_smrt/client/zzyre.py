@@ -11,6 +11,7 @@ from pprint import pprint
 
 GROUP = os.environ.get('ZYRE_GROUP', 'ZYRE')
 INTERFACE = os.environ.get('ZSYS_INTERFACE', 'eth0')
+GOSSIP = os.getenv('ZYRE_GOSSIP_CONNECT')
 
 logger = logging.getLogger()
 

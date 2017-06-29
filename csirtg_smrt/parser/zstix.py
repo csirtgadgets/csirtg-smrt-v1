@@ -34,7 +34,6 @@ class Stix(Parser):
             try:
                 i['indicator'] = e['observable']['object']['properties']['value']['value']
             except KeyError:
-                pprint(e['observable'])
                 if e['observable']['object']['properties'].get('address_value'):
                     i['indicator'] = e['observable']['object']['properties']['address_value']['value']
 
@@ -44,7 +43,6 @@ class Stix(Parser):
                 if e['observable']['object']['properties'].get('header'):
                     i['indicator'] = e['observable']['object']['properties']['header']['from']['address_value']['value']
 
-            #pprint(header['handling'][0]['marking_structures'])
             try:
                 i['tlp'] = header['handling'][0]['marking_structures'][1]['color'].lower()
             except KeyError:
