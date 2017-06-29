@@ -77,8 +77,6 @@ class CIF(HTTPClient):
         if type(data) == dict:
             data = [data]
 
-        pprint(data)
-
         if type(data[0]) != dict:
             raise RuntimeError('submitted data must be a dictionary')
 
