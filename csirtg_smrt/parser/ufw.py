@@ -11,6 +11,8 @@ import textwrap
 from csirtg_smrt.utils import setup_logging, get_argument_parser
 from csirtg_indicator.format import FORMATS
 from csirtg_smrt.constants import PORT_APPLICATION_MAP
+from csirtg_smrt.utils.zarrow import round_time
+from datetime import datetime
 
 import requests
 requests.packages.urllib3.disable_warnings()
@@ -211,6 +213,8 @@ def main():
     p.add_argument('--format', default='csv')
     p.add_argument('--provider', help='specify provider [default %(default)s]', default=PROVIDER)
     p.add_argument('--ignore-client-errors', help='skip when client errors out (eg: HTTP 5XX, etc)', action='store_true')
+    p.add_argument('--aggregate', help='specify how many seconds to aggregate batches before sending to client '
+                                       '[default %(default)s]', default=60)
 
     args = p.parse_args()
 
@@ -229,15 +233,21 @@ def main():
     from csirtg_smrt import Smrt
     s = Smrt(client=args.client, username=args.user, feed=args.feed, verify_ssl=verify_ssl)
 
+    bucket = set()
+    last_t = round_time(round=int(args.aggregate))
     try:
         for line in tail(args.file):
-            logger.debug(line)
+
+            if 'csirtg-ufw' in line:
+                continue
 
             if '[UFW BLOCK]' not in line:
                 continue
 
             if ' SYN ' not in line:
                 continue
+
+            logger.debug(line)
 
             try:
                 i = parse_line(line)
@@ -248,6 +258,20 @@ def main():
 
             i = Indicator(**i)
             i.provider = args.provider
+            u_indicator = ':'.join([i.indicator,'/'.join([i.portlist,i.protocol])])
+
+            if args.aggregate:
+                t = round_time(dt=datetime.now(), round=int(args.aggregate))
+                if t != last_t:
+                    bucket = set()
+
+                last_t = t
+
+                if u_indicator in bucket:
+                    logger.info('skipping send {}'.format(u_indicator))
+                    continue
+
+                bucket.add(u_indicator)
 
             if args.client == 'stdout':
                 print(FORMATS[args.format](data=[i]))
@@ -255,7 +279,7 @@ def main():
 
             try:
                 s.client.indicators_create(i)
-                logger.info('indicator created: {}'.format(i.indicator))
+                logger.info('indicator created: {}'.format(u_indicator))
 
             except Exception as e:
                 logger.error(e)
