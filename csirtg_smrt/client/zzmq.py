@@ -16,7 +16,7 @@ ENDPOINT = os.environ.get('CSIRTG_SMRT_ZMQ_ENDPOINT', 'ipc:///tmp/csirtg_smrt.ip
 TYPE_MAPPING = {
     'PUB': zmq.PUB,
     'PUSH': zmq.PUSH,
-    'PUSH_ZYRE_GATEWAY': zmq.PUSH,
+    'PUSH_ZYRE_GATEWAY': zmq.DEALER,
 }
 
 logger = logging.getLogger()
