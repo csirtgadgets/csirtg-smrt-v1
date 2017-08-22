@@ -1,11 +1,32 @@
-from csirtg_mail import parse_email_from_string
+from csirtg_mail import from_string
 from csirtg_smrt.parser import Parser
-from csirtg_indicator import Indicator
-from csirtg_indicator.exceptions import InvalidIndicator
-from pprint import pprint
 import logging
+import os
+import re
+
+TOKEN = os.environ.get('CSIRTG_TOKEN', None)
+CSIRTG_SMRT_PREDICT = False
+RE_PREDICT = re.compile(os.getenv('CSIRTG_PREDICT_RE', '^https?'))
+if os.getenv('CSIRTG_SMRT_PREDICT') == '1':
+    CSIRTG_SMRT_PREDICT = True
+
+try:
+    from csirtgsdk.client import Client as csirtg_client
+    from csirtgsdk.predict import Predict
+except Exception:
+    pass
 
 logger = logging.getLogger(__name__)
+
+
+def _check_predict(i):
+    c = csirtg_client(token=TOKEN)
+    try:
+        return Predict(c).get(i)
+    except NameError:
+        logger.error('missing newer version of csirtgsdk-py')
+        logger.error('run `pip install csirtgsdk --upgrade` and try again')
+        raise SystemExit
 
 
 class Email(Parser):
@@ -31,19 +52,32 @@ class Email(Parser):
 
         for d in self.fetcher.process(split=False):
 
-            body = parse_email_from_string(d)
+            body = from_string(d)
 
-            i = {}
-            for k, v in defaults.items():
-                i[k] = v
+            _indicators = body['urls']
+            _indicators.extend(body['email_addresses'])
 
-            if self.headers:
-                for h in self.headers:
-                    if body[0]['headers'].get(h):
-                        i[self.headers[h]] = body[0]['headers'][h][0]
+            for _i in _indicators:
+                i = {}
+                for k, v in defaults.items():
+                    i[k] = v
 
-            i['message'] = d
+                if self.headers:
+                    for h in self.headers:
+                        if body['headers'].get(h):
+                            i[self.headers[h]] = body['headers'][h][0]
 
-            yield i
+                i['message'] = d
+                i['indicator'] = _i
+
+                if not CSIRTG_SMRT_PREDICT:
+                    yield i
+                    continue
+
+                if not RE_PREDICT.match(i['indicator']):
+                    yield i
+
+                if _check_predict(i['indicator']):
+                    yield i
 
 Plugin = Email
