@@ -1,0 +1,16 @@
+parser: email
+defaults:
+  tlp: green
+  reference_tlp: white
+  provider: 'csirtg.io'
+  tags:
+    - uce
+  description: 'uce'
+  group: 'everyone'
+  confidence: 9
+
+feeds:
+  abuse:
+    remote: stdin
+    headers:
+      date: lasttime
