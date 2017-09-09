@@ -3,6 +3,7 @@ from csirtg_smrt.parser import Parser
 import logging
 import os
 import re
+from pprint import pprint
 
 TOKEN = os.environ.get('CSIRTG_TOKEN', None)
 CSIRTG_SMRT_PREDICT = False
@@ -54,6 +55,22 @@ class Email(Parser):
 
             body = from_string(d)
 
+            # if we're pulling intel from headers (eg: spamcop)
+
+            if 'indicator' in self.headers.values():
+                i = {}
+                for k, v in defaults.items():
+                    i[k] = v
+
+                for h in self.headers:
+                    if body['headers'].get(h):
+                        i[self.headers[h]] = body['headers'][h][0]
+
+                i['message'] = d
+                yield i
+                continue
+
+            # if we're pulling from a suspicious message
             _indicators = body['urls']
             _indicators.extend(body['email_addresses'])
 
