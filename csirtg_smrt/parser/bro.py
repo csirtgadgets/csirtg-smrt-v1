@@ -53,7 +53,7 @@ class BroTailer(object):
         if not len(line):
             return
 
-        parts = line.split(self.sep)
+        parts = line.rstrip().split(self.sep)
 
         record = dict(zip(self.fields, parts))
 
