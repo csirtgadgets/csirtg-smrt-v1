@@ -17,7 +17,7 @@ logger = logging.getLogger('')
 PROVIDER = os.environ.get('CSIRTG_SMRT_PROVIDER')
 
 # https://github.com/JustinAzoff/bro-pdns/blob/master/bro_pdns.py#L27
-CORE_FIELDS = set('src ts msg dst'.split())
+CORE_FIELDS = set('src ts dst'.split())
 
 
 class BroTailer(object):
@@ -64,9 +64,10 @@ class BroTailer(object):
         for f in self.vectors:
             record[f] = record[f].split(self.set_sep)
 
+        description = "{note}: {msg}".format(**record)
         data = {
             "indicator": record['src'],
-            "description": record['msg'],
+            "description": description,
             "lasttime": record['ts'],
             "firsttime": record['ts'],
         }
