@@ -48,7 +48,7 @@ setup(
     keywords=['security'],
     author="Wes Young",
     author_email="wes@csirtgadgets.org",
-    packages=find_packages(),
+    packages=find_packages(exclude=['test']),
     install_requires=[
         'ipaddress>=1.0.16',
         'feedparser>=5.2.1',
