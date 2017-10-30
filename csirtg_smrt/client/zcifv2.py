@@ -115,6 +115,9 @@ class CIF(HTTPClient):
             else:
                 d['lasttime'] = d['reporttime']
 
+            if d.get('firsttime'):
+                d['firsttime'] = arrow.get(d['firsttime']).datetime.strftime('%Y-%m-%dT%m:%H:%SZ')
+
             if d.get('reference'):
                 d['altid'] = d['reference']
                 d['altid_tlp'] = d.get('reference_tlp')
