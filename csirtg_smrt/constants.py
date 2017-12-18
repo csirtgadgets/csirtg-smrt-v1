@@ -12,6 +12,7 @@ RUNTIME_PATH = os.path.join(RUNTIME_PATH)
 
 SMRT_CACHE = os.path.join(RUNTIME_PATH, 'smrt')
 SMRT_CACHE = os.environ.get('CSIRTG_SMRT_CACHE_PATH', SMRT_CACHE)
+CACHE_PATH = SMRT_CACHE
 
 SMRT_RULES_PATH = os.path.join(RUNTIME_PATH, 'smrt', 'rules')
 SMRT_RULES_PATH = os.environ.get('CSIRTG_SMRT_RULES_PATH', SMRT_RULES_PATH)

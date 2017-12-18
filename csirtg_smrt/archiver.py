@@ -9,13 +9,13 @@ import arrow
 from sqlalchemy import Column, Integer, create_engine, DateTime, UnicodeText, Text, desc, asc
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session, load_only
-from csirtg_smrt.constants import PYVERSION, RUNTIME_PATH
+from csirtg_smrt.constants import PYVERSION, RUNTIME_PATH, CACHE_PATH
 from sqlalchemy.sql.expression import func
 from pprint import pprint
 
 TRACE = os.environ.get('CSIRTG_SMRT_SQLITE_TRACE')
 
-DB_FILE = os.path.join(RUNTIME_PATH, 'smrt.db')
+DB_FILE = os.path.join(CACHE_PATH, 'smrt.db')
 Base = declarative_base()
 
 if PYVERSION > 2:
