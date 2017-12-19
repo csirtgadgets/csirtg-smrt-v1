@@ -331,6 +331,8 @@ def _run_smrt(options, **kwargs):
             except Exception as e:
                 if not service_mode and not args.skip_broken:
                     logger.error('may need to remove the old cache file: %s' % s.last_cache)
+                    import traceback
+                    logger.error(traceback.print_exc())
                     raise e
 
                 logger.error(e)
