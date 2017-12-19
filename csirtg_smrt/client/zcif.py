@@ -2,8 +2,14 @@ from cifsdk.client.http import HTTP as HTTPClient
 
 import os
 
-REMOTE = os.environ.get('CIF_REMOTE', 'http://localhost:5000')
+REMOTE = os.getenv('CIF_REMOTE', 'http://localhost:5000')
 TOKEN = os.getenv('CIF_TOKEN')
+
+if REMOTE == '':
+    REMOTE = 'http://localhost:5000'
+
+if TOKEN == '':
+    TOKEN = None
 
 
 class CIF(HTTPClient):
