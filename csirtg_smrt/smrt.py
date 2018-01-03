@@ -20,7 +20,7 @@ import csirtg_smrt.parser
 from csirtg_smrt.archiver import Archiver, NOOPArchiver
 import csirtg_smrt.client
 from csirtg_indicator.constants import COLUMNS
-from csirtg_smrt.constants import REMOTE_ADDR, SMRT_RULES_PATH, SMRT_CACHE, CONFIG_PATH, RUNTIME_PATH, VERSION, FIREBALL_SIZE
+from csirtg_smrt.constants import REMOTE_ADDR, SMRT_RULES_PATH, SMRT_CACHE, CONFIG_PATH, RUNTIME_PATH, VERSION, FIREBALL_SIZE, CACHE_PATH
 from csirtg_smrt.rule import Rule
 from csirtg_smrt.fetcher import Fetcher
 from csirtg_smrt.utils import setup_logging, get_argument_parser, load_plugin, setup_signals, read_config, \
@@ -34,7 +34,7 @@ from csirtg_indicator.utils import normalize_itype
 
 PARSER_DEFAULT = "pattern"
 TOKEN = os.environ.get('CSIRTG_SMRT_TOKEN')
-ARCHIVE_PATH = os.environ.get('CSIRTG_SMRT_ARCHIVE_PATH', RUNTIME_PATH)
+ARCHIVE_PATH = os.environ.get('CSIRTG_SMRT_ARCHIVE_PATH', CACHE_PATH)
 ARCHIVE_PATH = os.path.join(ARCHIVE_PATH, 'smrt.db')
 FORMAT = os.environ.get('CSIRTG_SMRT_FORMAT', 'table')
 SERVICE_INTERVAL = os.environ.get('CSIRTG_SMRT_SERVICE_INTERVAL', 60)
