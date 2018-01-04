@@ -14,6 +14,7 @@ from sqlalchemy.sql.expression import func
 from pprint import pprint
 
 TRACE = os.environ.get('CSIRTG_SMRT_SQLITE_TRACE')
+CLEANUP_DAYS = os.getenv('CSIRTG_SMRT_ARCHIVER_CLEANUP_DAYS', 60)
 
 DB_FILE = os.path.join(CACHE_PATH, 'smrt.db')
 Base = declarative_base()
@@ -198,7 +199,8 @@ class Archiver(object):
 
         return i.id
 
-    def cleanup(self, days=180):
+    def cleanup(self, days=CLEANUP_DAYS):
+        days = int(days)
         date = arrow.utcnow()
         date = date.replace(days=-days)
 
