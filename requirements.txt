@@ -15,6 +15,7 @@ SQLAlchemy>=1.0.14,<1.1
 tornado>=4.4.2,<5.0
 apwgsdk>=0.0.0a4,<1.0
 docker==2.2.1
+lxml<4.0,>=3.5.0
 
 # http://stackoverflow.com/questions/31649390/python-requests-ssl-handshake-failure
 # if you're having py2.7.6 issues with sslv3
