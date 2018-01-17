@@ -46,6 +46,9 @@ STDOUT_FIELDS = COLUMNS
 # https://gist.github.com/pazdera/1099559
 logging.getLogger("requests").setLevel(logging.WARNING)
 
+if os.getenv('CSIRTG_SMRT_HTTP_TRACE', '0') == '0':
+    logging.getLogger("requests.packages.urllib3.connectionpool").setLevel(logging.WARNING)
+
 logger = logging.getLogger(__name__)
 
 
