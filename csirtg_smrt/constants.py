@@ -20,7 +20,7 @@ SMRT_RULES_PATH = os.environ.get('CSIRTG_SMRT_RULES_PATH', SMRT_RULES_PATH)
 # Logging stuff
 LOG_FORMAT = '%(asctime)s - %(levelname)s - %(name)s[%(lineno)s] - %(message)s'
 
-LOGLEVEL = 'INFO'
+LOGLEVEL = 'ERROR'
 LOGLEVEL = os.environ.get('CSIRTG_LOGLEVEL', LOGLEVEL).upper()
 
 REMOTE_ADDR = 'http://localhost:5000'

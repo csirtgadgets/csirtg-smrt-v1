@@ -33,6 +33,7 @@ def read_config(args):
 def get_argument_parser():
     BasicArgs = ArgumentParser(add_help=False)
     BasicArgs.add_argument('-d', '--debug', dest='debug', action="store_true")
+    BasicArgs.add_argument('-v', '--verbose', dest='verbose', action="store_true")
     BasicArgs.add_argument('-V', '--version', action='version', version=VERSION)
     BasicArgs.add_argument(
         "--runtime-path", help="specify the runtime path [default %(default)s]", default=RUNTIME_PATH
@@ -52,6 +53,9 @@ def load_plugin(path, plugin):
 
 def setup_logging(args):
     loglevel = logging.getLevelName(LOGLEVEL)
+
+    if args.verbose:
+        loglevel = logging.INFO
 
     if args.debug:
         loglevel = logging.DEBUG
