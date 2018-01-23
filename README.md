@@ -29,11 +29,11 @@ If you've never worked on a GitHub project, [this is a good piece](https://guide
 * [Known Issues](https://github.com/csirtgadgets/csirtg-smrt-py/issues?labels=bug&state=open)  
 * [How To Contribute](contributing.md)  
 * [Mailing List](https://groups.google.com/forum/#!forum/ci-framework)  
-* [Advanced Help?](https://csirtg.io/support) Partner with us!
+* [Need Advanced Help?](https://csirtg.io/support) Partner with us!
  
 
 # COPYRIGHT AND LICENCE
 
-Copyright (C) 2018 [CSIRT Gadgets](http://csirtgadgets.org)
+Copyright (C) 2018 [CSIRT Gadgets Foundation](http://csirtgadgets.org)
 
 Free use of this software is granted under the terms of the Mozilla Public License (MPL2). For details see the file `LICENSE` included with the distribution.
