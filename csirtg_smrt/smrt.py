@@ -237,8 +237,11 @@ class Smrt(object):
                 n = 0
                 success = True
             except Exception as e:
-                logger.error('delay trying to submit indicators')
                 logger.error(e)
+                if logger.getEffectiveLevel() == logging.debug:
+                    import traceback
+                    traceback.print_exc()
+                logger.error('delay trying to submit indicators')
                 logger.info('[{} / {}] waiting {}s for retry...'.format((int(self.send_retries) - n), self.send_retries, s))
                 n -= 1
                 sleep(s)
