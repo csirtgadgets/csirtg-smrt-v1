@@ -74,7 +74,7 @@ def test_csirtg_skips_quotes():
     for xx in x:
         ips.add(xx.indicator)
 
-    assert '216.121.233.27' not in ips
+    assert '216.243.31.2' not in ips
 
 
 def test_csirtg_skips_first():
@@ -83,7 +83,7 @@ def test_csirtg_skips_first():
 
     x = s.process(rule, feed="port-scanners")
     x = list(x)
-    assert len(x) == 3
+    assert len(x) == 1
 
 
 def test_csirtg_limits():

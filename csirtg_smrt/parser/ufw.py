@@ -26,6 +26,7 @@ logger = logging.getLogger('')
 
 PROVIDER = os.environ.get('CSIRTG_SMRT_PROVIDER')
 RE_UFW = '^(\S+\s{1,2}\S+\s\S+)\s(\S+)\s.*UFW\s(\S+)\]\s([^,]+)$'
+RE_DDWRT = '^([\w+-:0-9]+)\s\w+\s\w+:\s[^;]+SRC=(\S+)[^;]+PROTO=(\w+)[^;]+SYN$'
 
 
 def _parse_tcp(record, leftover):

@@ -60,7 +60,7 @@ setup(
         'chardet>=2.3.0',
         'csirtg_indicator>=0.0.0b18',
         'csirtg_mail>=0.0.0a1,<1.0',
-        'SQLAlchemy>=1.0.14,<1.1',
+        'SQLAlchemy>=1.0.14',
         'tornado>=4.4',
         'apwgsdk',
         'docker==2.2.1',
