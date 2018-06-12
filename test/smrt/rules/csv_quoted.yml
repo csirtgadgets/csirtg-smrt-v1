@@ -1,0 +1,16 @@
+parser: csv
+defaults:
+  provider: example
+  tags:
+    - suspicious
+
+feeds:
+  test:
+    remote: 'test/smrt/data/csv_quoted.txt'
+    defaults:
+      values:
+        - lasttime
+        - indicator
+        - portlist
+        - additional_data
+        - description
