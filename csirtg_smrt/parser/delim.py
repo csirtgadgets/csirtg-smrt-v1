@@ -21,16 +21,8 @@ class Delim(Parser):
             if self.ignore(l):  # comment or skip
                 continue
 
-            if l.startswith('"') and self.pattern == re.compile(','):
-                import csv
-                r = csv.reader([l], delimiter=',', quotechar='"')
-                m = next(r)
-            else:
-                l = l.replace('\"', '')
-                m = self.pattern.split(l)
-
-            # l = l.replace('\"', '')
-            # m = self.pattern.split(l)
+            l = l.replace('\"', '')
+            m = self.pattern.split(l)
 
             if len(cols):
                 i = {}
@@ -44,6 +36,9 @@ class Delim(Parser):
                         except IndexError as e:
                             self.logger.error(l)
                             raise
+
+                if self.add_orig:
+                    i['additional_data'] = l
 
                 i.pop("values", None)
 
@@ -69,6 +64,5 @@ class Delim(Parser):
             if self.limit == 0:
                 self.logger.debug('limit reached...')
                 break
-
 
 Plugin = Delim

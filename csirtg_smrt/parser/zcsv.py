@@ -8,5 +8,6 @@ class Csv(Delim):
         super(Csv, self).__init__(*args, **kwargs)
 
         self.pattern = re.compile(",")
+        self.add_orig= True
 
 Plugin = Csv

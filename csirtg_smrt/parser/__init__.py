@@ -21,6 +21,7 @@ class Parser(object):
         self.skip_first = False
         self.itype = None
         self.line_filter = None
+        self.add_orig = False
 
         if fireball:
             self.fireball = int(FIREBALL_SIZE)
@@ -92,7 +93,7 @@ class Parser(object):
     def eval_obs(self, obs, value=None):
         if value is None:
             value = obs
-        
+
         if isinstance(value, dict):
             for k in list(value.keys()):
                 value[k] = self.eval_obs(obs, value[k])
@@ -113,7 +114,7 @@ class Parser(object):
                     value = eval(m.group(1),{"__builtins__":None, 'math': math, 'max': max, 'min': min, 'int': int, 'float': float, 'str': str, 'unicode': unicode},{'obs': obs})
             except Exception as e:
                 self.logger.warn('Could not evaluate expression "{}", exception: {}'.format(value, e))
-            
+
         return value
 
     def process(self):
