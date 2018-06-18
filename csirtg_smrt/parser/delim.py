@@ -45,6 +45,9 @@ class Delim(Parser):
                             self.logger.error(l)
                             raise
 
+                if self.add_orig:
+                    i['additional_data'] = l
+
                 i.pop("values", None)
 
                 self.eval_obs(i)
@@ -69,6 +72,5 @@ class Delim(Parser):
             if self.limit == 0:
                 self.logger.debug('limit reached...')
                 break
-
 
 Plugin = Delim
