@@ -30,6 +30,8 @@ class Cifv2(Parser):
                 e['indicator'] = e['observable']
                 e['itype'] = e['otype']
 
+                e['confidence'] = e['confidence'] / 10.0
+
                 if isinstance(e['group'], list):
                     e['group'] = e['group'][0]
                 
