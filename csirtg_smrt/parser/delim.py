@@ -1,7 +1,7 @@
 from csirtg_smrt.parser import Parser
 import re
 from pprint import pprint
-
+import logging
 
 class Delim(Parser):
 
@@ -21,10 +21,11 @@ class Delim(Parser):
             if self.ignore(l):  # comment or skip
                 continue
 
-            if l.startswith('"') and self.pattern == re.compile(','):
+            if (l.startswith('"') or l.startswith("'") and self.pattern == re.compile(',')) or (l.count(',') > 2):
                 import csv
                 r = csv.reader([l], delimiter=',', quotechar='"')
                 m = next(r)
+               # pprint(m)
             else:
                 l = l.replace('\"', '')
                 m = self.pattern.split(l)
@@ -37,13 +38,13 @@ class Delim(Parser):
                 for k, v in defaults.items():
                     i[k] = v
 
+                #pprint(i)
                 for idx, col in enumerate(cols):
                     if col is not None:
                         try:
                             i[col] = m[idx]
                         except IndexError as e:
-                            self.logger.error(l)
-                            raise
+                            continue
 
                 if self.add_orig:
                     i['additional_data'] = l

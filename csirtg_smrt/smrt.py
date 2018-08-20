@@ -210,6 +210,9 @@ class Smrt(object):
 
     def is_valid(self, i, rule):
         # check for de-fang'd feed
+        if not i.get('indicator') or i['indicator'] == '':
+            return False
+
         if rule.replace:
             for e in i:
                 if not rule.replace.get(e):
