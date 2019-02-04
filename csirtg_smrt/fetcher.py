@@ -149,7 +149,7 @@ class Fetcher(object):
                 ftype = mag.file(self.cache)
             except AttributeError as e:
                 raise RuntimeError('unable to detect cached file type')
-        
+
         if PYVERSION < 3:
             ftype = ftype.decode('utf-8')
 
@@ -198,7 +198,7 @@ class Fetcher(object):
                     logger.info('Rate Limit Exceeded, retrying in %ss' % retry_delay)
                 else:
                     logger.error('%s found, retrying in %ss' % (resp.status_code, retry_delay))
-                
+
                 sleep(retry_delay)
                 resp = s.get(self.remote, stream=True, auth=auth, timeout=self.fetcher_timeout,
                              verify=self.verify_ssl)
@@ -247,7 +247,7 @@ class Fetcher(object):
         if self.username:
             auth = (self.username, self.password)
 
-        resp = s.head(self.remote, auth=auth, verify=self.verify_ssl)
+        resp = s.head(self.remote, auth=auth, timeout=self.fetcher_timeout, verify=self.verify_ssl)
 
         if not resp.headers.get('Last-Modified'):
             logger.debug('no last-modified header')
