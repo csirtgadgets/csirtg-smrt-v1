@@ -1,4 +1,5 @@
 csirtg_indicator>=0.0.0b18,<2.0
+PyYAML>=4.2b1
 csirtgsdk==1.0.1
 csirtg_mail>=0.0.0a9,<2.0.0
 ipaddress>=1.0.16
