@@ -1,0 +1,28 @@
+parser: cifv3
+token: xxxxxxxx
+remote: 'https://remote/indicators'
+defaults:
+  provider: provider
+  group: group
+
+feeds:
+  ipv4:
+    itype: ipv4
+    filters:
+      period: hour
+      itype: ipv4
+      tags: malware
+    map:
+      - tlp
+      - lasttime
+      - indicator
+      - count
+      - tags
+      - confidence
+    values:
+      - tlp
+      - lasttime
+      - indicator
+      - count
+      - tags
+      - confidence
