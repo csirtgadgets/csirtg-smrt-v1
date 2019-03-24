@@ -1,7 +1,7 @@
 import pytest
 import os
 from csirtg_smrt import Smrt
-from csirtgsdk.client import Client as CSIRTGClient
+from csirtgsdk.client.http import HTTP as CSIRTGClient
 from csirtgsdk.feed import Feed
 from pprint import pprint
 
