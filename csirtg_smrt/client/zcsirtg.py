@@ -1,4 +1,4 @@
-from csirtgsdk.client import Client as CSIRTGClient
+from csirtgsdk.client.http import HTTP as CSIRTGClient
 from csirtgsdk.indicator import Indicator
 import csirtg_indicator
 from csirtg_smrt.client.plugin import Client
@@ -12,7 +12,8 @@ FEED = os.getenv('CSIRTG_FEED')
 
 class _Csirtg(Client):
 
-    def __init__(self, remote='https://csirtg.io/api', token=TOKEN, username=None, feed=None, **kwargs):
+    def __init__(self, remote='https://csirtg.io/api',
+                 token=TOKEN, username=None, feed=None, **kwargs):
 
         if not username:
             username = USER
@@ -27,7 +28,6 @@ class _Csirtg(Client):
 
         self.user = username
         self.feed = feed
-        self.handle = CSIRTGClient(token=token)
 
     def start(self):
         return True
@@ -52,15 +52,13 @@ class _Csirtg(Client):
             d['feed'] = self.feed
             d['user'] = self.user
 
-            i = Indicator(
-                self.handle,
-                d
-            )
+            i = Indicator(d)
 
             rv = i.submit()
             indicators.append(rv)
 
         assert len(indicators) > 0
         return indicators
+
 
 Plugin = _Csirtg
