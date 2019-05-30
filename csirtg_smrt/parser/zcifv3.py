@@ -25,7 +25,6 @@ class cifv3(Parser):
 
     def process(self):
         defaults = self._defaults()
-        map = self.rule.feeds[self.feed].get('map')
         values = self.rule.feeds[self.feed].get('values')
         envelope = self.rule.feeds[self.feed].get('envelope')
 
@@ -50,18 +49,13 @@ class cifv3(Parser):
 
                     i = copy.deepcopy(defaults)
 
-                    if map:
-                        for x, c in enumerate(map):
-                            i[values[x]] = e[c]
-                        yield i
-                    elif values:
-                        for x, c in enumerate(values):
-                            i[c] = e[c]
-                        yield i
+                    if values:
+                        for value in values:
+                            i[value] = e[value]
                     else:
-                        for x, c in enumerate(e.keys()):
-                            i[c] = e[c]
-                        yield i
+                        for value in e.keys():
+                            i[value] = e[value]
+                    yield i
             else:
                 return
 
