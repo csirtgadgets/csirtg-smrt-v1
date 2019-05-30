@@ -13,7 +13,7 @@ class Rule(dict):
             if path.endswith('.yml'):
                 with open(path) as f:
                     try:
-                        d = yaml.load(f)
+                        d = yaml.safe_load(f)
                     except Exception as e:
                         self.logger.error('unable to parse {0}'.format(path))
                         raise RuntimeError(e)
