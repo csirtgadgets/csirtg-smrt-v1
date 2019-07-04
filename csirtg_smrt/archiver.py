@@ -9,6 +9,8 @@ import arrow
 from sqlalchemy import Column, Integer, create_engine, DateTime, UnicodeText, Text, desc, asc
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session, load_only
+from sqlalchemy import event
+from sqlalchemy.engine import Engine
 from csirtg_smrt.constants import PYVERSION, RUNTIME_PATH, CACHE_PATH
 from sqlalchemy.sql.expression import func
 from pprint import pprint
@@ -27,6 +29,29 @@ logger = logging.getLogger(__name__)
 if not TRACE:
     logger.setLevel(logging.ERROR)
 
+# http://stackoverflow.com/q/9671490/7205341
+SYNC = os.environ.get('SMRT_SQLITE_SYNC', 'NORMAL')
+
+# https://www.sqlite.org/pragma.html#pragma_cache_size
+CACHE_SIZE = os.environ.get('SMRT_SQLITE_CACHE_SIZE', 512000000)  # 512MB
+
+AUTO_VACUUM = True
+if os.getenv('SMRT_SQLITE_AUTO_VACUUM', '1') == '0':
+    AUTO_VACUUM = False
+
+@event.listens_for(Engine, "connect")
+def set_sqlite_pragma(dbapi_connection, connection_record):
+    cursor = dbapi_connection.cursor()
+    cursor.execute("PRAGMA foreign_keys=ON")
+    cursor.execute("PRAGMA journal_mode = MEMORY")
+    cursor.execute("PRAGMA synchronous = {}".format(SYNC))
+    cursor.execute("PRAGMA temp_store = MEMORY")
+    cursor.execute("PRAGMA cache_size = {}".format(CACHE_SIZE))
+
+    if AUTO_VACUUM:
+        cursor.execute("PRAGMA auto_vacuum = INCREMENTAL")
+
+    cursor.close()
 
 class Indicator(Base):
     __tablename__ = "indicators"
@@ -140,7 +165,7 @@ class Archiver(object):
             return False
 
         (ex_group, ex_tags, ex_ft, ex_lt) = self.memcache[indicator.indicator]
-        
+
         # Is the indicator or tags different?
         if (ex_group, ex_tags) != (indicator.group, tags):
             return False
