@@ -7,7 +7,7 @@ feedparser>=5.2.1
 nltk>=3.2,<3.3
 requests>=2.20
 pendulum<2.0.0
-arrow>=0.6.0
+arrow>=0.6.0,<=0.14.2
 python-magic>=0.4.6
 pyaml>=15.8.2
 chardet>=2.3.0,<2.4
