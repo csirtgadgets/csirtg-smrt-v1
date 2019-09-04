@@ -233,6 +233,10 @@ class Archiver(object):
         count = s.query(Indicator).filter(Indicator.created_at < date.datetime).delete()
         self.commit()
 
+        if AUTO_VACUUM:
+            logger.info('running database vacuum')
+            s.execute('PRAGMA incremental_vacuum')
+
         return count
 
 class NOOPArchiver:
