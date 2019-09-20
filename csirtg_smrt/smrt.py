@@ -443,7 +443,7 @@ def main():
 
     goback = args.goback
     if goback:
-        goback = arrow.utcnow().replace(days=-int(goback))
+        goback = arrow.utcnow().shift(days=-int(goback))
 
     if not args.service:
         data = None

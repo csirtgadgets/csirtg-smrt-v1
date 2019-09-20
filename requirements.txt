@@ -1,27 +1,19 @@
-csirtg_indicator>=0.0.0b18,<2.0
+csirtg_indicator>=0.0.0b18,<2
 PyYAML>=4.2b1
 csirtgsdk>=1.1,<2.0
 csirtg_mail>=0.0.0a9,<2.0.0
 ipaddress>=1.0.16
 feedparser>=5.2.1
 nltk>=3.2,<3.3
-requests>=2.20
+requests>=2.6.0
 pendulum<2.0.0
-arrow>=0.6.0,<=0.14.2
+arrow>=0.15.2
 python-magic>=0.4.6
 pyaml>=15.8.2
-chardet>=2.3.0,<2.4
-# bug affecting bs4, py2 and cgmail
 html5lib==1.0b8
-SQLAlchemy>=1.0.14,<1.1
+SQLAlchemy>=1.0.14
 tornado>=4.4.2,<5.0
 apwgsdk>=0.0.0a4,<1.0
 docker==2.2.1
 lxml<4.0,>=3.5.0
 tzlocal
-
-# http://stackoverflow.com/questions/31649390/python-requests-ssl-handshake-failure
-# if you're having py2.7.6 issues with sslv3
-#pyopenssl>=16.2.0
-#ndg-httpsclient
-#pyasn1

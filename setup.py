@@ -54,16 +54,17 @@ setup(
         'feedparser>=5.2.1',
         'nltk>=3.2,<3.3',
         'requests>=2.6.0',
-        'arrow>=0.6.0',
+        'arrow>=0.15.2',
         'python-magic>=0.4.6',
         'pyaml>=15.8.2',
         'chardet>=2.3.0',
-        'csirtg_indicator>=0.0.0b18',
-        'csirtg_mail>=0.0.0a1,<2.0',
+        'csirtg_indicator>=0.0.0b18,<2',
+        'csirtg_mail>=0.0.0a1,<2',
         'SQLAlchemy>=1.0.14',
-        'tornado>=4.4',
-        'apwgsdk',
+        'tornado>=4.4.2,<5.0',
+        'apwgsdk>=0.0.0a4,<1.0',
         'docker==2.2.1',
+        'tzlocal'
     ],
     entry_points={
         'console_scripts': [
