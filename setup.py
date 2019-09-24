@@ -53,7 +53,7 @@ setup(
         'ipaddress>=1.0.16',
         'feedparser>=5.2.1',
         'nltk>=3.2,<3.3',
-        'requests==2.2.0',
+        'requests==2.22.0',
         'arrow==0.14.2',
         'python-magic>=0.4.6',
         'pyaml>=15.8.2',
