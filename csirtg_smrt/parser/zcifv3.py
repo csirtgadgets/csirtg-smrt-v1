@@ -51,10 +51,10 @@ class cifv3(Parser):
 
                     if values:
                         for value in values:
-                            i[value] = e[value]
+                            i[value] = e.get(value)
                     else:
                         for value in e.keys():
-                            i[value] = e[value]
+                            i[value] = e.get(value)
                     yield i
             else:
                 return
