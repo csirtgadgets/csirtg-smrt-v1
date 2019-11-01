@@ -2,6 +2,7 @@ import arrow
 import datetime
 import re
 from pprint import pprint
+from arrow.parser import ParserMatchError
 from tzlocal import get_localzone  # pip install tzlocal
 
 
@@ -75,7 +76,10 @@ def parse_timestamp(ts, syslog=False):
             if match:
                 ts = '{}-{}-{}T{}:{}:{}Z'.format(match.group(1), match.group(2), match.group(3), match.group(4),
                                                  match.group(5), match.group(6))
-                t = arrow.get(ts, 'YYYY-MM-DDTHH:mm:ss')
+                try:
+                    t = arrow.get(ts, 'YYYY-MM-DDTHH:mm:ss')
+                except ParserMatchError as e:
+                    t = arrow.get(ts, 'YYYY-MM-DDTHH:mm:ssZ')
                 return t
             else:
                 raise RuntimeError('Invalid Timestamp: %s' % ts)
