@@ -1,4 +1,4 @@
-from csirtg_smrt.utils.zcontent import get_type
+#from csirtg_smrt.utils.zcontent import get_type
 import os.path
 
 T = {
