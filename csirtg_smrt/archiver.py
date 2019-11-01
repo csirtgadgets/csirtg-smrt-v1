@@ -227,7 +227,7 @@ class Archiver(object):
     def cleanup(self, days=CLEANUP_DAYS):
         days = int(days)
         date = arrow.utcnow()
-        date = date.replace(days=-days)
+        date = date.shift(days=-days)
 
         s = self.begin()
         count = s.query(Indicator).filter(Indicator.created_at < date.datetime).delete()
