@@ -30,8 +30,15 @@ def parse_line(line):
     :param line: line from the input stream
     """
     line = line.rstrip()
+    
     if not line:
         return None
+
+    try:
+        line = line.decode()
+    except (UnicodeDecodeError, AttributeError):
+        pass
+
     if line.startswith('{') and line.endswith('}'):
         try:
             record = json_loads(line)
