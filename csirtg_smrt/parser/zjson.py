@@ -33,7 +33,11 @@ class Json(Parser):
                 continue
 
             if envelope:
-                l = l[envelope]
+                if not isinstance(envelope, list):
+                    envelope = [envelope]
+                
+                for a in envelope:
+                    l = l[a]
 
             for e in l:
                 i = copy.deepcopy(defaults)
