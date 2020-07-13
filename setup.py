@@ -61,7 +61,7 @@ setup(
         'csirtg_indicator>=1.0.6,<2',
         'csirtg_mail>=0.0.0a1,<2',
         'SQLAlchemy>=1.0.14',
-        'tornado>=4.4.2,<5.0',
+        'tornado>=5.1.0',
         'apwgsdk>=0.0.0a4,<=1.0',
         'docker==2.2.1',
     ],
