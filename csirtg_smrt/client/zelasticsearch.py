@@ -31,7 +31,7 @@ class Indicator(DocType):
     reporttime = Date()
     lasttime = Date()
     firsttime = Date()
-    confidence = Integer()
+    confidence = Float()
     timezone = String()
     city = String()
     description = String(index="not_analyzed")
