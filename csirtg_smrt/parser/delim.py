@@ -1,4 +1,5 @@
 from csirtg_smrt.parser import Parser
+import copy
 import re
 from pprint import pprint
 import logging
@@ -15,7 +16,6 @@ class Delim(Parser):
 
     def process(self):
         defaults = self._defaults()
-        cols = defaults.get('values', [])
 
         for l in self.fetcher.process():
             if self.ignore(l):  # comment or skip
@@ -33,14 +33,12 @@ class Delim(Parser):
             # l = l.replace('\"', '')
             # m = self.pattern.split(l)
 
-            if len(cols):
-                i = {}
-                for k, v in defaults.items():
-                    i[k] = v
+            if len(self.cols):
+                i = copy.deepcopy(defaults)
 
                 #pprint(i)
-                for idx, col in enumerate(cols):
-                    if col is not None:
+                for idx, col in enumerate(self.cols):
+                    if col:
                         try:
                             i[col] = m[idx]
                         except IndexError as e:
