@@ -1,3 +1,4 @@
+import copy
 import logging
 import re
 import math
@@ -57,6 +58,19 @@ class Parser(object):
             self.line_filter = re.compile(self.line_filter)
 
         self.line_count = 0
+        
+        # prioritize column values in order: feed values > feed defaults values > rule defaults values > rule values
+        if self.rule.feeds[self.feed].get('values'):
+            self.cols = self.rule.feeds[self.feed].get('values')
+        elif self.rule.feeds[self.feed].get('defaults', {}).get('values'):
+            self.cols = self.rule.feeds[self.feed]['defaults'].get('values')
+        elif self.rule.defaults.get('values'):
+            self.cols = self.rule.defaults.get('values')
+        else:
+            self.cols = self.rule.get('values', [])
+
+        if isinstance(self.cols, str):
+            self.cols = self.cols.split(',')
 
     def ignore(self, line):
         if line == '':
@@ -82,7 +96,7 @@ class Parser(object):
             return True
 
     def _defaults(self):
-        defaults = self.rule.defaults
+        defaults = copy.deepcopy(self.rule.defaults)
 
         if self.rule.feeds[self.feed].get('defaults'):
             for d in self.rule.feeds[self.feed].get('defaults'):
