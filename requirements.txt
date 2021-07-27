@@ -24,3 +24,4 @@ tzlocal==2.0.0
 #pyopenssl>=16.2.0
 #ndg-httpsclient
 #pyasn1
+urllib3>=1.26.5 # not directly required, pinned by Snyk to avoid a vulnerability
