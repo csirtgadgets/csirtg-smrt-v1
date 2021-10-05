@@ -1,5 +1,7 @@
 from libtaxii.constants import *
-from csirtg_indicator.utils import resolve_itype
+from csirtg_smrt.parser.zstix import (_get_desc_from_stix_indicator, 
+    _parse_stix_indicator, _map_stix_to_cif_confidence, _get_tlp_from_xml_stix_package,
+    _parse_stix_package)
 from csirtg_indicator import Indicator
 from urllib.parse import urlparse
 from dateutil.tz import tzutc
@@ -11,7 +13,6 @@ import libtaxii.clients as tc
 import libtaxii.messages_11 as tm11
 import logging
 import uuid
-import stix
 
 logger = logging.getLogger(__name__)
 
@@ -27,11 +28,6 @@ class _TAXII(object):
         self.key_file = kwargs.get('key_file')
         self.cert_file = kwargs.get('cert_file')
         
-        self.CONFIDENCE_MAP = {
-            'low': 3,
-            'medium': 5,
-            'high': 8
-        }
         self.client = tc.HttpClient()
         self.up = urlparse(self.remote)
         if self.up.scheme.startswith('https'):
@@ -63,65 +59,6 @@ class _TAXII(object):
     def indicators_create(self, data, **kwargs):
         raise NotImplemented
 
-    def _map_confidence(self, stix_conf=None):
-        if not stix_conf:
-            stix_conf = 3
-            return stix_conf
-        
-        if isinstance(stix_conf, stix.common.confidence.Confidence):
-            stix_conf = str(stix_conf.value)
-
-        try:
-            stix_conf = float(stix_conf)
-            if stix_conf <=100:
-                stix_conf = stix_conf / 10
-            elif stix_conf > 100:
-                stix_conf = 3
-        except:
-            stix_conf = stix_conf.lower()
-            stix_conf = self.CONFIDENCE_MAP.get(stix_conf, 3)
-
-        return stix_conf
-
-    def _parse_stix_indicator(self, stix_ind_or_obs):
-        indicator = None
-        if not isinstance(stix_ind_or_obs, dict):
-            stix_ind_or_obs = stix_ind_or_obs.to_dict()
-
-        try:
-            indicator = stix_ind_or_obs['object']['properties']['value']['value']
-        except KeyError:
-            # handle obs fqdn embedded in indicator
-            if stix_ind_or_obs.get('observable', {}).get('object', {}).get('properties', {}).get('value'):
-                indicator = stix_ind_or_obs['observable']['object']['properties']['value']
-
-            # handles obs ipv4/v6 embedded in indicator
-            elif stix_ind_or_obs.get('observable', {}).get('object', {}).get('properties', {}).get('address_value'):
-                indicator = stix_ind_or_obs['observable']['object']['properties']['address_value']
-
-            # handles obs hashes embedded in indicator
-            elif stix_ind_or_obs.get('observable', {}).get('object', {}).get('properties', {}).get('hashes'):
-                indicator = stix_ind_or_obs['observable']['object']['properties']['hashes'][0]['simple_hash_value']
-
-            # handles obs email "from" addresses embedded in indicator
-            elif stix_ind_or_obs.get('observable', {}).get('object', {}).get('properties', {}).get('header'):
-                indicator = stix_ind_or_obs['observable']['object']['properties']['header']['from']['address_value']
-
-            # handles indicator ipv4/v6
-            elif stix_ind_or_obs.get('object', {}).get('properties', {}).get('address_value'):
-                indicator = stix_ind_or_obs['object']['properties']['address_value']['value']
-
-            # handles indicator hashes
-            elif stix_ind_or_obs.get('object', {}).get('properties', {}).get('hashes'):
-                indicator = stix_ind_or_obs['object']['properties']['hashes'][0]['simple_hash_value']['value']
-
-            # handles indicator email "from" addresses
-            elif stix_ind_or_obs.get('object', {}).get('properties', {}).get('header'):
-                indicator = stix_ind_or_obs['object']['properties']['header']['from']['address_value']['value']
-
-        if indicator and not resolve_itype(indicator):
-            return None
-        return indicator
     
     def _parse_taxii_content(self, taxii_content):
         indicators_to_add = {}
@@ -132,62 +69,11 @@ class _TAXII(object):
                 logger.error('Error parsing STIX object: {}'.format(e))
                 continue
 
-            if stix_parsed.indicators:
-                for i in stix_parsed.indicators:
-                    if not i.observable:
-                        continue
-
-                    if i.short_description:
-                        description = str(i.short_description.value.lower())
-                    elif i.description:
-                        description = str(i.description)
-                    else:
-                        description = None
-                    lasttime = i.timestamp or None
-                    confidence = self._map_confidence(i.confidence)
-                    indicator = self._parse_stix_indicator(i)
-
-                    # save indicator info by its related observable id
-                    if indicator:
-                        logger.debug('adding indicator {}'.format(indicator))
-                    
-                    i_dict = {
-                        'description': description,
-                        'lasttime': lasttime,
-                        'confidence': confidence,
-                        'indicator': indicator
-                    }
-                    # if no idref, use the CIF indicator uuid as a unique dict key
-                    if not i.observable.idref:
-                        idref = str(uuid.uuid4())
-                    else:
-                        idref = i.observable.idref
-                    indicators_to_add[idref] = i_dict
-
-            tlp = None
-            try:
-                tlp = stix_parsed.stix_header.handling.marking[0].marking_structures[0].color
-            except AttributeError:
-                pass
-                
-            if stix_parsed.observables:
-                for o in stix_parsed.observables:
-                    o = o.to_dict()
-                    indicator = self._parse_stix_indicator(o)
-                    
-                    if not indicator:
-                        continue
-
-                    i_dict = { 
-                        'indicator': indicator,
-                        'tlp': tlp
-                    }
-
-                    if indicators_to_add.get(o['id']):
-                        indicators_to_add[o['id']].update(i_dict)
+            indicators_to_add.update(_parse_stix_package(stix_parsed))
 
         for i_dict in indicators_to_add.values():
             if i_dict.get('indicator'):
+                logger.debug('adding indicator {}'.format(i_dict['indicator']))
                 yield Indicator(**i_dict)
 
 
