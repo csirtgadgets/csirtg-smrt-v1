@@ -1,4 +1,5 @@
 import magic
+import os
 import sys
 from pprint import pprint
 from csirtg_smrt.constants import PYVERSION
@@ -111,6 +112,16 @@ def get_type(f, mime=None):
         t = tt(f, mime)
         if t:
             return t
+
+
+def is_expected_file(file_path, file_extension=None):
+    if not os.path.isfile(file_path):
+        raise RuntimeError('Invalid file path specified: {}'.format(file_path))
+    if file_extension:
+        if not file_path.lower().endswith(file_extension):
+            raise RuntimeError('Unexpected file extension for file {}. Expected {}'.format(file_path, file_extension))
+    
+    return True
 
 
 if __name__ == "__main__":
