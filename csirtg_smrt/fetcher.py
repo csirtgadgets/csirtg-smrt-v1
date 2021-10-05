@@ -279,6 +279,28 @@ class Fetcher(object):
             yield cli.indicators(no_last_run=True)
             return
 
+        # taxi 1.1 fetcher
+        if self.fetcher == 'taxii11' or self.fetcher == 'taxii':
+            if not self.filters.get('collection_name'):
+                error_msg = """The SMRT rule for a TAXII fetcher must contain a "filters" section with a subsequent
+                 "collection_name" key with appropriate value for which collection to poll."""
+                logger.error(error_msg)
+                raise RuntimeError(error_msg)
+
+            if self.rule.parser != 'indicator':
+                error_msg = """The SMRT rule for a TAXII fetcher must contain a "parser" key set to the value
+                of "indicator"."""
+                logger.error(error_msg)
+                raise RuntimeError(error_msg)
+                
+            from .client.ztaxii11 import _TAXII as taxiicli
+            cli = taxiicli(**self.__dict__)
+            yield cli.indicators(
+                collection_name=self.filters.get('collection_name'),
+                subscription_id=self.filters.get('subscription_id')
+            )
+            return
+
         if self.fetcher == 'http':
             if self.no_fetch and os.path.isfile(self.cache):
                 self.logger.info('skipping fetch: {}'.format(self.cache))
