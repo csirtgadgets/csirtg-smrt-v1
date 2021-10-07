@@ -111,8 +111,8 @@ def _map_stix_to_cif_confidence(stix_indicator):
 
 def _parse_stix_package(stix_package, indicator_template=None, expected_itype=None):
     indicators_to_add = {}
+    tlp = _get_tlp_from_xml_stix_package(stix_package)
     if stix_package.indicators:
-        tlp = _get_tlp_from_xml_stix_package(stix_package)
         for i in stix_package.indicators:
             if not i.observable:
                 continue
@@ -130,20 +130,23 @@ def _parse_stix_package(stix_package, indicator_template=None, expected_itype=No
                 i_dict['lasttime'] = lasttime
             if confidence:
                 i_dict['confidence'] = confidence
-            if indicator:
-                i_dict['indicator'] = indicator
             if tlp:
                 i_dict['tlp'] = tlp
 
             # override i_dict w/ smrt rule settings if available
             if indicator_template:
                 i_dict.update(indicator_template)
+
+            # but don't override indicator
+            if indicator:
+                i_dict['indicator'] = indicator
             
             # if no idref, generate a uuid as a unique dict key
             if not i.observable.idref:
                 idref = str(uuid.uuid4())
             else:
                 idref = i.observable.idref
+            
             indicators_to_add[idref] = i_dict
         
     if stix_package.observables:
@@ -156,11 +159,18 @@ def _parse_stix_package(stix_package, indicator_template=None, expected_itype=No
 
             i_dict = { 
                 'indicator': indicator,
-                'tlp': tlp
             }
+            if tlp:
+                i_dict['tlp'] = tlp
 
-            if indicators_to_add.get(o['id']):
-                indicators_to_add[o['id']].update(i_dict)
+            idref = o['id']
+            
+            if indicators_to_add.get(idref):
+                indicators_to_add[idref].update(i_dict)
+            else:
+                if indicator_template:
+                    i_dict.update(indicator_template)
+                indicators_to_add[idref] = i_dict
 
     return indicators_to_add
 

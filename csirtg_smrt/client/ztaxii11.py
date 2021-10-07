@@ -69,7 +69,13 @@ class _TAXII(object):
                 logger.error('Error parsing STIX object: {}'.format(e))
                 continue
 
-            indicators_to_add.update(_parse_stix_package(stix_parsed))
+            tmp = _parse_stix_package(stix_parsed)
+            
+            for obs_key, value in tmp.items():
+                if obs_key in indicators_to_add:
+                    indicators_to_add[obs_key].update(value)
+                else:
+                    indicators_to_add[obs_key] = value
 
         for i_dict in indicators_to_add.values():
             if i_dict.get('indicator'):
