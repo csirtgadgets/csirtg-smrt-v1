@@ -188,8 +188,7 @@ class Stix(Parser):
         try:
             feed = STIXPackage.from_xml(self.rule.remote)
         except Exception as e:
-            self.logger.error('Error parsing feed: {}'.format(e))
-            self.logger.error(defaults['remote'])
+            self.logger.error('Error parsing feed {}: {}'.format(self.rule.remote, e))
             raise e
 
         indicators_to_add.update(_parse_stix_package(
