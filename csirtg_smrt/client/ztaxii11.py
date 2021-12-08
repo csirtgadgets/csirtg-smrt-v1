@@ -109,7 +109,8 @@ class _TAXII(object):
         http_resp = self.client.call_taxii_service2(self.up.hostname,
             self.up.path,
             VID_TAXII_XML_11,
-            poll_req_xml
+            poll_req_xml,
+            self.up.port
             )
         taxii_message = t.get_message_from_http_response(http_resp, poll_req.message_id)
 

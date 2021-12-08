@@ -294,7 +294,7 @@ class Fetcher(object):
                 raise RuntimeError(error_msg)
                 
             from .client.ztaxii11 import _TAXII as taxiicli
-            cli = taxiicli(**self.__dict__)
+            cli = taxiicli(**self.rule.__dict__)
             yield cli.indicators(
                 collection_name=self.filters.get('collection_name'),
                 subscription_id=self.filters.get('subscription_id')
