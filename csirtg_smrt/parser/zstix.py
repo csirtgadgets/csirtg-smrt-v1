@@ -3,9 +3,9 @@ import uuid
 import os
 from stix.core import STIXPackage
 from stix.common.confidence import Confidence as STIX_Confidence
-from pprint import pprint
 from csirtg_smrt.parser import Parser
 from csirtg_indicator.utils import resolve_itype
+from csirtg_indicator import InvalidIndicator
 
 
 def _parse_stix_indicator(stix_ind_or_obs, expected_itype=None):
@@ -30,7 +30,7 @@ def _parse_stix_indicator(stix_ind_or_obs, expected_itype=None):
 
         # handles obs hashes embedded in indicator
         elif stix_ind_or_obs.get('observable', {}).get('object', {}).get('properties', {}).get('hashes'):
-            indicator = stix_ind_or_obs['observable']['object']['properties']['hashes'][0]['simple_hash_value']
+            indicator = _parse_hashes_from_hash_list(stix_ind_or_obs['observable']['object']['properties']['hashes'])
 
         # handles obs email "from" addresses embedded in indicator
         elif stix_ind_or_obs.get('observable', {}).get('object', {}).get('properties', {}).get('header'):
@@ -50,13 +50,58 @@ def _parse_stix_indicator(stix_ind_or_obs, expected_itype=None):
 
     
     if indicator:
-        itype = resolve_itype(indicator)
-        if not itype:
-            indicator = None
-        elif expected_itype and expected_itype != itype:
-            indicator = None
+        indicator = _translate_itype(indicator, expected_itype)
 
     return indicator
+
+
+def _translate_itype(indicator, expected_itype=None):
+    if isinstance(indicator, list):
+        i_list = []
+        for i in indicator:
+            try:
+                itype = resolve_itype(i)
+            except InvalidIndicator as e:
+                continue
+            if not itype or (expected_itype and expected_itype != itype):
+                continue
+
+            i_list.append(i)
+        
+        indicator = i_list
+    else:
+        try:
+            itype = resolve_itype(indicator)
+        except InvalidIndicator as e:
+            itype = None
+        if not itype or (expected_itype and expected_itype != itype):
+                indicator = None
+    
+    return indicator
+                
+
+
+def _parse_hashes_from_hash_list(hash_list):
+    indicators = []
+    if not isinstance(hash_list, list) or len(hash_list) == 0:
+        raise ValueError('hashes key was found but contained no values')
+
+    for hash in hash_list:
+        hash_value = hash.get('simple_hash_value') or hash.get('fuzzy_hash_value')
+        if not hash_value:
+            continue
+
+        if not isinstance(hash_value, str):
+            if not isinstance(hash_value, dict):
+                continue
+
+            hash_value = hash_value.get('value')
+            if not hash_value:
+                continue
+
+        indicators.append(hash_value)
+
+    return indicators
 
 
 def _get_desc_from_stix_indicator(stix_indicator):
@@ -133,21 +178,27 @@ def _parse_stix_package(stix_package, indicator_template=None, expected_itype=No
             if tlp:
                 i_dict['tlp'] = tlp
 
-            # override i_dict w/ smrt rule settings if available
-            if indicator_template:
-                i_dict.update(indicator_template)
-
-            # but don't override indicator
-            if indicator:
-                i_dict['indicator'] = indicator
-            
             # if no idref, generate a uuid as a unique dict key
             if not i.observable.idref:
                 idref = str(uuid.uuid4())
             else:
                 idref = i.observable.idref
-            
-            indicators_to_add[idref] = i_dict
+
+            # override i_dict w/ smrt rule settings if available
+            if indicator_template:
+                i_dict.update(indicator_template)
+
+            # but don't override indicator
+            if indicator and not isinstance(indicator, list):
+                    i_dict['indicator'] = indicator
+                    indicators_to_add[idref] = i_dict
+            elif indicator and isinstance(indicator, list):
+                for i in indicator:
+                    i_dict['indicator'] = i
+                    indicators_to_add[idref] = i_dict
+            else:
+                indicators_to_add[idref] = i_dict
+
         
     if stix_package.observables:
         for o in stix_package.observables:
@@ -157,23 +208,30 @@ def _parse_stix_package(stix_package, indicator_template=None, expected_itype=No
             if not indicator:
                 continue
 
-            i_dict = { 
-                'indicator': indicator,
-            }
-            if tlp:
-                i_dict['tlp'] = tlp
-
-            idref = o['id']
-            
-            if indicators_to_add.get(idref):
-                indicators_to_add[idref].update(i_dict)
+            if isinstance(indicator, list):
+                for i in indicator:
+                    indicators_to_add = _assemble_obs_dict(indicator, o, indicators_to_add, indicator_template, tlp)
             else:
-                if indicator_template:
-                    i_dict.update(indicator_template)
-                indicators_to_add[idref] = i_dict
+                indicators_to_add = _assemble_obs_dict(indicator, o, indicators_to_add, indicator_template, tlp)
 
     return indicators_to_add
 
+
+def _assemble_obs_dict(indicator, o_dict, indicators_to_add, indicator_template=None, tlp=None):
+    i_dict = { 'indicator': indicator }
+    if tlp:
+        i_dict['tlp'] = tlp
+
+    idref = o_dict['id']
+
+    if indicators_to_add.get(idref):
+        indicators_to_add[idref].update(i_dict)
+    else:
+        if indicator_template:
+            i_dict.update(indicator_template)
+        indicators_to_add[idref] = i_dict
+
+    return indicators_to_add
 
 class Stix(Parser):
 
