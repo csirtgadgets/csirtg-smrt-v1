@@ -1,7 +1,5 @@
 from libtaxii.constants import *
-from csirtg_smrt.parser.zstix import (_get_desc_from_stix_indicator, 
-    _parse_stix_indicator, _map_stix_to_cif_confidence, _get_tlp_from_xml_stix_package,
-    _parse_stix_package)
+from csirtg_smrt.parser.zstix import _parse_stix_package
 from csirtg_indicator import Indicator
 from urllib.parse import urlparse
 from dateutil.tz import tzutc
@@ -69,7 +67,14 @@ class _TAXII(object):
                 logger.error('Error parsing STIX object: {}'.format(e))
                 continue
 
-            tmp = _parse_stix_package(stix_parsed)
+            try:
+                tmp = _parse_stix_package(stix_parsed)
+            except NotImplementedError as e:
+                if str(e).endswith("AISMarkingStructure'"):
+                    import stix.extensions.marking.ais
+                    tmp = _parse_stix_package(stix_parsed)
+                else:
+                    raise
             
             for obs_key, value in tmp.items():
                 if obs_key in indicators_to_add:
