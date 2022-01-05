@@ -45,6 +45,8 @@ class Json(Parser):
                 if map:
                     for x, c in enumerate(map):
                         i[values[x]] = e[c]
+                        
+                self.eval_obs(i)
 
                 yield i
 
