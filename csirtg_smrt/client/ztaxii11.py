@@ -63,6 +63,12 @@ class _TAXII(object):
         for stix_obj in taxii_content:
             try:
                 stix_parsed = STIXPackage.from_xml(lxml_fromstring(stix_obj.content))
+            except NotImplementedError as e:
+                if str(e).endswith("AISMarkingStructure'"):
+                    import stix.extensions.marking.ais
+                    stix_parsed = STIXPackage.from_xml(lxml_fromstring(stix_obj.content))
+                else:
+                    raise
             except Exception as e:
                 logger.error('Error parsing STIX object: {}'.format(e))
                 continue
