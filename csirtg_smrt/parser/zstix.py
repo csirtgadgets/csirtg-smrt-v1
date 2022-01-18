@@ -19,6 +19,8 @@ def _parse_stix_indicator(stix_ind_or_obs, expected_itype=None):
         # handle obs fqdn embedded in indicator
         if stix_ind_or_obs.get('observable', {}).get('object', {}).get('properties', {}).get('value'):
             indicator = stix_ind_or_obs['observable']['object']['properties']['value']
+            if indicator.get('value'):
+                indicator = indicator['value']
 
         # handles obs ipv4/v6 embedded in indicator
         elif isinstance(stix_ind_or_obs.get('observable', {}).get('object', {}).get('properties', {}).get('address_value'), str):
