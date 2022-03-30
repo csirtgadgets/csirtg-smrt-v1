@@ -37,6 +37,8 @@ def _parse_stix_indicator(stix_ind_or_obs, expected_itype=None):
         # handles obs email "from" addresses embedded in indicator
         elif stix_ind_or_obs.get('observable', {}).get('object', {}).get('properties', {}).get('header'):
             indicator = stix_ind_or_obs['observable']['object']['properties']['header']['from']['address_value']
+            if indicator.get('value'):
+                indicator = indicator['value']
 
         # handles indicator ipv4/v6
         elif stix_ind_or_obs.get('object', {}).get('properties', {}).get('address_value'):
