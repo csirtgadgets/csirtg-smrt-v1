@@ -52,7 +52,7 @@ setup(
     install_requires=[
         'ipaddress>=1.0.16',
         'feedparser>=5.2.1',
-        'nltk>=3.2,<3.3',
+        'nltk>=3.2,<3.7',
         'requests==2.22.0',
         'arrow>=0.15.2',
         'python-magic>=0.4.6',
