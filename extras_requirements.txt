@@ -2,4 +2,5 @@ elasticsearch<3.0.0,>=2.0.0
 elasticsearch_dsl<3.0.0,>=2.0.0
 stix>=1.0,<2.0
 libtaxii>=1.1.119
+maec
 -r requirements.txt
