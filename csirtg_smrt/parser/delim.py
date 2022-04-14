@@ -23,7 +23,7 @@ class Delim(Parser):
 
             if (l.startswith('"') or l.startswith("'") and self.pattern == re.compile(',')) or (l.count(',') > 2):
                 import csv
-                r = csv.reader([l], delimiter=',', quotechar='"')
+                r = csv.reader([l], delimiter=',', quotechar='"', skipinitialspace=True)
                 m = next(r)
                # pprint(m)
             else:
