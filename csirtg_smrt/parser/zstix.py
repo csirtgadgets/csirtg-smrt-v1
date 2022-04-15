@@ -46,7 +46,7 @@ def _parse_stix_indicator(stix_ind_or_obs, expected_itype=None):
 
         # handles indicator hashes
         elif stix_ind_or_obs.get('object', {}).get('properties', {}).get('hashes'):
-            indicator = stix_ind_or_obs['object']['properties']['hashes'][0]['simple_hash_value']['value']
+            indicator = _parse_hashes_from_hash_list(stix_ind_or_obs['object']['properties']['hashes'])
 
         # handles indicator email "from" addresses
         elif stix_ind_or_obs.get('object', {}).get('properties', {}).get('header'):
