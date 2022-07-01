@@ -284,7 +284,6 @@ class Smrt(object):
         feed_indicators_batches = chunk(feed_indicators, int(FIREBALL_SIZE))
 
         for indicator_batch in feed_indicators_batches:
-            self.archiver.begin()
             self.send_indicators(indicator_batch)
 
             for i in indicator_batch:
@@ -293,8 +292,6 @@ class Smrt(object):
 
                 yield i.format_keys()
                 self.archive(i)
-
-            self.archiver.commit()
 
         if limit:
             self.logger.debug("limit reached...")
