@@ -13,6 +13,7 @@ from sqlalchemy import event
 from sqlalchemy.engine import Engine
 from csirtg_smrt.constants import PYVERSION, RUNTIME_PATH, CACHE_PATH
 from sqlalchemy.sql.expression import func
+from contextlib import contextmanager
 from pprint import pprint
 
 TRACE = os.environ.get('CSIRTG_SMRT_SQLITE_TRACE')
@@ -43,7 +44,9 @@ if os.getenv('SMRT_SQLITE_AUTO_VACUUM', '1') == '0':
 def set_sqlite_pragma(dbapi_connection, connection_record):
     cursor = dbapi_connection.cursor()
     cursor.execute("PRAGMA foreign_keys=ON")
-    cursor.execute("PRAGMA journal_mode = MEMORY")
+    cursor.execute("PRAGMA busy_timeout = 5000")
+    cursor.execute("PRAGMA journal_mode = WAL")
+    cursor.execute("PRAGMA wal_autocheckpoint = 0")
     cursor.execute("PRAGMA synchronous = {}".format(SYNC))
     cursor.execute("PRAGMA temp_store = MEMORY")
     cursor.execute("PRAGMA cache_size = {}".format(CACHE_SIZE))
@@ -101,10 +104,15 @@ class Archiver(object):
         if TRACE:
             echo = True
 
+        try:
+            if self.engine is not None:
+                self.engine.dispose()
+        except AttributeError:
+            pass
+
         # http://docs.sqlalchemy.org/en/latest/orm/contextual.html
         self.engine = create_engine(self.path, echo=echo)
-        self.handle = sessionmaker(bind=self.engine)
-        self.handle = scoped_session(self.handle)
+        self.get_session = scoped_session(sessionmaker(bind=self.engine))
         self._session = None
         self._tx_count = 0
 
@@ -114,12 +122,28 @@ class Archiver(object):
 
         self.clear_memcache()
 
+    @contextmanager
+    def session_scope(self, *, session=None):
+        """Provide a transactional scope around a series of operations."""
+        if session is None:
+            raise RuntimeError('Session required')
+
+        try:
+            yield session
+            session.commit()
+        except Exception as err:  # pylint: disable=broad-except
+            logger.error("Error executing query: {}".format(err))
+            session.rollback()
+            raise
+        finally:
+            session.close()
+    
     def begin(self):
         self._tx_count += 1
         if self._session:
             return self._session
 
-        self._session = self.handle()
+        self._session = self.get_session()
         return self._session
 
     def commit(self):
@@ -134,23 +158,25 @@ class Archiver(object):
         self.memcache = {}
         self.memcached_provider = None
 
-    def cache_provider(self, provider):
+    def _cache_provider(self, provider):
         if self.memcached_provider == provider:
             return
 
         self.memcached_provider = provider
         self.memcache = {}
         logger.info("Caching archived indicators for provider {}".format(provider))
-        q = self.handle().query(Indicator) \
-            .filter_by(provider=provider) \
-            .order_by(asc(Indicator.lasttime), asc(Indicator.firsttime), asc(Indicator.created_at))
+        with self.session_scope(session=self.get_session()) as session:
+            q = session.query(Indicator) \
+                .filter_by(provider=provider) \
+                .order_by(Indicator.lasttime.desc(), Indicator.firsttime.desc(), Indicator.created_at.desc())
 
-        q = q.options(load_only("indicator", "group", "tags", "firsttime", "lasttime"))
-        q = q.yield_per(1000)
-        for i in q:
-            self.memcache[i.indicator] = (i.group, i.tags, i.firsttime, i.lasttime)
+            q = q.options(load_only("indicator", "group", "tags", "firsttime", "lasttime"))
+            q = q.yield_per(1000)
+            for i in q:
+                if i.indicator not in self.memcache:
+                    self.memcache[i.indicator] = (i.group, i.tags, i.firsttime, i.lasttime)
 
-        logger.info("Cached provider {} in memory, {} objects".format(provider, len(self.memcache)))
+            logger.info("Cached provider {} in memory, {} objects".format(provider, len(self.memcache)))
 
     def search(self, indicator):
         tags = indicator.tags
@@ -158,7 +184,7 @@ class Archiver(object):
             tags.sort()
             tags = ','.join(tags)
 
-        self.cache_provider(indicator.provider)
+        self._cache_provider(indicator.provider)
 
         # Is there any cached record?
         if indicator.indicator not in self.memcache:
@@ -203,9 +229,10 @@ class Archiver(object):
         i = Indicator(indicator=i, provider=indicator.provider, group=indicator.group,
                       lasttime=indicator.lasttime, tags=tags, firsttime=indicator.firsttime)
 
-        s = self.begin()
-        s.add(i)
-        s.commit()
+        with self.session_scope(session=self.get_session()) as session:
+            session.add(i)
+            session.flush()
+            session.expunge(i)
 
         firsttime = None
         if indicator.firsttime:
@@ -227,15 +254,23 @@ class Archiver(object):
     def cleanup(self, days=CLEANUP_DAYS):
         days = int(days)
         date = arrow.utcnow()
-        date = date.shift(days=-days)
+        indicator_date = date.shift(days=-days)
+        count = 0
 
-        s = self.begin()
-        count = s.query(Indicator).filter(Indicator.created_at < date.datetime).delete()
-        self.commit()
+        with self.session_scope(session=self.get_session()) as session:
+            count = session.query(Indicator) \
+                .filter(Indicator.created_at < indicator_date.datetime).delete()
 
         if AUTO_VACUUM:
             logger.info('running database vacuum')
-            s.execute('PRAGMA incremental_vacuum')
+            self.engine.execute('PRAGMA incremental_vacuum')
+            self.engine.execute('VACUUM')
+
+        self.engine.execute('PRAGMA optimize')
+
+        self.engine.dispose()
+        self.engine = None
+        self.get_session = None
 
         return count
 
@@ -260,3 +295,5 @@ class NOOPArchiver:
 
     def cleanup(self, days=180):
         return 0
+    def session_scope(self, *, session=None):
+        pass
