@@ -5,7 +5,7 @@ csirtg_mail>=0.0.0a9,<2
 ipaddress>=1.0.16
 feedparser>=5.2.1
 nltk==3.4.5
-requests==2.22.0
+requests==2.28.1
 pendulum==2.0.5
 arrow>=0.15.2
 python-magic>=0.4.6
@@ -19,8 +19,4 @@ docker==2.2.1
 lxml<4.0,>=3.5.0
 tzlocal==2.0.0
 
-# http://stackoverflow.com/questions/31649390/python-requests-ssl-handshake-failure
-# if you're having py2.7.6 issues with sslv3
-#pyopenssl>=16.2.0
-#ndg-httpsclient
-#pyasn1
+urllib3>=1.26.5 # not directly required, pinned by Snyk to avoid a vulnerability
