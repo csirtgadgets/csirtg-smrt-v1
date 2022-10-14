@@ -52,18 +52,18 @@ setup(
     install_requires=[
         'ipaddress>=1.0.16',
         'feedparser>=5.2.1',
-        'nltk>=3.2,<3.3',
-        'requests==2.22.0',
+        'nltk>=3.7',
+        'requests>=2.27.1',
         'arrow>=0.15.2',
         'python-magic>=0.4.6',
         'pyaml>=15.8.2',
-        'chardet==3.0.4',
+        'chardet>=5.0.0',
         'csirtg_indicator>=1.0.6,<2',
         'csirtg_mail>=0.0.0a1,<2',
         'SQLAlchemy>=1.0.14',
         'tornado>=5.1.0',
         'apwgsdk>=0.0.0a4,<=1.0',
-        'docker==2.2.1',
+        'docker>=6.0.0',
     ],
     entry_points={
         'console_scripts': [
