@@ -17,6 +17,6 @@ tornado>=5.1.0
 apwgsdk>=0.0.0a4,<1.0
 docker>=6.0.0
 lxml==4.9.1
-tzlocal==2.0.0
+tzlocal>=4.2.0
 
 urllib3>=1.26.5 # not directly required, pinned by Snyk to avoid a vulnerability
